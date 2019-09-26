@@ -22,11 +22,10 @@
 
 <Declar_de_variables_locales> ::= <Marca_ini_declar_variables> 
 <Variables_locales> 
-<Marca_fin_declar_variables> 
-| 
+<Marca_fin_declar_variables> | 
 
-<Marca_ini_declar_variables> :: = <Tipo Variable>
-<Marca_fin_declar_variables> :: = ;
+<Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
+<Marca_fin_declar_variables> ::= <Fin_de_bloque>
 
 <Cabecera_programa> ::= main
 
@@ -34,13 +33,19 @@
 <Fin_de_bloque> ::= }
 
 <Variables_locales> ::= <Variables_locales> <Cuerpo_declar_variables> 
-| <Cuerpo_declar_variables>
+| <Cuerpo_declar_variables> 
 
-<Cuerpo_declar_variables> <Cuerpo_declar_variables>
+<Cuerpo_declar_variables> ::= <Tipo_variable> <Lista_nombres_variables> ;
 
-<Cuerpo_declar_variables> ::= <ID> , <Cuerpo_declar_variables> | <ID>
+<Tipo_variable> ::= <Tipo_variable_simple> | <Tipo_variable_complejo>
 
-<Cabecera_subprog> ::= <Tipo_Variable> <ID> ()
+<Tipo_variable_simple> ::= int | float | char | bool
+
+<Tipo_variable_complejo> ::= list <Tipo_variable_simple>
+
+<Lista_nombres_variables> ::= <ID> | <ID> , <Lista_nombres_variables>
+
+<Cabecera_subprog> ::= (Dependerá del lenguaje de referencia)
 
 <Sentencias> ::= <Sentencias> <Sentencia> | <Sentencia> 
 
@@ -50,9 +55,8 @@
 | <sentencia_while> 
 | <sentencia_entrada>
 | <sentencia_salida>
-| <sentencia_return> (si el lenguaje soporta funciones)
-| <llamada_proced> (si el lenguaje soporta proced.)
-| (Resto de sentencias del lenguaje asignado)
+| <sentencia_return>
+| <sentencia_do_until>
 
 <sentencia_asignacion> ::= (Dependerá del lenguaje de referencia)
 
@@ -68,6 +72,9 @@
 
 <lista_variables> ::= <Tipo_Variable> , <lista_variables> | <Tipo_Variable>
 
+<sentencia_return> ::= return <ID>
+
+<sentencia_do_until> ::= do <bloque> until ( <expresion> ) ;
 
 <expresion> ::= ( <expresion> ) 
 |  <op_unario> <expresion>
