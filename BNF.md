@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #BBAAD
 
 *Lenguaje C*
@@ -85,3 +86,6 @@
 |  (Resto de expresiones del lenguaje de referencia)
 
 ```
+=======
+Definición de la gramática del lenguaje BBAAD
+>>>>>>> parent of ef1390a... Init
