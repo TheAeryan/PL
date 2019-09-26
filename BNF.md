@@ -23,6 +23,10 @@
 <Variables_locales> 
 <Marca_fin_declar_variables> | 
 
+<Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
+
+<Marca_fin_declar_variables> ::= <Fin_de_bloque>
+
 <Cabecera_programa> ::= (Dependerá del lenguaje de referencia)
 
 <Inicio_de_bloque> ::= {
@@ -31,7 +35,15 @@
 <Variables_locales> ::= <Variables_locales> <Cuerpo_declar_variables> 
 | <Cuerpo_declar_variables> 
 
-<Cuerpo_declar_variables> ::= (Dependerá del lenguaje de referencia)
+<Cuerpo_declar_variables> ::= <Tipo_variable> <Lista_nombres_variables> ;
+
+<Tipo_variable> ::= <Tipo_variable_simple> | <Tipo_variable_complejo>
+
+<Tipo_variable_simple> ::= int | float | char | bool
+
+<Tipo_variable_complejo> ::= list <Tipo_variable_simple>
+
+<Lista_nombres_variables> ::= <ID> | <ID> , <Lista_nombres_variables>
 
 <Cabecera_subprog> ::= (Dependerá del lenguaje de referencia)
 
