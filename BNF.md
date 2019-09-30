@@ -60,7 +60,9 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 | <sentencia_return>
 | <sentencia_do_until>
 
-<sentencia_asignacion> ::= (Dependerá del lenguaje de referencia)
+# El tipo de variable debe coincidir
+<sentencia_asignacion> ::= <Tipo_variable> <ID> <op_asignacion> <expresion>
+<op_asignacion> ::= =
 
 <sentencia_if> ::= if ( <expresion> ) <bloque>
 
