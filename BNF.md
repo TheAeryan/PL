@@ -45,7 +45,9 @@
 
 <Lista_nombres_variables> ::= <ID> | <ID> , <Lista_nombres_variables>
 
-<Cabecera_subprog> ::= (Dependerá del lenguaje de referencia)
+# Cabecera función emulando a C
+<Cabecera_subprog> ::= <Tipo_variable> <ID>(<Parametros>)
+<Parametros> ::= <Tipo_variable> <ID> | <Tipo_variable> <ID>, <Parametros>
 
 <Sentencias> ::= <Sentencias> <Sentencia> | <Sentencia> 
 
