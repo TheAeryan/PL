@@ -45,7 +45,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <Lista_nombres_variables> ::= <ID> | <ID> , <Lista_nombres_variables>
 
 # Cabecera función emulando a C
-<Cabecera_subprog> ::= <Tipo_variable> <ID>(<Parametros>)
+<Cabecera_subprog> ::= <Tipo_variable> <ID>(<Parametros>) | <Tipo_variable> <ID>()
 <Parametros> ::= <Tipo_variable> <ID> | <Tipo_variable> <ID>, <Parametros>
 
 <Sentencias> ::= <Sentencias> <Sentencia> | <Sentencia> 
