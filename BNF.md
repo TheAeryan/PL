@@ -1,10 +1,9 @@
 #BBAAD
 
-*Lenguaje C*
-*Inglés*
-*Listas*
-*Funciones*
-*Do - Until*
+# Lenguaje asignado
+El lenguaje asignado está basado en la sintaxis de **C**, con las palabras reservadas en **inglés**, donde se añade a la lista de variables elementales la estructura de datos **lista**, los subprogramas son **funciones** y se incluye la estructura de control **do-until**.
+
+# Descripción formal de la sintaxis del lenguaje usando BNF
 
 ```
 
