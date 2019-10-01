@@ -121,27 +121,27 @@ TODO:
 
 ## Tabla de Tokens
 
-| Token         | Identificador | Atributos                        | Patrón                                              |
-|---------------|---------------|----------------------------------|-----------------------------------------------------|
-| INIBLOQUE     | 257           |                                  | "{"                                                 |
-| FINBLOQUE     | 258           |                                  | "}"                                                 |
-| LOCAL         | 259           |                                  | "local"                                             |
-| TIPOSIMPLE    | 260           | 0: int 1: float 2: char 3: bool  | ("int"|"float"|"char"|"bool")                       |
-| TIPOCOMPUESTO | 261           |                                  | list ("int"|"float"|"char"|"bool")                  |
-| ID            | 262           |                                  | [a-z, A-Z][a-z, A-Z, 0-9]*                          |
-| PARIZQ        | 263           |                                  | "("                                                 |
-| PARDER        | 264           |                                  | ")"                                                 |
-| PYC           | 265           |                                  | ";"                                                 |
-| CIN           | 266           |                                  | "cin"                                               |
-| COUT          | 267           |                                  | "cout"                                              |
-| CADENA        | 268           |                                  | "[ -~]*"                                            |
-| RETURN        | 269           |                                  | "return"                                            |
-| OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"|"OR"|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: /              | ("+"|"-"|"*"|"/")                                   |
-| OPUNARIO      | 272           |                                  | "NOT"                                               |
-| CONST         | 273           |                                  | ( (-?)(0|([1-9][0-9]*))(\.[0-9]+)? | true | false ) |
-| ASIGN         | 274           |                                  | "="                                                 |
-| COMA          | 275           |                                  | ","                                                 |
+| Token         | Identificador | Atributos                        | Patrón                                                |
+|---------------|---------------|----------------------------------|-------------------------------------------------------|
+| INIBLOQUE     | 257           |                                  | "{"                                                   |
+| FINBLOQUE     | 258           |                                  | "}"                                                   |
+| LOCAL         | 259           |                                  | "local"                                               |
+| TIPOSIMPLE    | 260           | 0: int 1: float 2: char 3: bool  | ("int"\|"float"\|"char"\|"bool")                      |
+| TIPOCOMPUESTO | 261           |                                  | list ("int"\|"float"\|"char"\|"bool")                 |
+| ID            | 262           |                                  | [a-z, A-Z][a-z, A-Z, 0-9]*                            |
+| PARIZQ        | 263           |                                  | "("                                                   |
+| PARDER        | 264           |                                  | ")"                                                   |
+| PYC           | 265           |                                  | ";"                                                   |
+| CIN           | 266           |                                  | "cin"                                                 |
+| COUT          | 267           |                                  | "cout"                                                |
+| CADENA        | 268           |                                  | "\[ -~\]*"                                            |
+| RETURN        | 269           |                                  | "return"                                              |
+| OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
+| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: /               ("+"\|"-"\|"*"\|"/")                                   |
+| OPUNARIO      | 272           |                                  | "NOT"                                                 |
+| CONST         | 273           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
+| ASIGN         | 274           |                                  | "="                                                   |
+| COMA          | 275           |                                  | ","                                                   |
  
 ## Referencias
 
