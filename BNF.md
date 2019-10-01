@@ -137,7 +137,7 @@ TODO:
 | CADENA        | 268           |                                  | "\[ -~\]*"                                            |
 | RETURN        | 269           |                                  | "return"                                              |
 | OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: /               ("+"\|"-"\|"*"\|"/")                                   |
+| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: /              | ("+"\|"-"\|"*"\|"/")                                  |
 | OPUNARIO      | 272           |                                  | "NOT"                                                 |
 | CONST         | 273           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
 | ASIGN         | 274           |                                  | "="                                                   |
