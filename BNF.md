@@ -74,12 +74,13 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 <lista_variables> ::= <ID> , <lista_variables> | <ID>
 
-<sentencia_salida> ::= <nomb_salida> << <expresion> ;
+<sentencia_salida> ::= <nomb_salida> <lista_expresiones_o_cadena> ;
 <nomb_entrada> ::=  cout
 
 <lista_expresiones_o_cadena> ::= <lista_expresiones> | <cadena>
 <lista_expresiones> ::= <expresiones> , <lista_expresiones> | <expresiones>
-<cadena> ::= TODO
+# Cualquier concatenación de caracteres ASCII. Mirar referencias.
+<cadena> ::= "[ -~]*"
 
 <sentencia_return> ::= return <ID> ;
 
@@ -92,10 +93,32 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               |  <constante>
               |  <funcion>
               
-TODO: 
-- separar operadores binarios booleanos y no booleanos
-- completar op_unario
-- completar cadena
-- completa funcion (eso es un subprograma, no?)
+<op_binario> ::= <op_binario_booleano> | <op_binario_no_booleano>
+<op_binario_no_booleano> ::= + | - | * | /
+<op_binario_booleano> ::= AND | OR | XOR
+<op_unario> ::= NOT
 
+<constante> ::= (-?)(0|([1-9][0-9]*))(\.[0-9]+)?
+              | true
+              | false
+             
+# Llamada a una función
+<funcion> ::= <ID> (<lista_ids_o_expresiones>)
+<lista_ids_o_expresiones> ::= <ID>, <lista_ids_o_expresiones>
+                            | <expresion>, <lista_ids_o_expresiones>
+                            |
 ```
+
+
+TODO:
+- Ahora mismo nuestra gramática es ambigua al concatenar operaciones 
+  en <expresion>. Por ejemplo se puede obtener `NOT <expresion> + <expresion>`
+  de dos formas distintas. Realmente no se si eso es un problema porque
+  la especificacion de <expresion> viene definida asi en el guión.
+- Repasar las expresiones regulares de <constante> y <cadena>. Las
+  he copiado de por ahi analizándolas con cuidado pero otro par de ojos
+  viene bien.
+ 
+## Referencias
+
+- Explicación de la expresión regular `[ -~]`: [https://catonmat.net/my-favorite-regex](https://catonmat.net/my-favorite-regex).
