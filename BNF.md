@@ -35,6 +35,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
              <Declar_de_variables_locales>
              <Declar_de_subprogs>
              <Sentencias>
+             <sentencia_return>
              <Fin_de_bloque>
 <Inicio_de_bloque> ::= {
 <Fin_de_bloque> ::= }
@@ -61,6 +62,9 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                | <Parametro>
 <Parametro> ::= <Tipo_variable> <ID>
 
+# Sentencia return
+<sentencia_return> ::= return <ID> ;
+
 # Sentencias
 <Sentencias> ::= <Sentencias> <Sentencia> 
                | <Sentencia>
@@ -71,7 +75,6 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | <sentencia_while> 
               | <sentencia_entrada>
               | <sentencia_salida>
-              | <sentencia_return>
               | <sentencia_do_until>
 
 # Asignación
@@ -97,9 +100,6 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                                | <cadena>
 <lista_expresiones> ::= <expresiones> , <lista_expresiones> 
                       | <expresiones>
-                      
-# Return
-<sentencia_return> ::= return <ID> ;
 
 # Do-Until
 <sentencia_do_until> ::= do <bloque> until (<expresion>) ;
@@ -156,7 +156,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
   en <expresion>. Por ejemplo se puede obtener `NOT <expresion> + <expresion>`
   de dos formas distintas. Realmente no se si eso es un problema porque
   la especificacion de `<expresion>` viene definida asi en el guión.
-- Repasar las reglas que generan `<ID>`, `<cadena>` y `<constante>`.
+- Añadir constantes de tipo `list <tipo_simple>` en generación y tokens
+- Revisar tokens
 
 ## Tabla de Tokens
 
