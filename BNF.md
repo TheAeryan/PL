@@ -25,33 +25,34 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <Tipo_variable_complejo> ::= list <Tipo_variable_simple>
 <Tipo_variable> ::= <Tipo_variable_simple> 
                   | <Tipo_variable_complejo>
+                  
 # Programa principal
 <Programa> ::= <Cabecera_programa> <bloque> 
 <Cabecera_programa> ::= main
+
 # Bloque general
 <bloque> ::= <Inicio_de_bloque>
              <Declar_de_variables_locales>
              <Declar_de_subprogs>
              <Sentencias>
              <Fin_de_bloque>
-# Delimitadores de un bloque   
 <Inicio_de_bloque> ::= {
 <Fin_de_bloque> ::= }
-# Declaración de variables locales del bloque
+
+# Variables locales
 <Declar_de_variables_locales> ::= <Marca_ini_declar_variables> 
                                    <Variables_locales> 
                                    <Marca_fin_declar_variables> 
                                 |                  
-# Delimitadores declaración variables
 <Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
 <Marca_fin_declar_variables> ::= <Fin_de_bloque>
-# Declaración de variables locales
 <Variables_locales> ::= <Variables_locales> <Cuerpo_declar_variables> 
                       | <Cuerpo_declar_variables>
 <Cuerpo_declar_variables> ::= <Tipo_variable> <Lista_nombres_variables> ;
 <Lista_nombres_variables> ::= <ID> 
                             | <ID> , <Lista_nombres_variables>
-# Declarar subprogramas (funciones)
+                            
+# Subprogramas (funciones)
 <Declar_de_subprogs> ::= <Declar_de_subprogs> <Declar_subprog> |
 <Declar_subprog> ::= <Cabecera_subprog> <bloque> 
 <Cabecera_subprog> ::= <Tipo_variable> <ID> (<Parametros>) 
@@ -76,26 +77,34 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 # Asignación
 <sentencia_asignacion> ::= <Tipo_variable> <ID> <op_asignacion> <expresion> ;
 <op_asignacion> ::= =
+
 # IF
 <sentencia_if> ::= if (<expresion>) <bloque>
+
 # While
 <sentencia_while> ::= while (<expresion>) <bloque>
-# Entrada y salida
+
+# Entrada
 <sentencia_entrada> ::= <nomb_entrada> <lista_variables> ;
 <nomb_entrada> ::=  cin
 <lista_variables> ::= <ID> , <lista_variables> 
                     | <ID>
+                    
+# Salida
 <sentencia_salida> ::= <nomb_salida> <lista_expresiones_o_cadena> ;
 <nomb_entrada> ::=  cout
 <lista_expresiones_o_cadena> ::= <lista_expresiones> 
                                | <cadena>
 <lista_expresiones> ::= <expresiones> , <lista_expresiones> 
                       | <expresiones>
+                      
 # Return
 <sentencia_return> ::= return <ID> ;
+
 # Do-Until
 <sentencia_do_until> ::= do <bloque> until (<expresion>) ;
-# Expresión (que devuelven un valor)
+
+# Expresión (devuelven un valor)
 <expresion> ::= (<expresion>) 
               |  <op_unario> <expresion>
               |  <expresion> <op_binario> <expresion>
@@ -134,12 +143,10 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <numero> ::= <digito><numero> | <digito>
              
 # Llamada a una función
-<Llamada_funcion> ::= <ID> (<lista_ids_o_expresiones>) 
+<Llamada_funcion> ::= <ID> (<lista_expresiones>) 
             | <ID> ()
-<lista_ids_o_expresiones> ::= <ID>, <lista_ids_o_expresiones>
-                            | <expresion>, <lista_ids_o_expresiones>
-                            | <ID>
-                            | <expresion>
+<lista_expresiones> ::= <expresion>, <lista_expresiones>
+                      | <expresion>
 ```
 
 
