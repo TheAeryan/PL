@@ -142,6 +142,10 @@ TODO:
 | CONST         | 273           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
 | ASIGN         | 274           |                                  | "="                                                   |
 | COMA          | 275           |                                  | ","                                                   |
+| MAIN          | 276           |                                  | "main"                                                |
+| DO            | 277           |                                  | "do"                                                  |
+| UNTIL         | 278           |                                  | "until"                                               |
+| WHILE         | 279           |                                  | "while"                                               |
  
 ## Referencias
 
