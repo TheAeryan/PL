@@ -182,7 +182,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 | OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: -- 5: % 6: ** | ("+"\|"-"\|"*"\|"/"\|"--"\|"%"\|"**")             |
 | ARROBA        | 272           |                                  | "@"                                                   |
 | INTERROG      | 273           |                                  | "?"                                                   |
-| OPUNARIO      | 274           | 0: NOT 1: >> 2: << 3: $          | ("NOT"\|">>"\|"<<"|"$")                               |
+| OPUNARIO      | 274           | 0: NOT 1: >> 2: << 3: $          | ("NOT"\|">>"\|"<<"\|"$")                               |
 | CONST         | 275           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
 | ASIGN         | 276           |                                  | "="                                                   |
 | COMA          | 277           |                                  | ","                                                   |
