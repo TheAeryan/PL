@@ -138,13 +138,15 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | false
               | "<caracter_ascii>"
               | '<caracter_ascii>'
-<signo> ::= -|
+<signo> ::= -
+          | +
+          |
 <numero_decimal> ::= <digito><numero_decimal> | <digito> | .<numero>
 <numero> ::= <digito><numero> | <digito>
              
 # Llamada a una función
 <Llamada_funcion> ::= <ID> (<lista_expresiones>) 
-            | <ID> ()
+                    | <ID> ()
 <lista_expresiones> ::= <expresion>, <lista_expresiones>
                       | <expresion>
 ```
