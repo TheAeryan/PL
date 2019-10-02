@@ -7,12 +7,15 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 ```
 # Descripciones básicas
+
 <letra> ::= [a-z, A-Z]
 <digito> ::= [0-9]
+
 <ID> ::= <letra><letras_o_digitos>
 <letras_o_digitos> ::= <letra><letras_o_digitos>
                      | <digito><letras_o_digitos>
                      |
+
 <caracter_ascii> ::= [ -~]
 <cadena> ::= "<cadena_ascii>"
 <cadena_ascii> ::= <caracter_ascii><cadena_ascii>
@@ -22,7 +25,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                          | float 
                          | char 
                          | bool
-<Tipo_variable_complejo> ::= list <Tipo_variable_simple>
+<Tipo_variable_complejo> ::= list of <Tipo_variable_simple>
 <Tipo_variable> ::= <Tipo_variable_simple> 
                   | <Tipo_variable_complejo>
                   
@@ -37,6 +40,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
              <Sentencias>
              <sentencia_return>
              <Fin_de_bloque>
+
 <Inicio_de_bloque> ::= {
 <Fin_de_bloque> ::= }
 
@@ -47,19 +51,26 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                                 |                  
 <Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
 <Marca_fin_declar_variables> ::= <Fin_de_bloque>
-<Variables_locales> ::= <Variables_locales> <Cuerpo_declar_variables> 
+
+<Variables_locales> ::= <Variables_locales> <Cuerpo_declar_variables>
                       | <Cuerpo_declar_variables>
+                      
 <Cuerpo_declar_variables> ::= <Tipo_variable> <Lista_nombres_variables> ;
+
 <Lista_nombres_variables> ::= <ID> 
                             | <ID> , <Lista_nombres_variables>
                             
 # Subprogramas (funciones)
 <Declar_de_subprogs> ::= <Declar_de_subprogs> <Declar_subprog> |
 <Declar_subprog> ::= <Cabecera_subprog> <bloque> 
-<Cabecera_subprog> ::= <Tipo_variable> <ID> (<Parametros>) 
-                     | <Tipo_variable> <ID> ()
+<Cabecera_subprog> ::= <Tipo_variable> <Sub_Programa>
+                     | <Tipo_variable> <Sub_Programa>
+
+<Sub_Programa> ::= <ID> (<Parametros>) | <ID> ()
+
 <Parametros> ::= <Parametro>, <Parametros> 
                | <Parametro>
+
 <Parametro> ::= <Tipo_variable> <ID>
 
 # Sentencia return
@@ -82,102 +93,121 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <op_asignacion> ::= =
 
 # IF
-<sentencia_if> ::= if (<expresion>) <bloque>
+<sentencia_if> ::= if ( <expresion> ) <bloque>
 
 # While
-<sentencia_while> ::= while (<expresion>) <bloque>
+<sentencia_while> ::= while ( <expresion> ) <bloque>
 
 # Entrada
 <sentencia_entrada> ::= <nomb_entrada> <lista_variables> ;
 <nomb_entrada> ::=  cin
 <lista_variables> ::= <ID> , <lista_variables> 
-                    | <ID>
+                     | <ID>
                     
 # Salida
 <sentencia_salida> ::= <nomb_salida> <lista_expresiones_o_cadena> ;
 <nomb_entrada> ::=  cout
 <lista_expresiones_o_cadena> ::= <lista_expresiones> 
-                               | <cadena>
-<lista_expresiones> ::= <expresiones> , <lista_expresiones> 
-                      | <expresiones>
+                              | <cadena>
+<lista_expresiones> ::= <expresion> , <lista_expresiones> 
+                     | <expresion>
 
 # Do-Until
 <sentencia_do_until> ::= do <bloque> until (<expresion>) ;
 
-# Expresión (devuelven un valor)
-<expresion> ::= (<expresion>) 
-              |  <op_unario> <expresion>
-              |  <expresion> <op_binario> <expresion>
-              # Operador ternario de listas
-              |  <expresion> ++ <expresion> @ <expresion>
-              |  <ID>
-              |  <constante>
-              |  <llamada_funcion>
-# Op unario
-<op_unario> ::= NOT
-              | <<
-              | >>
-              | $
-# Op binario
-<op_binario> ::= <op_binario_booleano> 
-               | <op_binario_no_booleano>
-<op_binario_no_booleano> ::= + 
-                           | - 
-                           | * 
-                           | /
-                           | @
-                           | --
-                           | %
-                           | **
-                           | >=
-                           | >
-                           | <
-                           | <=
-                           | ==
-                           | !=
-<op_binario_booleano> ::= AND 
-                        | OR 
-                        | XOR  
+# Expresión sin ambigüedad
+<expresion>    ::= <expresion_1> <op_muldivmod> <expresion> | <expresion_1>
+<op_muldivmod> ::= * | / | %
+
+<expresion_1> ::= <expresion_2> <op_masmenos> <expresion> | <expresion_2>
+<op_masmenos> ::= + | -
+
+<expresion_2> ::= <expresion_3> <op_shift> <expresion> | <expresion_3>
+<op_shift>    ::= >> | <<
+
+<expresion_3>   ::= <expresion_4> <op_relational> <expresion> | <expresion_4>
+<op_relational> ::= < | > | <= | >=
+
+<expresion_4>     ::= <expresion_5> <op_eqrelational> <expresion> | <expresion_5>
+<op_eqrelational> ::= == | !=
+
+<expresion_5> ::= <expresion_6> <op_and> <expresion> | <expresion_6>
+<op_and>      ::= &
+
+<expresion_6> ::= <expresion_7> <op_xor> <expresion> | <expresion_7>
+<op_xor>      ::= ^
+
+<expresion_7> ::= <expresion_8> <op_or> <expresion> | <expresion_8>
+<op_or>       ::= |
+
+<expresion_8> ::= <expresion_9> <op_andand> <expresion> | <expresion_9>
+<op_andand>   ::= &&
+
+<expresion_9> ::= <expresion_10> <op_oror> <expresion> | <expresion_10>
+<op_oror>     ::= ||
+
+# Unary
+<expresion_10> ::= <op_unary> <expresion> | <expresion_11>
+<op_unary>     ::= ++ | -- | + | - | ! | ~
+
+<expresion_11> ::= (<expresion>) | <Sub_Programa> | <constante>
+
+# Expresión Listas
+<expresion_lista> ::= <op_lis_un> <expresion_lista_1> | <expresion_lista_1>  
+<op_unario_lista> ::= # | ?
+
+<expresion_lista_1> ::= <expresion_lista> <op_lisnum_bin> <entero> | <expresion_lista_2>
+<op_binario_lista>  ::= @ | -- | %
+
+<expresion_lista_2> ::= <expresion_lista_3> <op_lislis_bin> <expresion_lista> | <expresion_lista_3>
+<op_lislis_bin>     ::= **
+
+<expresion_lista_3> ::= <expresion_lista> <op_lisnum_op> <entero>
+                     | <entero> <op_lisnum_op> <expresion_lista>  
+                     | <expresion_lista>
+
+
+<expresion_lista_4> ::= <expresion_lista> ++ <entero> @ <entero> | <expresion_lista_5>
+
+<expresion_lista_5> ::= <lista> | (<expresion_lista>)
+
+
 # Constantes
-<constante> ::= <signo><digito><numero_decimal>
-              | <bool_cte>
-              | <caracter_cte>
-              | <lista_cte>
+<constante> ::= <entero>
+               | <real>
+               | <bool>
+               | <caracter>
+               | <lista>
+               | <ID>
+
 <signo> ::= -
-          | +
-          |
-<numero_decimal> ::= <digito><numero_decimal>  
-                   | .<numero> 
-                   | <digito>
-<numero> ::= <digito><numero> 
-           | <digito>
-<caracter_cte> ::= "<caracter_ascii>"
-                 | '<caracter_ascii>'
-<bool_cte> ::= true
-             | false
-<lista_cte> ::= <abre_lista><tipo_lista_constante><fin_lista>
-<abre_lista> ::= [
-<fin_lista> ::= ]
-<tipo_lista_constante> ::= <lista_int>
-                         | <lista_float>
-                         | <lista_char>
-                         | <lista_bool>
-<lista_int> ::= <signo><numero> 
-              | <signo><numero>, <lista_int>
-<lista_float> ::= <signo><digito><num_float>
-                | <signo><digito><num_float>, <lista_float>
-<num_float> ::= <digito><num_float> 
-              | .<numero>
-<lista_char> ::= <caracter_cte>
-               | <caracter_cte>, <lista_char>
-<lista_bool> ::= <bool_cte>
-               | <bool_cte>, <lista_bool>
+         | +
+         |
+
+<real> ::= <entero> <decimal>
+         | <decimal>
+         | <entero> .
+
+<decimal> ::= . <numero>
+
+<entero> ::= <signo> <numero>
+            | <numero>
+
+<numero> ::= <digito> <numero> | <digito>
+
+<caracter> ::= " <caracter_ascii> "
+                 | ' <caracter_ascii> '
+
+<bool> ::= true
+         | false
+
+<lista> ::= <lista_inicio> <lista_expresiones> <lista_fin>
+<lista_inicio> ::= [
+<lista_fin>    ::= ]
 
 # Llamada a una función
 <llamada_funcion> ::= <ID> (<lista_expresiones>) 
                     | <ID> ()
-<lista_expresiones> ::= <expresion>, <lista_expresiones>
-                      | <expresion>
 ```
 
 
@@ -224,3 +254,4 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 ## Referencias
 
 - Explicación de la expresión regular `[ -~]`: [https://catonmat.net/my-favorite-regex](https://catonmat.net/my-favorite-regex).
+- https://import.viva64.com/docx/terminology/Priority/image1.png
