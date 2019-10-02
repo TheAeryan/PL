@@ -128,7 +128,13 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                            | @
                            | --
                            | %
-                           | **                    
+                           | **
+                           | >=
+                           | >
+                           | <
+                           | <=
+                           | ==
+                           | !=
 <op_binario_booleano> ::= AND 
                         | OR 
                         | XOR  
@@ -182,7 +188,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 | CADENA        | 268           |                                  | "\[ -~\]*"                                            |
 | RETURN        | 269           |                                  | "return"                                              |
 | OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: -- 5: % 6: ** | ("+"\|"-"\|"*"\|"/"\|"--"\|"%"\|"**")             |
+| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: -- 5: % 6: ** 7: >= 8: <= 9: > 10: < 11: == 12: !=
+| ("+"\|"-"\|"*"\|"/"\|"--"\|"%"\|"**"\|">="\|"<="\|">"\|"<"\|"=="\|"!=")                                                  |
 | ARROBA        | 272           |                                  | "@"                                                   |
 | INTERROG      | 273           |                                  | "?"                                                   |
 | OPUNARIO      | 274           | 0: NOT 1: >> 2: << 3: $          | ("NOT"\|">>"\|"<<"\|"$")                               |
