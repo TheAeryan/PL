@@ -130,9 +130,10 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <op_binario_booleano> ::= AND 
                         | OR 
                         | XOR  
-
-<op_binario_lista> ::=
 <op_unario> ::= NOT
+              | <<
+              | >>
+              | $
 
 # <constante> = (0|([1-9][0-9]*))(\.[0-9]+)?
 <constante> ::= <signo><numero_decimal>
