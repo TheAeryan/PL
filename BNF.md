@@ -133,7 +133,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                         | OR 
                         | XOR  
 # Constantes
-<constante> ::= <signo><numero_decimal>
+<constante> ::= <signo><digito><numero_decimal>
               | true
               | false
               | "<caracter_ascii>"
@@ -141,8 +141,11 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <signo> ::= -
           | +
           |
-<numero_decimal> ::= <digito><numero_decimal> | <digito> | .<numero>
-<numero> ::= <digito><numero> | <digito>
+<numero_decimal> ::= <digito><numero_decimal>  
+                   | .<numero> 
+                   |
+<numero> ::= <digito><numero> 
+           | <digito>
              
 # Llamada a una función
 <Llamada_funcion> ::= <ID> (<lista_expresiones>) 
