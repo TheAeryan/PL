@@ -179,16 +179,18 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 | CADENA        | 268           |                                  | "\[ -~\]*"                                            |
 | RETURN        | 269           |                                  | "return"                                              |
 | OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: @ 5: -- 6: % 7: ** | ("+"\|"-"\|"*"\|"/"\|"@"\|"--"\|"%"\|"**")   |
-| OPUNARIO      | 272           |                                  | "NOT"                                                 |
-| CONST         | 273           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
-| ASIGN         | 274           |                                  | "="                                                   |
-| COMA          | 275           |                                  | ","                                                   |
-| MAIN          | 276           |                                  | "main"                                                |
-| DO            | 277           |                                  | "do"                                                  |
-| UNTIL         | 278           |                                  | "until"                                               |
-| WHILE         | 279           |                                  | "while"                                               |
-| IF            | 280           |                                  | "if"                                                  |
+| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: -- 5: % 6: ** | ("+"\|"-"\|"*"\|"/"\|"--"\|"%"\|"**")             |
+| ARROBA        | 272           |                                  | "@"                                                   |
+| INTERROG      | 273           |                                  | "?"                                                   |
+| OPUNARIO      | 274           | 0: NOT 1: >> 2: << 3: $          | ("NOT"\|">>"\|"<<"|"$")                               |
+| CONST         | 275           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
+| ASIGN         | 276           |                                  | "="                                                   |
+| COMA          | 277           |                                  | ","                                                   |
+| MAIN          | 278           |                                  | "main"                                                |
+| DO            | 279           |                                  | "do"                                                  |
+| UNTIL         | 280           |                                  | "until"                                               |
+| WHILE         | 281           |                                  | "while"                                               |
+| IF            | 282           |                                  | "if"                                                  |
  
 ## Referencias
 
