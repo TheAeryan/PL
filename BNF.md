@@ -89,7 +89,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | <sentencia_do_until>
 
 # Asignación
-<sentencia_asignacion> ::= <ID> <op_asignacion> <expresion> ;
+<sentencia_asignacion> ::= <ID> <op_asignacion> <tipos_expresion> ;
+<tipos_expresion> ::= <expresion> | <expresion_lista>
 <op_asignacion> ::= =
 
 # IF
@@ -169,7 +170,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 <expresion_lista_4> ::= <expresion_lista_5> ++ <entero> @ <entero> | <expresion_lista_5>
 
-<expresion_lista_5> ::= <lista> | (<expresion_lista>)
+<expresion_lista_5> ::= <lista> | (<expresion_lista>) | <ID>
 
 
 # Constantes
