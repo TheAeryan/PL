@@ -167,7 +167,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                      | <expresion_lista>
 
 
-<expresion_lista_4> ::= <expresion_lista> ++ <entero> @ <entero> | <expresion_lista_5>
+<expresion_lista_4> ::= <expresion_lista_5> ++ <entero> @ <entero> | <expresion_lista_5>
 
 <expresion_lista_5> ::= <lista> | (<expresion_lista>)
 
