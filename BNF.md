@@ -125,9 +125,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | true
               | false
 <signo> ::= -|
-<numero_decimal> ::= 0<decimal> | [1-9]<numero><decimal>
-<numero> ::= <digito><numero> |
-<decimal> ::= .<numero> |
+<numero_decimal> ::= <digito><numero_decimal> | <digito> | .<numero>
+<numero> ::= <digito><numero> | <digito>
              
 # Llamada a una función
 <funcion> ::= <ID> (<lista_ids_o_expresiones>) 
