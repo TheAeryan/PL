@@ -162,8 +162,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <expresion_lista_2> ::= <expresion_lista_3> <op_lislis_bin> <expresion_lista> | <expresion_lista_3>
 <op_lislis_bin>     ::= **
 
-<expresion_lista_3> ::= <expresion_lista> <op_lisnum_op> <entero>
-                     | <entero> <op_lisnum_op> <expresion_lista>  
+<expresion_lista_3> ::= <expresion_lista_4> <op_lisnum_op> <entero>
+                     | <entero> <op_lisnum_op> <expresion_lista_4>  
                      | <expresion_lista>
 
 
