@@ -18,7 +18,9 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 <Declar_subprog> ::= <Cabecera_subprograma> <bloque> 
 
-<Declar_de_variables_locales> ::= <Marca_ini_declar_variables> <Variables_locales> <Marca_fin_declar_variables> 
+<Declar_de_variables_locales> ::= <Marca_ini_declar_variables> 
+                                    <Variables_locales> 
+                                    <Marca_fin_declar_variables> 
                                 | 
 
 <Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
