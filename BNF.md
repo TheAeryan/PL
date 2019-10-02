@@ -146,6 +146,7 @@ TODO:
 | DO            | 277           |                                  | "do"                                                  |
 | UNTIL         | 278           |                                  | "until"                                               |
 | WHILE         | 279           |                                  | "while"                                               |
+| IF            | 280           |                                  | "if"                                                  |
  
 ## Referencias
 
