@@ -25,7 +25,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                          | float 
                          | char 
                          | bool
-<Tipo_variable_complejo> ::= list of <Tipo_variable_simple>
+<Tipo_variable_complejo> ::= list_of <Tipo_variable_simple>
 <Tipo_variable> ::= <Tipo_variable_simple> 
                   | <Tipo_variable_complejo>
                   
@@ -76,7 +76,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <Parametro> ::= <Tipo_variable> <ID>
 
 # Sentencia return
-<sentencia_return> ::= return <ID> ;
+<sentencia_return> ::= return <tipos_expresion> ;
 
 # Sentencias
 <Sentencias> ::= <Sentencias> <Sentencia> 
@@ -122,35 +122,35 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <expresion>    ::= <expresion_1> <op_muldivmod> <expresion> | <expresion_1>
 <op_muldivmod> ::= * | / | %
 
-<expresion_1> ::= <expresion_2> <op_masmenos> <expresion> | <expresion_2>
+<expresion_1> ::= <expresion_2> <op_masmenos> <expresion_1> | <expresion_2>
 <op_masmenos> ::= + | -
 
-<expresion_2> ::= <expresion_3> <op_shift> <expresion> | <expresion_3>
+<expresion_2> ::= <expresion_3> <op_shift> <expresion_2> | <expresion_3>
 <op_shift>    ::= >> | <<
 
-<expresion_3>   ::= <expresion_4> <op_relational> <expresion> | <expresion_4>
+<expresion_3>   ::= <expresion_4> <op_relational> <expresion_4> | <expresion_4>
 <op_relational> ::= < | > | <= | >=
 
-<expresion_4>     ::= <expresion_5> <op_eqrelational> <expresion> | <expresion_5>
+<expresion_4>     ::= <expresion_5> <op_eqrelational> <expresion_4> | <expresion_5>
 <op_eqrelational> ::= == | !=
 
-<expresion_5> ::= <expresion_6> <op_and> <expresion> | <expresion_6>
+<expresion_5> ::= <expresion_6> <op_and> <expresion_5> | <expresion_6>
 <op_and>      ::= &
 
-<expresion_6> ::= <expresion_7> <op_xor> <expresion> | <expresion_7>
+<expresion_6> ::= <expresion_7> <op_xor> <expresion_6> | <expresion_7>
 <op_xor>      ::= ^
 
-<expresion_7> ::= <expresion_8> <op_or> <expresion> | <expresion_8>
+<expresion_7> ::= <expresion_8> <op_or> <expresion_7> | <expresion_8>
 <op_or>       ::= |
 
-<expresion_8> ::= <expresion_9> <op_andand> <expresion> | <expresion_9>
+<expresion_8> ::= <expresion_9> <op_andand> <expresion_8> | <expresion_9>
 <op_andand>   ::= &&
 
-<expresion_9> ::= <expresion_10> <op_oror> <expresion> | <expresion_10>
+<expresion_9> ::= <expresion_10> <op_oror> <expresion_9> | <expresion_10>
 <op_oror>     ::= ||
 
 # Unary
-<expresion_10> ::= <op_unary> <expresion> | <expresion_11>
+<expresion_10> ::= <op_unary> <expresion_10> | <expresion_11>
 <op_unary>     ::= ++ | -- | + | - | ! | ~
 
 <expresion_11> ::= (<expresion>) | <llamada_funcion> | <constante>
@@ -159,15 +159,15 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <expresion_lista> ::= <op_lis_un> <expresion_lista_1> | <expresion_lista_1>  
 <op_unario_lista> ::= # | ?
 
-<expresion_lista_1> ::= <expresion_lista> <op_lisnum_bin> <entero> | <expresion_lista_2>
+<expresion_lista_1> ::= <expresion_lista_2> <op_lisnum_bin> <entero> | <expresion_lista_2>
 <op_binario_lista>  ::= @ | -- | %
 
-<expresion_lista_2> ::= <expresion_lista_3> <op_lislis_bin> <expresion_lista> | <expresion_lista_3>
+<expresion_lista_2> ::= <expresion_lista_3> <op_lislis_bin> <expresion_lista_> | <expresion_lista_3>
 <op_lislis_bin>     ::= **
 
 <expresion_lista_3> ::= <expresion_lista_4> <op_lisnum_op> <entero>
                      | <entero> <op_lisnum_op> <expresion_lista_4>  
-                     | <expresion_lista>
+                     | <expresion_lista_4>
 
 <expresion_lista_4> ::= <expresion_lista_5> ++ <entero> @ <entero> | <expresion_lista_5>
 
@@ -219,34 +219,37 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 ## Tabla de Tokens
 
-| Token         | Identificador | Atributos                        | Patrón                                                |
-|---------------|---------------|----------------------------------|-------------------------------------------------------|
-| INIBLOQUE     | 257           |                                  | "{"                                                   |
-| FINBLOQUE     | 258           |                                  | "}"                                                   |
-| LOCAL         | 259           |                                  | "local"                                               |
-| TIPOSIMPLE    | 260           | 0: int 1: float 2: char 3: bool  | ("int"\|"float"\|"char"\|"bool")                      |
-| TIPOCOMPUESTO | 261           |                                  | list ("int"\|"float"\|"char"\|"bool")                 |
-| ID            | 262           |                                  | [a-z, A-Z][a-z, A-Z, 0-9]*                            |
-| PARIZQ        | 263           |                                  | "("                                                   |
-| PARDER        | 264           |                                  | ")"                                                   |
-| PYC           | 265           |                                  | ";"                                                   |
-| CIN           | 266           |                                  | "cin"                                                 |
-| COUT          | 267           |                                  | "cout"                                                |
-| CADENA        | 268           |                                  | "\[ -~\]*"                                            |
-| RETURN        | 269           |                                  | "return"                                              |
-| OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: -- 5: % 6: ** 7: >= 8: <= 9: > 10: < 11: == 12: != | ("+"\|"-"\|"*"\|"/"\|"--"\|"%"\|"**"\|">="\|"<="\|">"\|"<"\|"=="\|"!=")                                                            |
-| ARROBA        | 272           |                                  | "@"                                                   |
-| INTERROG      | 273           |                                  | "?"                                                   |
-| OPUNARIO      | 274           | 0: NOT 1: >> 2: << 3: $          | ("NOT"\|">>"\|"<<"\|"$")                               |
-| CONST         | 275           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false \| '\[ -\~\]' \| "\[ -\~\]") |
-| ASIGN         | 276           |                                  | "="                                                   |
-| COMA          | 277           |                                  | ","                                                   |
-| MAIN          | 278           |                                  | "main"                                                |
-| DO            | 279           |                                  | "do"                                                  |
-| UNTIL         | 280           |                                  | "until"                                               |
-| WHILE         | 281           |                                  | "while"                                               |
-| IF            | 282           |                                  | "if"                                                  |
+| Token         | id | Atributos                        | Patrón     |
+|---------------|----|----------------------------------|------------|
+| INIBLOQUE     | 0  | | "{" |
+| FINBLOQUE     | 1  | | "}" |
+| LOCAL         | 2  | | "local" |
+| TIPOSIMPLE    | 3  | 0: int 1: float 2: char 3: bool  | `"int"|"float"|"char"|"bool"` |
+| ID            | 4  | | [a-z|A-Z][a-z|A-Z|0-9]* |
+| PARIZQ        | 5  | | "(" |
+| PARDER        | 6  | | ")" |
+| PYC           | 7  | | ";" |
+| CIN           | 8  | | "cin" |
+| COUT          | 9  | | "cout" |
+| CADENA        | 10 | | `[ -~]*` |
+| RETURN        | 11 | | "return" |
+| OPBITWISE     | 12 | 0: & 1: \| 2: ^ | `"&"|"|"|"^" ` |
+| OPBINNOBOOL   | 13 | 0: + 1: - 2: * 3: / 5: % 6: ** 7: == 8: != 9: && 10: \|\| | `"+"|"-"|"*"|"/"|"%"\|"**"|"=="|"!="|"&&"|"||"` |
+| OPUNARIO      | 14 | 0: -- 1: ++ 2: ! | `"++"|"--"|"!"`
+| OPRELACIONAL  | 15 | 0: < 1: > 2: <= 3: >= | `"<"|">"|"<="|">="` |
+| OPLISTA       | 16 | 0: @ 1: ** 2: #     | `"@"|"**"|"#"` |
+| OPUNARIOLS    | 17 | 0: >> 1: << 2: $ | `"NOT"\|">>"\|"<<"\|"$"` |
+| ENTERO        | 18 | | ` (-|+)?[0-9]+ ` |
+| REAL          | 19 | | ` ENTERO.[0-9]* ` |
+| BOOLEAN       | 20 | 0: true 1: false | ` "true"|"false" ` |
+| ASIGN         | 21 | | "=" |
+| COMA          | 22 | | "," |
+| MAIN          | 23 | | "main" |
+| DO            | 24 | | "do" |
+| UNTIL         | 25 | | "until" |
+| WHILE         | 26 | | "while" |
+| IF            | 27 | | "if" |
+| LISTA         | 28 | | "list_of" |
  
 ## Referencias
 
