@@ -62,11 +62,13 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                             
 # Subprogramas (funciones)
 <Declar_de_subprogs> ::= <Declar_de_subprogs> <Declar_subprog> |
-<Declar_subprog> ::= <Cabecera_subprog> <bloque> 
-<Cabecera_subprog> ::= <Tipo_variable> <Sub_Programa>
-                     | <Tipo_variable> <Sub_Programa>
 
-<Sub_Programa> ::= <ID> (<Parametros>) | <ID> ()
+<Declar_subprog> ::= <Cabecera_subprog> <bloque> 
+
+<Cabecera_subprog> ::= <Tipo_variable> <llamada_funcion>
+
+<llamada_funcion> ::= <ID> (<lista_expresiones>) 
+                    | <ID> ()
 
 <Parametros> ::= <Parametro>, <Parametros> 
                | <Parametro>
@@ -151,7 +153,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <expresion_10> ::= <op_unary> <expresion> | <expresion_11>
 <op_unary>     ::= ++ | -- | + | - | ! | ~
 
-<expresion_11> ::= (<expresion>) | <Sub_Programa> | <constante>
+<expresion_11> ::= (<expresion>) | <llamada_funcion> | <constante>
 
 # Expresión Listas
 <expresion_lista> ::= <op_lis_un> <expresion_lista_1> | <expresion_lista_1>  
@@ -167,11 +169,9 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                      | <entero> <op_lisnum_op> <expresion_lista_4>  
                      | <expresion_lista>
 
-
 <expresion_lista_4> ::= <expresion_lista_5> ++ <entero> @ <entero> | <expresion_lista_5>
 
 <expresion_lista_5> ::= <lista> | (<expresion_lista>) | <ID>
-
 
 # Constantes
 <constante> ::= <entero>
@@ -197,7 +197,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <numero> ::= <digito> <numero> | <digito>
 
 <caracter> ::= " <caracter_ascii> "
-                 | ' <caracter_ascii> '
+            | ' <caracter_ascii> '
 
 <bool> ::= true
          | false
@@ -205,10 +205,6 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <lista> ::= <lista_inicio> <lista_expresiones> <lista_fin>
 <lista_inicio> ::= [
 <lista_fin>    ::= ]
-
-# Llamada a una función
-<llamada_funcion> ::= <ID> (<lista_expresiones>) 
-                    | <ID> ()
 ```
 
 
