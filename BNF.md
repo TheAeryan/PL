@@ -49,7 +49,13 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <Lista_nombres_variables> ::= <ID> 
                             | <ID> , <Lista_nombres_variables>
 
-<ID> ::= [a-z, A-Z][a-z, A-Z, 0-9]*
+# <ID> = [a-z, A-Z][a-z, A-Z, 0-9]*  
+<ID> ::= <letra><letras_o_digitos>
+<letras_o_digitos> ::= <letra><letras_o_digitos>
+                     | <digito><letras_o_digitos>
+                     |
+<letra> ::= [a-z, A-Z]
+<digito> ::= [0-9]
 
 # Cabecera función emulando a C
 <Cabecera_subprog> ::= <Tipo_variable> <ID>(<Parametros>) 
@@ -90,8 +96,11 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                                | <cadena>
 <lista_expresiones> ::= <expresiones> , <lista_expresiones> 
                       | <expresiones>
-# Cualquier concatenación de caracteres ASCII. Mirar referencias.
-<cadena> ::= "[ -~]*"
+                  
+# <cadena> = "[ -~]"                    
+<cadena> ::= "<cadena_ascii>"
+<cadena_ascii> ::= <caracter_ascii><cadena_ascii> | 
+<caracter_ascii> ::= [ -~]
 
 <sentencia_return> ::= return <ID> ;
 
@@ -111,9 +120,14 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <op_binario_booleano> ::= AND | OR | XOR
 <op_unario> ::= NOT
 
-<constante> ::= (-?)(0|([1-9][0-9]*))(\.[0-9]+)?
+# <constante> = (0|([1-9][0-9]*))(\.[0-9]+)?
+<constante> ::= <signo><numero_decimal>
               | true
               | false
+<signo> ::= -|
+<numero_decimal> ::= 0<decimal> | [1-9]<numero><decimal>
+<numero> ::= <digito><numero> |
+<decimal> ::= .<numero> |
              
 # Llamada a una función
 <funcion> ::= <ID> (<lista_ids_o_expresiones>) 
@@ -125,14 +139,13 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 ```
 
 
-TODO:
+## TODO
+
 - Ahora mismo nuestra gramática es ambigua al concatenar operaciones 
   en <expresion>. Por ejemplo se puede obtener `NOT <expresion> + <expresion>`
   de dos formas distintas. Realmente no se si eso es un problema porque
-  la especificacion de <expresion> viene definida asi en el guión.
-- Repasar las expresiones regulares de <constante> y <cadena>. Las
-  he copiado de por ahi analizándolas con cuidado pero otro par de ojos
-  viene bien.
+  la especificacion de `<expresion>` viene definida asi en el guión.
+- Repasar las reglas que generan `<ID>`, `<cadena>` y `<constante>`.
 
 ## Tabla de Tokens
 
