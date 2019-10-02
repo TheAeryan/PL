@@ -15,7 +15,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                      |
 <caracter_ascii> ::= [ -~]
 <cadena> ::= "<cadena_ascii>"
-<cadena_ascii> ::= <caracter_ascii><cadena_ascii> 
+<cadena_ascii> ::= <caracter_ascii><cadena_ascii>
                  |
 # Tipos
 <Tipo_variable_simple> ::= int 
@@ -112,7 +112,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               |  <expresion> ++ <expresion> @ <expresion>
               |  <ID>
               |  <constante>
-              |  <Llamada_funcion>
+              |  <llamada_funcion>
 # Op unario
 <op_unario> ::= NOT
               | <<
@@ -140,21 +140,41 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
                         | XOR  
 # Constantes
 <constante> ::= <signo><digito><numero_decimal>
-              | true
-              | false
-              | "<caracter_ascii>"
-              | '<caracter_ascii>'
+              | <bool_cte>
+              | <caracter_cte>
+              | <lista_cte>
 <signo> ::= -
           | +
           |
 <numero_decimal> ::= <digito><numero_decimal>  
                    | .<numero> 
-                   |
+                   | <digito>
 <numero> ::= <digito><numero> 
            | <digito>
-             
+<caracter_cte> ::= "<caracter_ascii>"
+                 | '<caracter_ascii>'
+<bool_cte> ::= true
+             | false
+<lista_cte> ::= <abre_lista><tipo_lista_constante><fin_lista>
+<abre_lista> ::= [
+<fin_lista> ::= ]
+<tipo_lista_constante> ::= <lista_int>
+                         | <lista_float>
+                         | <lista_char>
+                         | <lista_bool>
+<lista_int> ::= <signo><numero> 
+              | <signo><numero>, <lista_int>
+<lista_float> ::= <signo><digito><num_float>
+                | <signo><digito><num_float>, <lista_float>
+<num_float> ::= <digito><num_float> 
+              | .<numero>
+<lista_char> ::= <caracter_cte>
+               | <caracter_cte>, <lista_char>
+<lista_bool> ::= <bool_cte>
+               | <bool_cte>, <lista_bool>
+
 # Llamada a una función
-<Llamada_funcion> ::= <ID> (<lista_expresiones>) 
+<llamada_funcion> ::= <ID> (<lista_expresiones>) 
                     | <ID> ()
 <lista_expresiones> ::= <expresion>, <lista_expresiones>
                       | <expresion>
