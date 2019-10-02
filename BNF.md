@@ -75,7 +75,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | <sentencia_do_until>
 
 # Asignación
-<sentencia_asignacion> ::= <Tipo_variable> <ID> <op_asignacion> <expresion> ;
+<sentencia_asignacion> ::= <ID> <op_asignacion> <expresion> ;
 <op_asignacion> ::= =
 
 # IF
