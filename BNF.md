@@ -139,6 +139,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <constante> ::= <signo><numero_decimal>
               | true
               | false
+              | "<caracter_ascii>"
+              | '<caracter_ascii>'
 <signo> ::= -|
 <numero_decimal> ::= <digito><numero_decimal> | <digito> | .<numero>
 <numero> ::= <digito><numero> | <digito>
