@@ -109,15 +109,29 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <expresion> ::= ( <expresion> ) 
               |  <op_unario> <expresion>
               |  <expresion> <op_binario> <expresion>
+              # Operador ternario de listas
+              |  <expresion> ++ <expresion> @ <expresion>
               |  <ID>
               |  <constante>
-              |  <funcion>
-              
+              |  <funcion>   
 
 <op_binario> ::= <op_binario_booleano> 
                | <op_binario_no_booleano>
-<op_binario_no_booleano> ::= + | - | * | /
-<op_binario_booleano> ::= AND | OR | XOR
+               
+<op_binario_no_booleano> ::= + 
+                           | - 
+                           | * 
+                           | /
+                           | @
+                           | --
+                           | %
+                           | **
+                           
+<op_binario_booleano> ::= AND 
+                        | OR 
+                        | XOR  
+
+<op_binario_lista> ::=
 <op_unario> ::= NOT
 
 # <constante> = (0|([1-9][0-9]*))(\.[0-9]+)?
@@ -164,7 +178,7 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 | CADENA        | 268           |                                  | "\[ -~\]*"                                            |
 | RETURN        | 269           |                                  | "return"                                              |
 | OPBINBOOL     | 270           | 0: AND 1: OR 2: XOR              | ("AND"\|"OR"\|"XOR")                                  |
-| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: /              | ("+"\|"-"\|"*"\|"/")                                  |
+| OPBINNOBOOL   | 271           | 0: + 1: - 2: * 3: / 4: @ 5: -- 6: % 7: ** | ("+"\|"-"\|"*"\|"/"\|"@"\|"--"\|"%"\|"**)    |
 | OPUNARIO      | 272           |                                  | "NOT"                                                 |
 | CONST         | 273           |                                  | ( (-?)(0\|([1-9][0-9]*))(\.[0-9]+)? \| true \| false )|
 | ASIGN         | 274           |                                  | "="                                                   |
