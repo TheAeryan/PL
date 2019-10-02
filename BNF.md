@@ -18,9 +18,8 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 <Declar_subprog> ::= <Cabecera_subprograma> <bloque> 
 
-<Declar_de_variables_locales> ::= <Marca_ini_declar_variables> 
-                                  <Variables_locales> 
-                                  <Marca_fin_declar_variables> | 
+<Declar_de_variables_locales> ::= <Marca_ini_declar_variables> <Variables_locales> <Marca_fin_declar_variables> 
+                                | 
 
 <Marca_ini_declar_variables> ::= local <Inicio_de_bloque>
 <Marca_fin_declar_variables> ::= <Fin_de_bloque>
@@ -35,23 +34,30 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 
 <Cuerpo_declar_variables> ::= <Tipo_variable> <Lista_nombres_variables> ;
 
-<Tipo_variable> ::= <Tipo_variable_simple> | <Tipo_variable_complejo>
+<Tipo_variable> ::= <Tipo_variable_simple> 
+                  | <Tipo_variable_complejo>
 
-<Tipo_variable_simple> ::= int | float | char | bool
+<Tipo_variable_simple> ::= int 
+                         | float 
+                         | char 
+                         | bool
 
 <Tipo_variable_complejo> ::= list <Tipo_variable_simple>
 
-<Lista_nombres_variables> ::= <ID> | <ID> , <Lista_nombres_variables>
+<Lista_nombres_variables> ::= <ID> 
+                            | <ID> , <Lista_nombres_variables>
 
 <ID> ::= [a-z, A-Z][a-z, A-Z, 0-9]*
 
 # Cabecera función emulando a C
 <Cabecera_subprog> ::= <Tipo_variable> <ID>(<Parametros>) 
                      | <Tipo_variable> <ID>()
-<Parametros> ::= <Parametro>, <Parametros> | <Parametro>
+<Parametros> ::= <Parametro>, <Parametros> 
+               | <Parametro>
 <Parametro> ::= <Tipo_variable> <ID>
 
-<Sentencias> ::= <Sentencias> <Sentencia> | <Sentencia> 
+<Sentencias> ::= <Sentencias> <Sentencia> 
+               | <Sentencia> 
 
 <Sentencia> ::= <bloque>
               | <sentencia_asignacion>
@@ -72,13 +78,16 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
 <sentencia_entrada> ::= <nomb_entrada> <lista_variables> ;
 <nomb_entrada> ::=  cin
 
-<lista_variables> ::= <ID> , <lista_variables> | <ID>
+<lista_variables> ::= <ID> , <lista_variables> 
+                    |<ID>
 
 <sentencia_salida> ::= <nomb_salida> <lista_expresiones_o_cadena> ;
 <nomb_entrada> ::=  cout
 
-<lista_expresiones_o_cadena> ::= <lista_expresiones> | <cadena>
-<lista_expresiones> ::= <expresiones> , <lista_expresiones> | <expresiones>
+<lista_expresiones_o_cadena> ::= <lista_expresiones> 
+                               | <cadena>
+<lista_expresiones> ::= <expresiones> , <lista_expresiones> 
+                      | <expresiones>
 # Cualquier concatenación de caracteres ASCII. Mirar referencias.
 <cadena> ::= "[ -~]*"
 
@@ -93,7 +102,9 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               |  <constante>
               |  <funcion>
               
-<op_binario> ::= <op_binario_booleano> | <op_binario_no_booleano>
+
+<op_binario> ::= <op_binario_booleano> 
+               | <op_binario_no_booleano>
 <op_binario_no_booleano> ::= + | - | * | /
 <op_binario_booleano> ::= AND | OR | XOR
 <op_unario> ::= NOT
@@ -103,10 +114,12 @@ El lenguaje asignado está basado en la sintaxis de **C**, con las palabras rese
               | false
              
 # Llamada a una función
-<funcion> ::= <ID> (<lista_ids_o_expresiones>)
+<funcion> ::= <ID> (<lista_ids_o_expresiones>) 
+            | <ID> ()
 <lista_ids_o_expresiones> ::= <ID>, <lista_ids_o_expresiones>
                             | <expresion>, <lista_ids_o_expresiones>
-                            |
+                            | <ID>
+                            | <expresion>
 ```
 
 
