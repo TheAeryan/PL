@@ -21,7 +21,7 @@
 "local" { return Parser.LOCAL; }
 
 // Variables
-"int"|"float"|"char"|"bool" { yyparser.yylval = new ParserVal(new String((Object) yytext())); return Parser.TIPOSIMPLE; }
+"int"|"float"|"char"|"bool" { yyparser.yylval = new ParserVal((Object) yytext()); return Parser.TIPOSIMPLE; }
 [a-zA-Z][a-zA-Z0-9_]* { yyparser.yylval = new ParserVal((Object) yytext()); return Parser.IDENTIFICADOR; }
 
 // Paréntesis
