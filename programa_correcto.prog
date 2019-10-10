@@ -1,0 +1,33 @@
+main{
+
+	local{
+		int	entero1, entero2;
+		float real1;
+		char carac1, carac2, carac3;
+		bool logico1;
+		list_of int lista1;
+	}
+
+ int func1 (int a, float b){
+ 	lista1 = lista1 ++ a @ b;
+ 	return lista1;
+ }
+
+ entero1 = 7;
+
+ if (logico1)
+ 	entero2 = func1 (-2, 5);
+
+ while (real1 < entero2) {
+ 	logico1 = ! logico1;
+ 	cout "logico1 vale:", logico1;
+
+ 	do{
+ 		carac1 = 'c';
+ 	}until (false);
+ }
+
+ return 0;
+ }
+
+
