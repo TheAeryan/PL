@@ -1,0 +1,29 @@
+/*Tabla#define .h#define #define#defin#define e  */
+
+#define INIBLOQUE	257
+#define FINBLOQUE	258
+#define LOCAL		259
+#define TIPOSIMPLE	260
+#define ID			261
+#define PARIZQ		262
+#define PARDER		263
+#define PYC			264
+#define CIN			265
+#define COUT		266
+#define CADENA		267
+#define RETURN		268
+#define OPBIN		269
+#define OPUNARIO	270
+#define AT			271
+#define MASMAS		272
+#define BINYUN		273
+#define CONST		274
+#define ASIGN		275
+#define COMA		276
+#define MAIN		277
+#define DO			278
+#define UNTIL		279
+#define IFWHILE		280
+#define LISTA		281
+#define CORIZQ		282
+#define CORDER		283
