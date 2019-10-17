@@ -17,6 +17,9 @@ main{
 
  if (logico1)
  	entero2 = func1 (-2, 5);
+ else{
+ 	entero2 = 0;
+ }
 
  while (real1 < entero2) {
  	logico1 = ! logico1;
