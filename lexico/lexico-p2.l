@@ -1,7 +1,8 @@
 %option yylineno
 %{
-#include "tabla.h"	
+	#include "tabla.h"	
 %}
+
 %%
 "{"																	{return INIBLOQUE ;}
 "}"																	{return FINBLOQUE ;}
@@ -35,14 +36,3 @@
 [ \t\n]																{ ; }
 <*>.|\n																{printf("Error en la línea %d. Lexema %s no reconocible.\n", yylineno, yytext);}
 %%
-main (){
-	int val;
-	val = yylex();
-
-	while (val != 0){
-		printf("%d\n", val);
-		val = yylex();
-	}
-
-	exit(0);
-}
