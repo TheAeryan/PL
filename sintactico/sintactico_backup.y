@@ -17,6 +17,25 @@
 %token LISTA
 %token CORIZQ CORDER
 
+
+%left OLOG 
+%left YLOG
+%left ORBIT
+%left EXORBIT
+%left ANDBIT
+%left IGUAL NOIGUAL
+%left MENOR MENIGUAL MAYOR MAYIGUAL
+%left MAS MENOS
+%left MULT DIV MOD
+%right MAS MENOS NEGACION 
+%right MENOSPREFIJO
+%right MASPREFIJO
+%left MENOSPOSFIJO
+%left MASPOSFIJO
+
+{Faltan los operadores de listas y la precedencia}
+
+
 %%
 
 programa : cabecera_programa bloque ;
@@ -44,10 +63,15 @@ declar_subprog : cabecera_subprog bloque ;
 
 cabecera_subprog : tipo_variable ID PARIZQ parametros PARDER ;
 
-tipo_variable : TIPOSIMPLE
+tipo_variable : tipo_variable_simple
               | tipo_variable_complejo ;
 
-tipo_variable_complejo : LISTA TIPOSIMPLE ;
+tipo_variable_simple : int 
+                     | float
+                     | char
+                     | bool ;
+
+tipo_variable_complejo : LISTA tipo_variable_simple ;
 
 lista_variables : ID COMA lista_variables
                 | ID ;
@@ -100,7 +124,7 @@ op_asignacion : ASIGN ;
 
 sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else ;
 
-bloque_else : ELSE sentencia
+bloque_else : else sentencia
             | ;
 
 sentencia_while : WHILE PARIZQ expresion PARDER sentencia ;
@@ -109,11 +133,11 @@ sentencia_entrada : CIN lista_variables PYC ;
 
 sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
 
-lista_expresiones_o_cadena : expresion_cadena COMA lista_expresiones_o_cadena
+lista_expresiones_o_cadena : expresion_cadena , lista_expresion_o_cadena
                            | expresion_cadena ;
 
 expresion_cadena : expresion
-                 | CADENA ;
+                 | cadena ;
 
 sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 
