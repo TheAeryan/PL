@@ -58,7 +58,6 @@ parametros : parametro COMA parametros
 parametro : tipo_variable ID ;
 
 sentencias : sentencias sentencia
-           | sentencia
            | ;
 
 sentencia : bloque
