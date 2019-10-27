@@ -1,0 +1,44 @@
+/* tabla.h */
+
+#define INIBLOQUE	257
+#define FINBLOQUE	258
+#define LOCAL		259
+#define TIPOSIMPLE	260
+#define ID		261
+#define PARIZQ		262
+#define PARDER		263
+#define PYC		264
+#define CIN		265
+#define COUT		266
+#define CADENA		267
+#define RETURN		268
+
+#define ORLOG       269
+#define ANDLOG      270
+#define OR          271
+#define XOR         272
+#define AND         273
+#define EQN         274
+#define REL         275
+#define ADDSUB      276
+#define MULDIV      277
+#define EXCL        278
+#define PORPOR      279
+#define BORRLIST    280
+#define INTHASH     281
+
+#define AT          282
+#define MASMAS      283
+#define BINYUN      284
+#define CONST       285
+#define ASIGN       286
+#define COMA        287
+#define MAIN        288
+#define DO          289
+#define UNTIL       290
+#define IF          291
+#define WHILE       292
+#define ELSE        293
+#define LISTA       294
+#define CORIZQ      295
+#define CORDER      296

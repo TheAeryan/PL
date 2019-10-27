@@ -120,7 +120,7 @@ sentencia_return : RETURN expresion PYC ;
 
 %%
 
-#include "../lexico/lex.yy.c"
+#include "../lexico/p3/lex.yy.c"
 
 void yyerror(){
     printf("\nLine %d: Syntax Error: Unexpected \"%s\"", yylineno, yytext);
