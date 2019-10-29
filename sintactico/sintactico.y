@@ -6,9 +6,21 @@
 %token CIN COUT
 %token CADENA
 %token RETURN
-%token OPBIN OPUNARIO BINYUN
+
+%token ORLOG ANDLOG
+%token OR XOR AND
+%token EQN REL
+%token ADDSUB MULDIV
+%token EXCL
+%token PORPOR
+%token BORRLIST
+%token INTHASH
+
 %token AT MASMAS
 %token CONST
+%token DOLLAR
+%token SHIFT
+
 %token ASIGN
 %token COMA
 %token MAIN
@@ -63,6 +75,7 @@ sentencias : sentencias sentencia
 sentencia : bloque
           | expresion PYC
           | sentencia_asignacion
+          | sentencia_lista
           | sentencia_if
           | sentencia_while
           | sentencia_entrada
@@ -78,9 +91,22 @@ expresion : op_unario expresion
           | llamada_funcion
           | PARIZQ expresion PARDER ;
 
-op_unario : OPUNARIO ;
+op_unario : ADDSUB
+          | EXCL
+          | INTHASH
+          ;
 
-op_binario : OPBIN ;
+op_binario : ORLOG
+           | ANDLOG
+           | OR
+           | XOR
+           | AND
+           | EQN
+           | ADDSUB
+           | MULDIV
+           | PORPOR
+           | BORRLIST
+           | ;
 
 constante : CONST
           | lista ;
@@ -96,6 +122,9 @@ lista_expresiones : expresion COMA lista_expresiones
 
 sentencia_asignacion : ID op_asignacion expresion PYC ;
 op_asignacion : ASIGN ;
+
+sentencia_lista : expresion SHIFT
+                | DOLLAR expresion
 
 sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else ;
 
