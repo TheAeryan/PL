@@ -29,3 +29,5 @@
 #define LISTA       283
 #define CORIZQ      284
 #define CORDER      285
+#define DOLLAR      286
+#define SHIFT       287
