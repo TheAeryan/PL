@@ -16,35 +16,32 @@
 // Operadores
 #define ORLOG       269
 #define ANDLOG      270
-#define OR          271
-#define XOR         272
-#define AND         273
-#define EQN         274
-#define REL         275
-#define ADDSUB      276
-#define MULDIV      277
-#define EXCL        278
-#define PORPOR      279
-#define BORRLIST    280
-#define INTHASH     281
+#define EQN         271
+#define REL         272
+#define ADDSUB      273
+#define MULDIV      274
+#define EXCL        275
+#define PORPOR      276
+#define BORRLIST    277
+#define INTHASH     278
 
 // Operadores Listas
-#define AT          282
-#define MASMAS      283
-#define DOLLAR      284
-#define SHIFT       285
+#define AT          279
+#define MASMAS      280
+#define DOLLAR      281
+#define SHIFT       282
 
 // Sentencias
-#define CONST       286
-#define ASIGN       287
-#define COMA        288
-#define MAIN        289
-#define DO          290
-#define UNTIL       291
-#define IF          292
-#define WHILE       293
-#define ELSE        294
-#define LISTA       295
+#define CONST       283
+#define ASIGN       284
+#define COMA        285
+#define MAIN        286
+#define DO          287
+#define UNTIL       288
+#define IF          289
+#define WHILE       290
+#define ELSE        291
+#define LISTA       292
 
-#define CORIZQ      296
-#define CORDER      297
+#define CORIZQ      293
+#define CORDER      294
