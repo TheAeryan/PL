@@ -29,15 +29,6 @@
 %token LISTA
 %token CORIZQ CORDER
 
-%left ORLOG
-%left ANDLOG
-%left EQN
-%left REL
-%left ADDSUB
-%left MULDIV
-%right EXCL
-
-
 %%
 
 programa : cabecera_programa bloque ;
@@ -92,21 +83,30 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-expresion : ADDSUB expresion %prec EXCL
-	  | EXCL expresion
-	  | INTHASH expresion
-          | expresion ORLOG expresion
-	  | expresion ANDLOG expresion
-	  | expresion EQN expresion
-	  | expresion ADDSUB expresion
-	  | expresion MULDIV expresion
-	  | expresion PORPOR expresion
-	  | expresion BORRLIST expresion
+expresion : op_unario expresion
+          | expresion op_binario expresion
           | expresion MASMAS expresion AT expresion
           | ID
           | constante
           | llamada_funcion
           | PARIZQ expresion PARDER ;
+
+op_unario : ADDSUB
+          | EXCL
+          | INTHASH
+          ;
+
+op_binario : ORLOG
+           | ANDLOG
+           | OR
+           | XOR
+           | AND
+           | EQN
+           | ADDSUB
+           | MULDIV
+           | PORPOR
+           | BORRLIST
+           | ;
 
 constante : CONST
           | lista ;

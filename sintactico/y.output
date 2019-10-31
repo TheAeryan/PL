@@ -1,25 +1,25 @@
 Terminales no usados en la gramática
 
+   OR
+   XOR
+   AND
    REL
 
 
-Estado 31 conflictos: 1 desplazamiento/reducción
-Estado 47 conflictos: 1 desplazamiento/reducción
-Estado 66 conflictos: 1 desplazamiento/reducción
-Estado 67 conflictos: 1 desplazamiento/reducción
-Estado 70 conflictos: 1 desplazamiento/reducción
-Estado 73 conflictos: 1 desplazamiento/reducción
-Estado 74 conflictos: 1 desplazamiento/reducción, 7 reducción/reducción
-Estado 79 conflictos: 1 desplazamiento/reducción
-Estado 95 conflictos: 11 desplazamiento/reducción, 7 reducción/reducción
-Estado 102 conflictos: 1 desplazamiento/reducción
-Estado 108 conflictos: 1 desplazamiento/reducción
-Estado 110 conflictos: 1 desplazamiento/reducción
-Estado 113 conflictos: 1 desplazamiento/reducción
-Estado 114 conflictos: 11 desplazamiento/reducción, 7 reducción/reducción
-Estado 127 conflictos: 1 desplazamiento/reducción
-Estado 128 conflictos: 1 desplazamiento/reducción
-Estado 130 conflictos: 11 desplazamiento/reducción, 7 reducción/reducción
+Estado 65 conflictos: 1 desplazamiento/reducción
+Estado 73 conflictos: 3 desplazamiento/reducción
+Estado 74 conflictos: 3 desplazamiento/reducción
+Estado 75 conflictos: 8 desplazamiento/reducción
+Estado 76 conflictos: 1 desplazamiento/reducción
+Estado 110 conflictos: 3 desplazamiento/reducción
+Estado 111 conflictos: 3 desplazamiento/reducción
+Estado 112 conflictos: 3 desplazamiento/reducción
+Estado 113 conflictos: 3 desplazamiento/reducción
+Estado 114 conflictos: 3 desplazamiento/reducción
+Estado 115 conflictos: 8 desplazamiento/reducción
+Estado 116 conflictos: 8 desplazamiento/reducción
+Estado 130 conflictos: 1 desplazamiento/reducción
+Estado 133 conflictos: 8 desplazamiento/reducción
 
 
 Gramática
@@ -78,69 +78,61 @@ Gramática
    33          | sentencia_do_until
    34          | sentencia_return
 
-   35 expresion: op_unario expresion
-   36          | expresion op_binario expresion
-   37          | expresion MASMAS expresion AT expresion
-   38          | ID
-   39          | constante
-   40          | llamada_funcion
-   41          | PARIZQ expresion PARDER
+   35 expresion: ADDSUB expresion
+   36          | EXCL expresion
+   37          | INTHASH expresion
+   38          | expresion ORLOG expresion
+   39          | expresion ANDLOG expresion
+   40          | expresion EQN expresion
+   41          | expresion ADDSUB expresion
+   42          | expresion MULDIV expresion
+   43          | expresion PORPOR expresion
+   44          | expresion BORRLIST expresion
+   45          | expresion MASMAS expresion AT expresion
+   46          | ID
+   47          | constante
+   48          | llamada_funcion
+   49          | PARIZQ expresion PARDER
 
-   42 op_unario: ADDSUB
-   43          | EXCL
-   44          | INTHASH
+   50 constante: CONST
+   51          | lista
 
-   45 op_binario: ORLOG
-   46           | ANDLOG
-   47           | OR
-   48           | XOR
-   49           | AND
-   50           | EQN
-   51           | ADDSUB
-   52           | MULDIV
-   53           | PORPOR
-   54           | BORRLIST
-   55           | %empty
+   52 lista: CORIZQ lista_expresiones CORDER
+   53      | CORIZQ CORDER
 
-   56 constante: CONST
-   57          | lista
+   54 llamada_funcion: ID PARIZQ lista_expresiones PARDER
+   55                | ID PARIZQ PARDER
 
-   58 lista: CORIZQ lista_expresiones CORDER
-   59      | CORIZQ CORDER
+   56 lista_expresiones: expresion COMA lista_expresiones
+   57                  | expresion
 
-   60 llamada_funcion: ID PARIZQ lista_expresiones PARDER
-   61                | ID PARIZQ PARDER
+   58 sentencia_asignacion: ID op_asignacion expresion PYC
 
-   62 lista_expresiones: expresion COMA lista_expresiones
-   63                  | expresion
+   59 op_asignacion: ASIGN
 
-   64 sentencia_asignacion: ID op_asignacion expresion PYC
+   60 sentencia_lista: expresion SHIFT
+   61                | DOLLAR expresion
 
-   65 op_asignacion: ASIGN
+   62 sentencia_if: IF PARIZQ expresion PARDER sentencia bloque_else
 
-   66 sentencia_lista: expresion SHIFT
-   67                | DOLLAR expresion
+   63 bloque_else: ELSE sentencia
+   64            | %empty
 
-   68 sentencia_if: IF PARIZQ expresion PARDER sentencia bloque_else
+   65 sentencia_while: WHILE PARIZQ expresion PARDER sentencia
 
-   69 bloque_else: ELSE sentencia
-   70            | %empty
+   66 sentencia_entrada: CIN lista_variables PYC
 
-   71 sentencia_while: WHILE PARIZQ expresion PARDER sentencia
+   67 sentencia_salida: COUT lista_expresiones_o_cadena PYC
 
-   72 sentencia_entrada: CIN lista_variables PYC
+   68 lista_expresiones_o_cadena: expresion_cadena COMA lista_expresiones_o_cadena
+   69                           | expresion_cadena
 
-   73 sentencia_salida: COUT lista_expresiones_o_cadena PYC
+   70 expresion_cadena: expresion
+   71                 | CADENA
 
-   74 lista_expresiones_o_cadena: expresion_cadena COMA lista_expresiones_o_cadena
-   75                           | expresion_cadena
+   72 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER PYC
 
-   76 expresion_cadena: expresion
-   77                 | CADENA
-
-   78 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER PYC
-
-   79 sentencia_return: RETURN expresion PYC
+   73 sentencia_return: RETURN expresion PYC
 
 
 Terminales con las reglas donde aparecen
@@ -151,43 +143,43 @@ INIBLOQUE (258) 3 6
 FINBLOQUE (259) 3 10
 LOCAL (260) 6
 TIPOSIMPLE (261) 15 17
-ID (262) 14 18 19 22 38 60 61 64
-PARIZQ (263) 14 41 60 61 68 71 78
-PARDER (264) 14 41 60 61 68 71 78
-PYC (265) 9 26 64 72 73 78 79
-CIN (266) 72
-COUT (267) 73
-CADENA (268) 77
-RETURN (269) 79
-ORLOG (270) 45
-ANDLOG (271) 46
-OR (272) 47
-XOR (273) 48
-AND (274) 49
-EQN (275) 50
+ID (262) 14 18 19 22 46 54 55 58
+PARIZQ (263) 14 49 54 55 62 65 72
+PARDER (264) 14 49 54 55 62 65 72
+PYC (265) 9 26 58 66 67 72 73
+CIN (266) 66
+COUT (267) 67
+CADENA (268) 71
+RETURN (269) 73
+ORLOG (270) 38
+ANDLOG (271) 39
+OR (272)
+XOR (273)
+AND (274)
+EQN (275) 40
 REL (276)
-ADDSUB (277) 42 51
-MULDIV (278) 52
-EXCL (279) 43
-PORPOR (280) 53
-BORRLIST (281) 54
-INTHASH (282) 44
-AT (283) 37
-MASMAS (284) 37
-CONST (285) 56
-DOLLAR (286) 67
-SHIFT (287) 66
-ASIGN (288) 65
-COMA (289) 18 20 62 74
+ADDSUB (277) 35 41
+MULDIV (278) 42
+EXCL (279) 36
+PORPOR (280) 43
+BORRLIST (281) 44
+INTHASH (282) 37
+AT (283) 45
+MASMAS (284) 45
+CONST (285) 50
+DOLLAR (286) 61
+SHIFT (287) 60
+ASIGN (288) 59
+COMA (289) 18 20 56 68
 MAIN (290) 2
-IF (291) 68
-ELSE (292) 69
-DO (293) 78
-UNTIL (294) 78
-WHILE (295) 71
+IF (291) 62
+ELSE (292) 63
+DO (293) 72
+UNTIL (294) 72
+WHILE (295) 65
 LISTA (296) 17
-CORIZQ (297) 58 59
-CORDER (298) 58 59
+CORIZQ (297) 52 53
+CORDER (298) 52 53
 
 
 No terminales con las reglas donde aparecen
@@ -221,7 +213,7 @@ tipo_variable (56)
 tipo_variable_complejo (57)
     en la izquierda: 17, en la derecha: 16
 lista_variables (58)
-    en la izquierda: 18 19, en la derecha: 9 18 72
+    en la izquierda: 18 19, en la derecha: 9 18 66
 parametros (59)
     en la izquierda: 20 21, en la derecha: 14 20
 parametro (60)
@@ -230,47 +222,43 @@ sentencias (61)
     en la izquierda: 23 24, en la derecha: 3 23
 sentencia (62)
     en la izquierda: 25 26 27 28 29 30 31 32 33 34, en la derecha:
-    23 68 69 71 78
+    23 62 63 65 72
 expresion (63)
-    en la izquierda: 35 36 37 38 39 40 41, en la derecha: 26 35 36
-    37 41 62 63 64 66 67 68 71 76 78 79
-op_unario (64)
-    en la izquierda: 42 43 44, en la derecha: 35
-op_binario (65)
-    en la izquierda: 45 46 47 48 49 50 51 52 53 54 55, en la derecha:
-    36
-constante (66)
-    en la izquierda: 56 57, en la derecha: 39
-lista (67)
-    en la izquierda: 58 59, en la derecha: 57
-llamada_funcion (68)
-    en la izquierda: 60 61, en la derecha: 40
-lista_expresiones (69)
-    en la izquierda: 62 63, en la derecha: 58 60 62
-sentencia_asignacion (70)
-    en la izquierda: 64, en la derecha: 27
-op_asignacion (71)
-    en la izquierda: 65, en la derecha: 64
-sentencia_lista (72)
-    en la izquierda: 66 67, en la derecha: 28
-sentencia_if (73)
-    en la izquierda: 68, en la derecha: 29
-bloque_else (74)
-    en la izquierda: 69 70, en la derecha: 68
-sentencia_while (75)
-    en la izquierda: 71, en la derecha: 30
-sentencia_entrada (76)
-    en la izquierda: 72, en la derecha: 31
-sentencia_salida (77)
-    en la izquierda: 73, en la derecha: 32
-lista_expresiones_o_cadena (78)
-    en la izquierda: 74 75, en la derecha: 73 74
-expresion_cadena (79)
-    en la izquierda: 76 77, en la derecha: 74 75
-sentencia_do_until (80)
-    en la izquierda: 78, en la derecha: 33
-sentencia_return (81)
-    en la izquierda: 79, en la derecha: 34
+    en la izquierda: 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49,
+    en la derecha: 26 35 36 37 38 39 40 41 42 43 44 45 49 56 57 58
+    60 61 62 65 70 72 73
+constante (64)
+    en la izquierda: 50 51, en la derecha: 47
+lista (65)
+    en la izquierda: 52 53, en la derecha: 51
+llamada_funcion (66)
+    en la izquierda: 54 55, en la derecha: 48
+lista_expresiones (67)
+    en la izquierda: 56 57, en la derecha: 52 54 56
+sentencia_asignacion (68)
+    en la izquierda: 58, en la derecha: 27
+op_asignacion (69)
+    en la izquierda: 59, en la derecha: 58
+sentencia_lista (70)
+    en la izquierda: 60 61, en la derecha: 28
+sentencia_if (71)
+    en la izquierda: 62, en la derecha: 29
+bloque_else (72)
+    en la izquierda: 63 64, en la derecha: 62
+sentencia_while (73)
+    en la izquierda: 65, en la derecha: 30
+sentencia_entrada (74)
+    en la izquierda: 66, en la derecha: 31
+sentencia_salida (75)
+    en la izquierda: 67, en la derecha: 32
+lista_expresiones_o_cadena (76)
+    en la izquierda: 68 69, en la derecha: 67 68
+expresion_cadena (77)
+    en la izquierda: 70 71, en la derecha: 68 69
+sentencia_do_until (78)
+    en la izquierda: 72, en la derecha: 33
+sentencia_return (79)
+    en la izquierda: 73, en la derecha: 34
 
 
 Estado 0
@@ -485,18 +473,17 @@ Estado 21
     bloque                ir al estado 45
     sentencia             ir al estado 46
     expresion             ir al estado 47
-    op_unario             ir al estado 48
-    constante             ir al estado 49
-    lista                 ir al estado 50
-    llamada_funcion       ir al estado 51
-    sentencia_asignacion  ir al estado 52
-    sentencia_lista       ir al estado 53
-    sentencia_if          ir al estado 54
-    sentencia_while       ir al estado 55
-    sentencia_entrada     ir al estado 56
-    sentencia_salida      ir al estado 57
-    sentencia_do_until    ir al estado 58
-    sentencia_return      ir al estado 59
+    constante             ir al estado 48
+    lista                 ir al estado 49
+    llamada_funcion       ir al estado 50
+    sentencia_asignacion  ir al estado 51
+    sentencia_lista       ir al estado 52
+    sentencia_if          ir al estado 53
+    sentencia_while       ir al estado 54
+    sentencia_entrada     ir al estado 55
+    sentencia_salida      ir al estado 56
+    sentencia_do_until    ir al estado 57
+    sentencia_return      ir al estado 58
 
 
 Estado 22
@@ -532,7 +519,7 @@ Estado 26
    18 lista_variables: ID . COMA lista_variables
    19                | ID .
 
-    COMA  desplazar e ir al estado 60
+    COMA  desplazar e ir al estado 59
 
     $default  reduce usando la regla 19 (lista_variables)
 
@@ -541,7 +528,7 @@ Estado 27
 
     9 cuerpo_declar_variables: tipo_variable lista_variables . PYC
 
-    PYC  desplazar e ir al estado 61
+    PYC  desplazar e ir al estado 60
 
 
 Estado 28
@@ -555,7 +542,7 @@ Estado 29
 
    14 cabecera_subprog: tipo_variable ID . PARIZQ parametros PARDER
 
-    PARIZQ  desplazar e ir al estado 62
+    PARIZQ  desplazar e ir al estado 61
 
 
 Estado 30
@@ -567,25 +554,24 @@ Estado 30
 
 Estado 31
 
-   38 expresion: ID .
-   60 llamada_funcion: ID . PARIZQ lista_expresiones PARDER
-   61                | ID . PARIZQ PARDER
-   64 sentencia_asignacion: ID . op_asignacion expresion PYC
+   46 expresion: ID .
+   54 llamada_funcion: ID . PARIZQ lista_expresiones PARDER
+   55                | ID . PARIZQ PARDER
+   58 sentencia_asignacion: ID . op_asignacion expresion PYC
 
-    PARIZQ  desplazar e ir al estado 63
-    ASIGN   desplazar e ir al estado 64
+    PARIZQ  desplazar e ir al estado 62
+    ASIGN   desplazar e ir al estado 63
 
-    PARIZQ    [reduce usando la regla 38 (expresion)]
-    $default  reduce usando la regla 38 (expresion)
+    $default  reduce usando la regla 46 (expresion)
 
-    op_asignacion  ir al estado 65
+    op_asignacion  ir al estado 64
 
 
 Estado 32
 
-   41 expresion: PARIZQ . expresion PARDER
+   49 expresion: PARIZQ . expresion PARDER
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -593,49 +579,65 @@ Estado 32
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
 
-    expresion        ir al estado 67
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    expresion        ir al estado 66
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 33
 
-   72 sentencia_entrada: CIN . lista_variables PYC
+   66 sentencia_entrada: CIN . lista_variables PYC
 
     ID  desplazar e ir al estado 26
 
-    lista_variables  ir al estado 68
+    lista_variables  ir al estado 67
 
 
 Estado 34
 
-   73 sentencia_salida: COUT . lista_expresiones_o_cadena PYC
+   67 sentencia_salida: COUT . lista_expresiones_o_cadena PYC
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
-    CADENA   desplazar e ir al estado 69
+    CADENA   desplazar e ir al estado 68
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
     INTHASH  desplazar e ir al estado 38
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
 
-    expresion                   ir al estado 70
-    op_unario                   ir al estado 48
-    constante                   ir al estado 49
-    lista                       ir al estado 50
-    llamada_funcion             ir al estado 51
-    lista_expresiones_o_cadena  ir al estado 71
-    expresion_cadena            ir al estado 72
+    expresion                   ir al estado 69
+    constante                   ir al estado 48
+    lista                       ir al estado 49
+    llamada_funcion             ir al estado 50
+    lista_expresiones_o_cadena  ir al estado 70
+    expresion_cadena            ir al estado 71
 
 
 Estado 35
 
-   79 sentencia_return: RETURN . expresion PYC
+   73 sentencia_return: RETURN . expresion PYC
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 72
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 36
+
+   35 expresion: ADDSUB . expresion
+
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -644,45 +646,16 @@ Estado 35
     CORIZQ   desplazar e ir al estado 44
 
     expresion        ir al estado 73
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
-
-
-Estado 36
-
-   42 op_unario: ADDSUB .
-
-    $default  reduce usando la regla 42 (op_unario)
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 37
 
-   43 op_unario: EXCL .
+   36 expresion: EXCL . expresion
 
-    $default  reduce usando la regla 43 (op_unario)
-
-
-Estado 38
-
-   44 op_unario: INTHASH .
-
-    $default  reduce usando la regla 44 (op_unario)
-
-
-Estado 39
-
-   56 constante: CONST .
-
-    $default  reduce usando la regla 56 (constante)
-
-
-Estado 40
-
-   67 sentencia_lista: DOLLAR . expresion
-
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -691,22 +664,64 @@ Estado 40
     CORIZQ   desplazar e ir al estado 44
 
     expresion        ir al estado 74
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 38
+
+   37 expresion: INTHASH . expresion
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 75
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 39
+
+   50 constante: CONST .
+
+    $default  reduce usando la regla 50 (constante)
+
+
+Estado 40
+
+   61 sentencia_lista: DOLLAR . expresion
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 76
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 41
 
-   68 sentencia_if: IF . PARIZQ expresion PARDER sentencia bloque_else
+   62 sentencia_if: IF . PARIZQ expresion PARDER sentencia bloque_else
 
-    PARIZQ  desplazar e ir al estado 75
+    PARIZQ  desplazar e ir al estado 77
 
 
 Estado 42
 
-   78 sentencia_do_until: DO . sentencia UNTIL PARIZQ expresion PARDER PYC
+   72 sentencia_do_until: DO . sentencia UNTIL PARIZQ expresion PARDER PYC
 
     INIBLOQUE  desplazar e ir al estado 5
     ID         desplazar e ir al estado 31
@@ -725,49 +740,47 @@ Estado 42
     CORIZQ     desplazar e ir al estado 44
 
     bloque                ir al estado 45
-    sentencia             ir al estado 76
+    sentencia             ir al estado 78
     expresion             ir al estado 47
-    op_unario             ir al estado 48
-    constante             ir al estado 49
-    lista                 ir al estado 50
-    llamada_funcion       ir al estado 51
-    sentencia_asignacion  ir al estado 52
-    sentencia_lista       ir al estado 53
-    sentencia_if          ir al estado 54
-    sentencia_while       ir al estado 55
-    sentencia_entrada     ir al estado 56
-    sentencia_salida      ir al estado 57
-    sentencia_do_until    ir al estado 58
-    sentencia_return      ir al estado 59
+    constante             ir al estado 48
+    lista                 ir al estado 49
+    llamada_funcion       ir al estado 50
+    sentencia_asignacion  ir al estado 51
+    sentencia_lista       ir al estado 52
+    sentencia_if          ir al estado 53
+    sentencia_while       ir al estado 54
+    sentencia_entrada     ir al estado 55
+    sentencia_salida      ir al estado 56
+    sentencia_do_until    ir al estado 57
+    sentencia_return      ir al estado 58
 
 
 Estado 43
 
-   71 sentencia_while: WHILE . PARIZQ expresion PARDER sentencia
+   65 sentencia_while: WHILE . PARIZQ expresion PARDER sentencia
 
-    PARIZQ  desplazar e ir al estado 77
+    PARIZQ  desplazar e ir al estado 79
 
 
 Estado 44
 
-   58 lista: CORIZQ . lista_expresiones CORDER
-   59      | CORIZQ . CORDER
+   52 lista: CORIZQ . lista_expresiones CORDER
+   53      | CORIZQ . CORDER
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
     INTHASH  desplazar e ir al estado 38
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
-    CORDER   desplazar e ir al estado 78
+    CORDER   desplazar e ir al estado 80
 
-    expresion          ir al estado 79
-    op_unario          ir al estado 48
-    constante          ir al estado 49
-    lista              ir al estado 50
-    llamada_funcion    ir al estado 51
-    lista_expresiones  ir al estado 80
+    expresion          ir al estado 81
+    constante          ir al estado 48
+    lista              ir al estado 49
+    llamada_funcion    ir al estado 50
+    lista_expresiones  ir al estado 82
 
 
 Estado 45
@@ -787,364 +800,399 @@ Estado 46
 Estado 47
 
    26 sentencia: expresion . PYC
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   66 sentencia_lista: expresion . SHIFT
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   60 sentencia_lista: expresion . SHIFT
 
-    PYC       desplazar e ir al estado 81
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-    SHIFT     desplazar e ir al estado 93
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    PYC       desplazar e ir al estado 83
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+    SHIFT     desplazar e ir al estado 92
 
 
 Estado 48
 
-   35 expresion: op_unario . expresion
+   47 expresion: constante .
 
-    ID       desplazar e ir al estado 66
-    PARIZQ   desplazar e ir al estado 32
-    ADDSUB   desplazar e ir al estado 36
-    EXCL     desplazar e ir al estado 37
-    INTHASH  desplazar e ir al estado 38
-    CONST    desplazar e ir al estado 39
-    CORIZQ   desplazar e ir al estado 44
-
-    expresion        ir al estado 95
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    $default  reduce usando la regla 47 (expresion)
 
 
 Estado 49
 
-   39 expresion: constante .
+   51 constante: lista .
 
-    $default  reduce usando la regla 39 (expresion)
+    $default  reduce usando la regla 51 (constante)
 
 
 Estado 50
 
-   57 constante: lista .
+   48 expresion: llamada_funcion .
 
-    $default  reduce usando la regla 57 (constante)
+    $default  reduce usando la regla 48 (expresion)
 
 
 Estado 51
-
-   40 expresion: llamada_funcion .
-
-    $default  reduce usando la regla 40 (expresion)
-
-
-Estado 52
 
    27 sentencia: sentencia_asignacion .
 
     $default  reduce usando la regla 27 (sentencia)
 
 
-Estado 53
+Estado 52
 
    28 sentencia: sentencia_lista .
 
     $default  reduce usando la regla 28 (sentencia)
 
 
-Estado 54
+Estado 53
 
    29 sentencia: sentencia_if .
 
     $default  reduce usando la regla 29 (sentencia)
 
 
-Estado 55
+Estado 54
 
    30 sentencia: sentencia_while .
 
     $default  reduce usando la regla 30 (sentencia)
 
 
-Estado 56
+Estado 55
 
    31 sentencia: sentencia_entrada .
 
     $default  reduce usando la regla 31 (sentencia)
 
 
-Estado 57
+Estado 56
 
    32 sentencia: sentencia_salida .
 
     $default  reduce usando la regla 32 (sentencia)
 
 
-Estado 58
+Estado 57
 
    33 sentencia: sentencia_do_until .
 
     $default  reduce usando la regla 33 (sentencia)
 
 
-Estado 59
+Estado 58
 
    34 sentencia: sentencia_return .
 
     $default  reduce usando la regla 34 (sentencia)
 
 
-Estado 60
+Estado 59
 
    18 lista_variables: ID COMA . lista_variables
 
     ID  desplazar e ir al estado 26
 
-    lista_variables  ir al estado 96
+    lista_variables  ir al estado 93
 
 
-Estado 61
+Estado 60
 
     9 cuerpo_declar_variables: tipo_variable lista_variables PYC .
 
     $default  reduce usando la regla 9 (cuerpo_declar_variables)
 
 
-Estado 62
+Estado 61
 
    14 cabecera_subprog: tipo_variable ID PARIZQ . parametros PARDER
 
     TIPOSIMPLE  desplazar e ir al estado 12
     LISTA       desplazar e ir al estado 13
 
-    tipo_variable           ir al estado 97
+    tipo_variable           ir al estado 94
     tipo_variable_complejo  ir al estado 17
-    parametros              ir al estado 98
-    parametro               ir al estado 99
+    parametros              ir al estado 95
+    parametro               ir al estado 96
+
+
+Estado 62
+
+   54 llamada_funcion: ID PARIZQ . lista_expresiones PARDER
+   55                | ID PARIZQ . PARDER
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    PARDER   desplazar e ir al estado 97
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion          ir al estado 81
+    constante          ir al estado 48
+    lista              ir al estado 49
+    llamada_funcion    ir al estado 50
+    lista_expresiones  ir al estado 98
 
 
 Estado 63
 
-   60 llamada_funcion: ID PARIZQ . lista_expresiones PARDER
-   61                | ID PARIZQ . PARDER
+   59 op_asignacion: ASIGN .
 
-    ID       desplazar e ir al estado 66
-    PARIZQ   desplazar e ir al estado 32
-    PARDER   desplazar e ir al estado 100
-    ADDSUB   desplazar e ir al estado 36
-    EXCL     desplazar e ir al estado 37
-    INTHASH  desplazar e ir al estado 38
-    CONST    desplazar e ir al estado 39
-    CORIZQ   desplazar e ir al estado 44
-
-    expresion          ir al estado 79
-    op_unario          ir al estado 48
-    constante          ir al estado 49
-    lista              ir al estado 50
-    llamada_funcion    ir al estado 51
-    lista_expresiones  ir al estado 101
+    $default  reduce usando la regla 59 (op_asignacion)
 
 
 Estado 64
 
-   65 op_asignacion: ASIGN .
+   58 sentencia_asignacion: ID op_asignacion . expresion PYC
 
-    $default  reduce usando la regla 65 (op_asignacion)
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 99
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 65
 
-   64 sentencia_asignacion: ID op_asignacion . expresion PYC
+   46 expresion: ID .
+   54 llamada_funcion: ID . PARIZQ lista_expresiones PARDER
+   55                | ID . PARIZQ PARDER
 
-    ID       desplazar e ir al estado 66
-    PARIZQ   desplazar e ir al estado 32
-    ADDSUB   desplazar e ir al estado 36
-    EXCL     desplazar e ir al estado 37
-    INTHASH  desplazar e ir al estado 38
-    CONST    desplazar e ir al estado 39
-    CORIZQ   desplazar e ir al estado 44
+    PARIZQ  desplazar e ir al estado 62
 
-    expresion        ir al estado 102
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    PARIZQ    [reduce usando la regla 46 (expresion)]
+    $default  reduce usando la regla 46 (expresion)
 
 
 Estado 66
 
-   38 expresion: ID .
-   60 llamada_funcion: ID . PARIZQ lista_expresiones PARDER
-   61                | ID . PARIZQ PARDER
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   49          | PARIZQ expresion . PARDER
 
-    PARIZQ  desplazar e ir al estado 63
-
-    PARIZQ    [reduce usando la regla 38 (expresion)]
-    $default  reduce usando la regla 38 (expresion)
+    PARDER    desplazar e ir al estado 100
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
 
 Estado 67
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   41          | PARIZQ expresion . PARDER
+   66 sentencia_entrada: CIN lista_variables . PYC
 
-    PARDER    desplazar e ir al estado 103
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    PYC  desplazar e ir al estado 101
 
 
 Estado 68
 
-   72 sentencia_entrada: CIN lista_variables . PYC
+   71 expresion_cadena: CADENA .
 
-    PYC  desplazar e ir al estado 104
+    $default  reduce usando la regla 71 (expresion_cadena)
 
 
 Estado 69
 
-   77 expresion_cadena: CADENA .
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   70 expresion_cadena: expresion .
 
-    $default  reduce usando la regla 77 (expresion_cadena)
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    $default  reduce usando la regla 70 (expresion_cadena)
 
 
 Estado 70
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   76 expresion_cadena: expresion .
+   67 sentencia_salida: COUT lista_expresiones_o_cadena . PYC
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    PYC       reduce usando la regla 76 (expresion_cadena)
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    COMA      reduce usando la regla 76 (expresion_cadena)
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    PYC  desplazar e ir al estado 102
 
 
 Estado 71
 
-   73 sentencia_salida: COUT lista_expresiones_o_cadena . PYC
+   68 lista_expresiones_o_cadena: expresion_cadena . COMA lista_expresiones_o_cadena
+   69                           | expresion_cadena .
 
-    PYC  desplazar e ir al estado 105
+    COMA  desplazar e ir al estado 103
+
+    $default  reduce usando la regla 69 (lista_expresiones_o_cadena)
 
 
 Estado 72
 
-   74 lista_expresiones_o_cadena: expresion_cadena . COMA lista_expresiones_o_cadena
-   75                           | expresion_cadena .
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   73 sentencia_return: RETURN expresion . PYC
 
-    COMA  desplazar e ir al estado 106
-
-    $default  reduce usando la regla 75 (lista_expresiones_o_cadena)
+    PYC       desplazar e ir al estado 104
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
 
 Estado 73
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   79 sentencia_return: RETURN expresion . PYC
+   35 expresion: ADDSUB expresion .
+   38          | expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    PYC       desplazar e ir al estado 107
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    PORPOR    [reduce usando la regla 35 (expresion)]
+    BORRLIST  [reduce usando la regla 35 (expresion)]
+    MASMAS    [reduce usando la regla 35 (expresion)]
+    $default  reduce usando la regla 35 (expresion)
 
 
 Estado 74
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   67 sentencia_lista: DOLLAR expresion .
+   36 expresion: EXCL expresion .
+   38          | expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
-    ID        reduce usando la regla 55 (op_binario)
-    ID        [reduce usando la regla 67 (sentencia_lista)]
-    PARIZQ    reduce usando la regla 55 (op_binario)
-    PARIZQ    [reduce usando la regla 67 (sentencia_lista)]
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    ADDSUB    [reduce usando la regla 67 (sentencia_lista)]
-    EXCL      reduce usando la regla 55 (op_binario)
-    EXCL      [reduce usando la regla 67 (sentencia_lista)]
-    INTHASH   reduce usando la regla 55 (op_binario)
-    INTHASH   [reduce usando la regla 67 (sentencia_lista)]
-    CONST     reduce usando la regla 55 (op_binario)
-    CONST     [reduce usando la regla 67 (sentencia_lista)]
-    CORIZQ    reduce usando la regla 55 (op_binario)
-    CORIZQ    [reduce usando la regla 67 (sentencia_lista)]
-    $default  reduce usando la regla 67 (sentencia_lista)
-
-    op_binario  ir al estado 94
+    PORPOR    [reduce usando la regla 36 (expresion)]
+    BORRLIST  [reduce usando la regla 36 (expresion)]
+    MASMAS    [reduce usando la regla 36 (expresion)]
+    $default  reduce usando la regla 36 (expresion)
 
 
 Estado 75
 
-   68 sentencia_if: IF PARIZQ . expresion PARDER sentencia bloque_else
+   37 expresion: INTHASH expresion .
+   38          | expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    ID       desplazar e ir al estado 66
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    ORLOG     [reduce usando la regla 37 (expresion)]
+    ANDLOG    [reduce usando la regla 37 (expresion)]
+    EQN       [reduce usando la regla 37 (expresion)]
+    ADDSUB    [reduce usando la regla 37 (expresion)]
+    MULDIV    [reduce usando la regla 37 (expresion)]
+    PORPOR    [reduce usando la regla 37 (expresion)]
+    BORRLIST  [reduce usando la regla 37 (expresion)]
+    MASMAS    [reduce usando la regla 37 (expresion)]
+    $default  reduce usando la regla 37 (expresion)
+
+
+Estado 76
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   61 sentencia_lista: DOLLAR expresion .
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    ADDSUB    [reduce usando la regla 61 (sentencia_lista)]
+    $default  reduce usando la regla 61 (sentencia_lista)
+
+
+Estado 77
+
+   62 sentencia_if: IF PARIZQ . expresion PARDER sentencia bloque_else
+
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1152,25 +1200,89 @@ Estado 75
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
 
-    expresion        ir al estado 108
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    expresion        ir al estado 105
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
-Estado 76
+Estado 78
 
-   78 sentencia_do_until: DO sentencia . UNTIL PARIZQ expresion PARDER PYC
+   72 sentencia_do_until: DO sentencia . UNTIL PARIZQ expresion PARDER PYC
 
-    UNTIL  desplazar e ir al estado 109
+    UNTIL  desplazar e ir al estado 106
 
 
-Estado 77
+Estado 79
 
-   71 sentencia_while: WHILE PARIZQ . expresion PARDER sentencia
+   65 sentencia_while: WHILE PARIZQ . expresion PARDER sentencia
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 107
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 80
+
+   53 lista: CORIZQ CORDER .
+
+    $default  reduce usando la regla 53 (lista)
+
+
+Estado 81
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   56 lista_expresiones: expresion . COMA lista_expresiones
+   57                  | expresion .
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+    COMA      desplazar e ir al estado 108
+
+    $default  reduce usando la regla 57 (lista_expresiones)
+
+
+Estado 82
+
+   52 lista: CORIZQ lista_expresiones . CORDER
+
+    CORDER  desplazar e ir al estado 109
+
+
+Estado 83
+
+   26 sentencia: expresion PYC .
+
+    $default  reduce usando la regla 26 (sentencia)
+
+
+Estado 84
+
+   38 expresion: expresion ORLOG . expresion
+
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1179,136 +1291,52 @@ Estado 77
     CORIZQ   desplazar e ir al estado 44
 
     expresion        ir al estado 110
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
-
-
-Estado 78
-
-   59 lista: CORIZQ CORDER .
-
-    $default  reduce usando la regla 59 (lista)
-
-
-Estado 79
-
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   62 lista_expresiones: expresion . COMA lista_expresiones
-   63                  | expresion .
-
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-    COMA      desplazar e ir al estado 111
-
-    PARDER    reduce usando la regla 63 (lista_expresiones)
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    CORDER    reduce usando la regla 63 (lista_expresiones)
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
-
-
-Estado 80
-
-   58 lista: CORIZQ lista_expresiones . CORDER
-
-    CORDER  desplazar e ir al estado 112
-
-
-Estado 81
-
-   26 sentencia: expresion PYC .
-
-    $default  reduce usando la regla 26 (sentencia)
-
-
-Estado 82
-
-   45 op_binario: ORLOG .
-
-    $default  reduce usando la regla 45 (op_binario)
-
-
-Estado 83
-
-   46 op_binario: ANDLOG .
-
-    $default  reduce usando la regla 46 (op_binario)
-
-
-Estado 84
-
-   47 op_binario: OR .
-
-    $default  reduce usando la regla 47 (op_binario)
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 85
 
-   48 op_binario: XOR .
+   39 expresion: expresion ANDLOG . expresion
 
-    $default  reduce usando la regla 48 (op_binario)
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 111
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 86
 
-   49 op_binario: AND .
+   40 expresion: expresion EQN . expresion
 
-    $default  reduce usando la regla 49 (op_binario)
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 112
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 87
 
-   50 op_binario: EQN .
+   41 expresion: expresion ADDSUB . expresion
 
-    $default  reduce usando la regla 50 (op_binario)
-
-
-Estado 88
-
-   51 op_binario: ADDSUB .
-
-    $default  reduce usando la regla 51 (op_binario)
-
-
-Estado 89
-
-   52 op_binario: MULDIV .
-
-    $default  reduce usando la regla 52 (op_binario)
-
-
-Estado 90
-
-   53 op_binario: PORPOR .
-
-    $default  reduce usando la regla 53 (op_binario)
-
-
-Estado 91
-
-   54 op_binario: BORRLIST .
-
-    $default  reduce usando la regla 54 (op_binario)
-
-
-Estado 92
-
-   37 expresion: expresion MASMAS . expresion AT expresion
-
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1317,24 +1345,16 @@ Estado 92
     CORIZQ   desplazar e ir al estado 44
 
     expresion        ir al estado 113
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
-Estado 93
+Estado 88
 
-   66 sentencia_lista: expresion SHIFT .
+   42 expresion: expresion MULDIV . expresion
 
-    $default  reduce usando la regla 66 (sentencia_lista)
-
-
-Estado 94
-
-   36 expresion: expresion op_binario . expresion
-
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1343,241 +1363,247 @@ Estado 94
     CORIZQ   desplazar e ir al estado 44
 
     expresion        ir al estado 114
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
-Estado 95
+Estado 89
 
-   35 expresion: op_unario expresion .
-   36          | expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
+   43 expresion: expresion PORPOR . expresion
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
 
-    ID        reduce usando la regla 35 (expresion)
-    ID        [reduce usando la regla 55 (op_binario)]
-    PARIZQ    reduce usando la regla 35 (expresion)
-    PARIZQ    [reduce usando la regla 55 (op_binario)]
-    ORLOG     [reduce usando la regla 35 (expresion)]
-    ANDLOG    [reduce usando la regla 35 (expresion)]
-    OR        [reduce usando la regla 35 (expresion)]
-    XOR       [reduce usando la regla 35 (expresion)]
-    AND       [reduce usando la regla 35 (expresion)]
-    EQN       [reduce usando la regla 35 (expresion)]
-    ADDSUB    [reduce usando la regla 35 (expresion)]
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    MULDIV    [reduce usando la regla 35 (expresion)]
-    EXCL      reduce usando la regla 35 (expresion)
-    EXCL      [reduce usando la regla 55 (op_binario)]
-    PORPOR    [reduce usando la regla 35 (expresion)]
-    BORRLIST  [reduce usando la regla 35 (expresion)]
-    INTHASH   reduce usando la regla 35 (expresion)
-    INTHASH   [reduce usando la regla 55 (op_binario)]
-    MASMAS    [reduce usando la regla 35 (expresion)]
-    CONST     reduce usando la regla 35 (expresion)
-    CONST     [reduce usando la regla 55 (op_binario)]
-    CORIZQ    reduce usando la regla 35 (expresion)
-    CORIZQ    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 35 (expresion)
-
-    op_binario  ir al estado 94
+    expresion        ir al estado 115
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
-Estado 96
+Estado 90
+
+   44 expresion: expresion BORRLIST . expresion
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 116
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 91
+
+   45 expresion: expresion MASMAS . expresion AT expresion
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 117
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 92
+
+   60 sentencia_lista: expresion SHIFT .
+
+    $default  reduce usando la regla 60 (sentencia_lista)
+
+
+Estado 93
 
    18 lista_variables: ID COMA lista_variables .
 
     $default  reduce usando la regla 18 (lista_variables)
 
 
-Estado 97
+Estado 94
 
    22 parametro: tipo_variable . ID
 
-    ID  desplazar e ir al estado 115
+    ID  desplazar e ir al estado 118
 
 
-Estado 98
+Estado 95
 
    14 cabecera_subprog: tipo_variable ID PARIZQ parametros . PARDER
 
-    PARDER  desplazar e ir al estado 116
+    PARDER  desplazar e ir al estado 119
 
 
-Estado 99
+Estado 96
 
    20 parametros: parametro . COMA parametros
    21           | parametro .
 
-    COMA  desplazar e ir al estado 117
+    COMA  desplazar e ir al estado 120
 
     $default  reduce usando la regla 21 (parametros)
 
 
+Estado 97
+
+   55 llamada_funcion: ID PARIZQ PARDER .
+
+    $default  reduce usando la regla 55 (llamada_funcion)
+
+
+Estado 98
+
+   54 llamada_funcion: ID PARIZQ lista_expresiones . PARDER
+
+    PARDER  desplazar e ir al estado 121
+
+
+Estado 99
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   58 sentencia_asignacion: ID op_asignacion expresion . PYC
+
+    PYC       desplazar e ir al estado 122
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+
 Estado 100
 
-   61 llamada_funcion: ID PARIZQ PARDER .
+   49 expresion: PARIZQ expresion PARDER .
 
-    $default  reduce usando la regla 61 (llamada_funcion)
+    $default  reduce usando la regla 49 (expresion)
 
 
 Estado 101
 
-   60 llamada_funcion: ID PARIZQ lista_expresiones . PARDER
+   66 sentencia_entrada: CIN lista_variables PYC .
 
-    PARDER  desplazar e ir al estado 118
+    $default  reduce usando la regla 66 (sentencia_entrada)
 
 
 Estado 102
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   64 sentencia_asignacion: ID op_asignacion expresion . PYC
+   67 sentencia_salida: COUT lista_expresiones_o_cadena PYC .
 
-    PYC       desplazar e ir al estado 119
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    $default  reduce usando la regla 67 (sentencia_salida)
 
 
 Estado 103
 
-   41 expresion: PARIZQ expresion PARDER .
+   68 lista_expresiones_o_cadena: expresion_cadena COMA . lista_expresiones_o_cadena
 
-    $default  reduce usando la regla 41 (expresion)
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    CADENA   desplazar e ir al estado 68
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion                   ir al estado 69
+    constante                   ir al estado 48
+    lista                       ir al estado 49
+    llamada_funcion             ir al estado 50
+    lista_expresiones_o_cadena  ir al estado 123
+    expresion_cadena            ir al estado 71
 
 
 Estado 104
 
-   72 sentencia_entrada: CIN lista_variables PYC .
+   73 sentencia_return: RETURN expresion PYC .
 
-    $default  reduce usando la regla 72 (sentencia_entrada)
+    $default  reduce usando la regla 73 (sentencia_return)
 
 
 Estado 105
 
-   73 sentencia_salida: COUT lista_expresiones_o_cadena PYC .
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   62 sentencia_if: IF PARIZQ expresion . PARDER sentencia bloque_else
 
-    $default  reduce usando la regla 73 (sentencia_salida)
+    PARDER    desplazar e ir al estado 124
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
 
 Estado 106
 
-   74 lista_expresiones_o_cadena: expresion_cadena COMA . lista_expresiones_o_cadena
+   72 sentencia_do_until: DO sentencia UNTIL . PARIZQ expresion PARDER PYC
 
-    ID       desplazar e ir al estado 66
-    PARIZQ   desplazar e ir al estado 32
-    CADENA   desplazar e ir al estado 69
-    ADDSUB   desplazar e ir al estado 36
-    EXCL     desplazar e ir al estado 37
-    INTHASH  desplazar e ir al estado 38
-    CONST    desplazar e ir al estado 39
-    CORIZQ   desplazar e ir al estado 44
-
-    expresion                   ir al estado 70
-    op_unario                   ir al estado 48
-    constante                   ir al estado 49
-    lista                       ir al estado 50
-    llamada_funcion             ir al estado 51
-    lista_expresiones_o_cadena  ir al estado 120
-    expresion_cadena            ir al estado 72
+    PARIZQ  desplazar e ir al estado 125
 
 
 Estado 107
 
-   79 sentencia_return: RETURN expresion PYC .
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   65 sentencia_while: WHILE PARIZQ expresion . PARDER sentencia
 
-    $default  reduce usando la regla 79 (sentencia_return)
+    PARDER    desplazar e ir al estado 126
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
 
 Estado 108
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   68 sentencia_if: IF PARIZQ expresion . PARDER sentencia bloque_else
+   56 lista_expresiones: expresion COMA . lista_expresiones
 
-    PARDER    desplazar e ir al estado 121
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
-
-
-Estado 109
-
-   78 sentencia_do_until: DO sentencia UNTIL . PARIZQ expresion PARDER PYC
-
-    PARIZQ  desplazar e ir al estado 122
-
-
-Estado 110
-
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   71 sentencia_while: WHILE PARIZQ expresion . PARDER sentencia
-
-    PARDER    desplazar e ir al estado 123
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
-
-
-Estado 111
-
-   62 lista_expresiones: expresion COMA . lista_expresiones
-
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1585,200 +1611,278 @@ Estado 111
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
 
-    expresion          ir al estado 79
-    op_unario          ir al estado 48
-    constante          ir al estado 49
-    lista              ir al estado 50
-    llamada_funcion    ir al estado 51
-    lista_expresiones  ir al estado 124
+    expresion          ir al estado 81
+    constante          ir al estado 48
+    lista              ir al estado 49
+    llamada_funcion    ir al estado 50
+    lista_expresiones  ir al estado 127
+
+
+Estado 109
+
+   52 lista: CORIZQ lista_expresiones CORDER .
+
+    $default  reduce usando la regla 52 (lista)
+
+
+Estado 110
+
+   38 expresion: expresion . ORLOG expresion
+   38          | expresion ORLOG expresion .
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    PORPOR    [reduce usando la regla 38 (expresion)]
+    BORRLIST  [reduce usando la regla 38 (expresion)]
+    MASMAS    [reduce usando la regla 38 (expresion)]
+    $default  reduce usando la regla 38 (expresion)
+
+
+Estado 111
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   39          | expresion ANDLOG expresion .
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    PORPOR    [reduce usando la regla 39 (expresion)]
+    BORRLIST  [reduce usando la regla 39 (expresion)]
+    MASMAS    [reduce usando la regla 39 (expresion)]
+    $default  reduce usando la regla 39 (expresion)
 
 
 Estado 112
 
-   58 lista: CORIZQ lista_expresiones CORDER .
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   40          | expresion EQN expresion .
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    $default  reduce usando la regla 58 (lista)
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    PORPOR    [reduce usando la regla 40 (expresion)]
+    BORRLIST  [reduce usando la regla 40 (expresion)]
+    MASMAS    [reduce usando la regla 40 (expresion)]
+    $default  reduce usando la regla 40 (expresion)
 
 
 Estado 113
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   37          | expresion MASMAS expresion . AT expresion
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   41          | expresion ADDSUB expresion .
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    AT        desplazar e ir al estado 125
-    MASMAS    desplazar e ir al estado 92
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
+    PORPOR    [reduce usando la regla 41 (expresion)]
+    BORRLIST  [reduce usando la regla 41 (expresion)]
+    MASMAS    [reduce usando la regla 41 (expresion)]
+    $default  reduce usando la regla 41 (expresion)
 
 
 Estado 114
 
-   36 expresion: expresion . op_binario expresion
-   36          | expresion op_binario expresion .
-   37          | expresion . MASMAS expresion AT expresion
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   42          | expresion MULDIV expresion .
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
 
-    ID        reduce usando la regla 36 (expresion)
-    ID        [reduce usando la regla 55 (op_binario)]
-    PARIZQ    reduce usando la regla 36 (expresion)
-    PARIZQ    [reduce usando la regla 55 (op_binario)]
-    ORLOG     [reduce usando la regla 36 (expresion)]
-    ANDLOG    [reduce usando la regla 36 (expresion)]
-    OR        [reduce usando la regla 36 (expresion)]
-    XOR       [reduce usando la regla 36 (expresion)]
-    AND       [reduce usando la regla 36 (expresion)]
-    EQN       [reduce usando la regla 36 (expresion)]
-    ADDSUB    [reduce usando la regla 36 (expresion)]
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    MULDIV    [reduce usando la regla 36 (expresion)]
-    EXCL      reduce usando la regla 36 (expresion)
-    EXCL      [reduce usando la regla 55 (op_binario)]
-    PORPOR    [reduce usando la regla 36 (expresion)]
-    BORRLIST  [reduce usando la regla 36 (expresion)]
-    INTHASH   reduce usando la regla 36 (expresion)
-    INTHASH   [reduce usando la regla 55 (op_binario)]
-    MASMAS    [reduce usando la regla 36 (expresion)]
-    CONST     reduce usando la regla 36 (expresion)
-    CONST     [reduce usando la regla 55 (op_binario)]
-    CORIZQ    reduce usando la regla 36 (expresion)
-    CORIZQ    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 36 (expresion)
-
-    op_binario  ir al estado 94
+    PORPOR    [reduce usando la regla 42 (expresion)]
+    BORRLIST  [reduce usando la regla 42 (expresion)]
+    MASMAS    [reduce usando la regla 42 (expresion)]
+    $default  reduce usando la regla 42 (expresion)
 
 
 Estado 115
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   43          | expresion PORPOR expresion .
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    ORLOG     [reduce usando la regla 43 (expresion)]
+    ANDLOG    [reduce usando la regla 43 (expresion)]
+    EQN       [reduce usando la regla 43 (expresion)]
+    ADDSUB    [reduce usando la regla 43 (expresion)]
+    MULDIV    [reduce usando la regla 43 (expresion)]
+    PORPOR    [reduce usando la regla 43 (expresion)]
+    BORRLIST  [reduce usando la regla 43 (expresion)]
+    MASMAS    [reduce usando la regla 43 (expresion)]
+    $default  reduce usando la regla 43 (expresion)
+
+
+Estado 116
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   44          | expresion BORRLIST expresion .
+   45          | expresion . MASMAS expresion AT expresion
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    ORLOG     [reduce usando la regla 44 (expresion)]
+    ANDLOG    [reduce usando la regla 44 (expresion)]
+    EQN       [reduce usando la regla 44 (expresion)]
+    ADDSUB    [reduce usando la regla 44 (expresion)]
+    MULDIV    [reduce usando la regla 44 (expresion)]
+    PORPOR    [reduce usando la regla 44 (expresion)]
+    BORRLIST  [reduce usando la regla 44 (expresion)]
+    MASMAS    [reduce usando la regla 44 (expresion)]
+    $default  reduce usando la regla 44 (expresion)
+
+
+Estado 117
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   45          | expresion MASMAS expresion . AT expresion
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    AT        desplazar e ir al estado 128
+    MASMAS    desplazar e ir al estado 91
+
+
+Estado 118
 
    22 parametro: tipo_variable ID .
 
     $default  reduce usando la regla 22 (parametro)
 
 
-Estado 116
+Estado 119
 
    14 cabecera_subprog: tipo_variable ID PARIZQ parametros PARDER .
 
     $default  reduce usando la regla 14 (cabecera_subprog)
 
 
-Estado 117
+Estado 120
 
    20 parametros: parametro COMA . parametros
 
     TIPOSIMPLE  desplazar e ir al estado 12
     LISTA       desplazar e ir al estado 13
 
-    tipo_variable           ir al estado 97
+    tipo_variable           ir al estado 94
     tipo_variable_complejo  ir al estado 17
-    parametros              ir al estado 126
-    parametro               ir al estado 99
-
-
-Estado 118
-
-   60 llamada_funcion: ID PARIZQ lista_expresiones PARDER .
-
-    $default  reduce usando la regla 60 (llamada_funcion)
-
-
-Estado 119
-
-   64 sentencia_asignacion: ID op_asignacion expresion PYC .
-
-    $default  reduce usando la regla 64 (sentencia_asignacion)
-
-
-Estado 120
-
-   74 lista_expresiones_o_cadena: expresion_cadena COMA lista_expresiones_o_cadena .
-
-    $default  reduce usando la regla 74 (lista_expresiones_o_cadena)
+    parametros              ir al estado 129
+    parametro               ir al estado 96
 
 
 Estado 121
 
-   68 sentencia_if: IF PARIZQ expresion PARDER . sentencia bloque_else
+   54 llamada_funcion: ID PARIZQ lista_expresiones PARDER .
 
-    INIBLOQUE  desplazar e ir al estado 5
-    ID         desplazar e ir al estado 31
-    PARIZQ     desplazar e ir al estado 32
-    CIN        desplazar e ir al estado 33
-    COUT       desplazar e ir al estado 34
-    RETURN     desplazar e ir al estado 35
-    ADDSUB     desplazar e ir al estado 36
-    EXCL       desplazar e ir al estado 37
-    INTHASH    desplazar e ir al estado 38
-    CONST      desplazar e ir al estado 39
-    DOLLAR     desplazar e ir al estado 40
-    IF         desplazar e ir al estado 41
-    DO         desplazar e ir al estado 42
-    WHILE      desplazar e ir al estado 43
-    CORIZQ     desplazar e ir al estado 44
-
-    bloque                ir al estado 45
-    sentencia             ir al estado 127
-    expresion             ir al estado 47
-    op_unario             ir al estado 48
-    constante             ir al estado 49
-    lista                 ir al estado 50
-    llamada_funcion       ir al estado 51
-    sentencia_asignacion  ir al estado 52
-    sentencia_lista       ir al estado 53
-    sentencia_if          ir al estado 54
-    sentencia_while       ir al estado 55
-    sentencia_entrada     ir al estado 56
-    sentencia_salida      ir al estado 57
-    sentencia_do_until    ir al estado 58
-    sentencia_return      ir al estado 59
+    $default  reduce usando la regla 54 (llamada_funcion)
 
 
 Estado 122
 
-   78 sentencia_do_until: DO sentencia UNTIL PARIZQ . expresion PARDER PYC
+   58 sentencia_asignacion: ID op_asignacion expresion PYC .
 
-    ID       desplazar e ir al estado 66
-    PARIZQ   desplazar e ir al estado 32
-    ADDSUB   desplazar e ir al estado 36
-    EXCL     desplazar e ir al estado 37
-    INTHASH  desplazar e ir al estado 38
-    CONST    desplazar e ir al estado 39
-    CORIZQ   desplazar e ir al estado 44
-
-    expresion        ir al estado 128
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    $default  reduce usando la regla 58 (sentencia_asignacion)
 
 
 Estado 123
 
-   71 sentencia_while: WHILE PARIZQ expresion PARDER . sentencia
+   68 lista_expresiones_o_cadena: expresion_cadena COMA lista_expresiones_o_cadena .
+
+    $default  reduce usando la regla 68 (lista_expresiones_o_cadena)
+
+
+Estado 124
+
+   62 sentencia_if: IF PARIZQ expresion PARDER . sentencia bloque_else
 
     INIBLOQUE  desplazar e ir al estado 5
     ID         desplazar e ir al estado 31
@@ -1797,34 +1901,26 @@ Estado 123
     CORIZQ     desplazar e ir al estado 44
 
     bloque                ir al estado 45
-    sentencia             ir al estado 129
+    sentencia             ir al estado 130
     expresion             ir al estado 47
-    op_unario             ir al estado 48
-    constante             ir al estado 49
-    lista                 ir al estado 50
-    llamada_funcion       ir al estado 51
-    sentencia_asignacion  ir al estado 52
-    sentencia_lista       ir al estado 53
-    sentencia_if          ir al estado 54
-    sentencia_while       ir al estado 55
-    sentencia_entrada     ir al estado 56
-    sentencia_salida      ir al estado 57
-    sentencia_do_until    ir al estado 58
-    sentencia_return      ir al estado 59
-
-
-Estado 124
-
-   62 lista_expresiones: expresion COMA lista_expresiones .
-
-    $default  reduce usando la regla 62 (lista_expresiones)
+    constante             ir al estado 48
+    lista                 ir al estado 49
+    llamada_funcion       ir al estado 50
+    sentencia_asignacion  ir al estado 51
+    sentencia_lista       ir al estado 52
+    sentencia_if          ir al estado 53
+    sentencia_while       ir al estado 54
+    sentencia_entrada     ir al estado 55
+    sentencia_salida      ir al estado 56
+    sentencia_do_until    ir al estado 57
+    sentencia_return      ir al estado 58
 
 
 Estado 125
 
-   37 expresion: expresion MASMAS expresion AT . expresion
+   72 sentencia_do_until: DO sentencia UNTIL PARIZQ . expresion PARDER PYC
 
-    ID       desplazar e ir al estado 66
+    ID       desplazar e ir al estado 65
     PARIZQ   desplazar e ir al estado 32
     ADDSUB   desplazar e ir al estado 36
     EXCL     desplazar e ir al estado 37
@@ -1832,114 +1928,157 @@ Estado 125
     CONST    desplazar e ir al estado 39
     CORIZQ   desplazar e ir al estado 44
 
-    expresion        ir al estado 130
-    op_unario        ir al estado 48
-    constante        ir al estado 49
-    lista            ir al estado 50
-    llamada_funcion  ir al estado 51
+    expresion        ir al estado 131
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
 
 
 Estado 126
+
+   65 sentencia_while: WHILE PARIZQ expresion PARDER . sentencia
+
+    INIBLOQUE  desplazar e ir al estado 5
+    ID         desplazar e ir al estado 31
+    PARIZQ     desplazar e ir al estado 32
+    CIN        desplazar e ir al estado 33
+    COUT       desplazar e ir al estado 34
+    RETURN     desplazar e ir al estado 35
+    ADDSUB     desplazar e ir al estado 36
+    EXCL       desplazar e ir al estado 37
+    INTHASH    desplazar e ir al estado 38
+    CONST      desplazar e ir al estado 39
+    DOLLAR     desplazar e ir al estado 40
+    IF         desplazar e ir al estado 41
+    DO         desplazar e ir al estado 42
+    WHILE      desplazar e ir al estado 43
+    CORIZQ     desplazar e ir al estado 44
+
+    bloque                ir al estado 45
+    sentencia             ir al estado 132
+    expresion             ir al estado 47
+    constante             ir al estado 48
+    lista                 ir al estado 49
+    llamada_funcion       ir al estado 50
+    sentencia_asignacion  ir al estado 51
+    sentencia_lista       ir al estado 52
+    sentencia_if          ir al estado 53
+    sentencia_while       ir al estado 54
+    sentencia_entrada     ir al estado 55
+    sentencia_salida      ir al estado 56
+    sentencia_do_until    ir al estado 57
+    sentencia_return      ir al estado 58
+
+
+Estado 127
+
+   56 lista_expresiones: expresion COMA lista_expresiones .
+
+    $default  reduce usando la regla 56 (lista_expresiones)
+
+
+Estado 128
+
+   45 expresion: expresion MASMAS expresion AT . expresion
+
+    ID       desplazar e ir al estado 65
+    PARIZQ   desplazar e ir al estado 32
+    ADDSUB   desplazar e ir al estado 36
+    EXCL     desplazar e ir al estado 37
+    INTHASH  desplazar e ir al estado 38
+    CONST    desplazar e ir al estado 39
+    CORIZQ   desplazar e ir al estado 44
+
+    expresion        ir al estado 133
+    constante        ir al estado 48
+    lista            ir al estado 49
+    llamada_funcion  ir al estado 50
+
+
+Estado 129
 
    20 parametros: parametro COMA parametros .
 
     $default  reduce usando la regla 20 (parametros)
 
 
-Estado 127
-
-   68 sentencia_if: IF PARIZQ expresion PARDER sentencia . bloque_else
-
-    ELSE  desplazar e ir al estado 131
-
-    ELSE      [reduce usando la regla 70 (bloque_else)]
-    $default  reduce usando la regla 70 (bloque_else)
-
-    bloque_else  ir al estado 132
-
-
-Estado 128
-
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   78 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion . PARDER PYC
-
-    PARDER    desplazar e ir al estado 133
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
-
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 55 (op_binario)
-
-    op_binario  ir al estado 94
-
-
-Estado 129
-
-   71 sentencia_while: WHILE PARIZQ expresion PARDER sentencia .
-
-    $default  reduce usando la regla 71 (sentencia_while)
-
-
 Estado 130
 
-   36 expresion: expresion . op_binario expresion
-   37          | expresion . MASMAS expresion AT expresion
-   37          | expresion MASMAS expresion AT expresion .
+   62 sentencia_if: IF PARIZQ expresion PARDER sentencia . bloque_else
 
-    ORLOG     desplazar e ir al estado 82
-    ANDLOG    desplazar e ir al estado 83
-    OR        desplazar e ir al estado 84
-    XOR       desplazar e ir al estado 85
-    AND       desplazar e ir al estado 86
-    EQN       desplazar e ir al estado 87
-    ADDSUB    desplazar e ir al estado 88
-    MULDIV    desplazar e ir al estado 89
-    PORPOR    desplazar e ir al estado 90
-    BORRLIST  desplazar e ir al estado 91
-    MASMAS    desplazar e ir al estado 92
+    ELSE  desplazar e ir al estado 134
 
-    ID        reduce usando la regla 37 (expresion)
-    ID        [reduce usando la regla 55 (op_binario)]
-    PARIZQ    reduce usando la regla 37 (expresion)
-    PARIZQ    [reduce usando la regla 55 (op_binario)]
-    ORLOG     [reduce usando la regla 37 (expresion)]
-    ANDLOG    [reduce usando la regla 37 (expresion)]
-    OR        [reduce usando la regla 37 (expresion)]
-    XOR       [reduce usando la regla 37 (expresion)]
-    AND       [reduce usando la regla 37 (expresion)]
-    EQN       [reduce usando la regla 37 (expresion)]
-    ADDSUB    [reduce usando la regla 37 (expresion)]
-    ADDSUB    [reduce usando la regla 55 (op_binario)]
-    MULDIV    [reduce usando la regla 37 (expresion)]
-    EXCL      reduce usando la regla 37 (expresion)
-    EXCL      [reduce usando la regla 55 (op_binario)]
-    PORPOR    [reduce usando la regla 37 (expresion)]
-    BORRLIST  [reduce usando la regla 37 (expresion)]
-    INTHASH   reduce usando la regla 37 (expresion)
-    INTHASH   [reduce usando la regla 55 (op_binario)]
-    MASMAS    [reduce usando la regla 37 (expresion)]
-    CONST     reduce usando la regla 37 (expresion)
-    CONST     [reduce usando la regla 55 (op_binario)]
-    CORIZQ    reduce usando la regla 37 (expresion)
-    CORIZQ    [reduce usando la regla 55 (op_binario)]
-    $default  reduce usando la regla 37 (expresion)
+    ELSE      [reduce usando la regla 64 (bloque_else)]
+    $default  reduce usando la regla 64 (bloque_else)
 
-    op_binario  ir al estado 94
+    bloque_else  ir al estado 135
 
 
 Estado 131
 
-   69 bloque_else: ELSE . sentencia
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   72 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion . PARDER PYC
+
+    PARDER    desplazar e ir al estado 136
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+
+Estado 132
+
+   65 sentencia_while: WHILE PARIZQ expresion PARDER sentencia .
+
+    $default  reduce usando la regla 65 (sentencia_while)
+
+
+Estado 133
+
+   38 expresion: expresion . ORLOG expresion
+   39          | expresion . ANDLOG expresion
+   40          | expresion . EQN expresion
+   41          | expresion . ADDSUB expresion
+   42          | expresion . MULDIV expresion
+   43          | expresion . PORPOR expresion
+   44          | expresion . BORRLIST expresion
+   45          | expresion . MASMAS expresion AT expresion
+   45          | expresion MASMAS expresion AT expresion .
+
+    ORLOG     desplazar e ir al estado 84
+    ANDLOG    desplazar e ir al estado 85
+    EQN       desplazar e ir al estado 86
+    ADDSUB    desplazar e ir al estado 87
+    MULDIV    desplazar e ir al estado 88
+    PORPOR    desplazar e ir al estado 89
+    BORRLIST  desplazar e ir al estado 90
+    MASMAS    desplazar e ir al estado 91
+
+    ORLOG     [reduce usando la regla 45 (expresion)]
+    ANDLOG    [reduce usando la regla 45 (expresion)]
+    EQN       [reduce usando la regla 45 (expresion)]
+    ADDSUB    [reduce usando la regla 45 (expresion)]
+    MULDIV    [reduce usando la regla 45 (expresion)]
+    PORPOR    [reduce usando la regla 45 (expresion)]
+    BORRLIST  [reduce usando la regla 45 (expresion)]
+    MASMAS    [reduce usando la regla 45 (expresion)]
+    $default  reduce usando la regla 45 (expresion)
+
+
+Estado 134
+
+   63 bloque_else: ELSE . sentencia
 
     INIBLOQUE  desplazar e ir al estado 5
     ID         desplazar e ir al estado 31
@@ -1958,45 +2097,44 @@ Estado 131
     CORIZQ     desplazar e ir al estado 44
 
     bloque                ir al estado 45
-    sentencia             ir al estado 134
+    sentencia             ir al estado 137
     expresion             ir al estado 47
-    op_unario             ir al estado 48
-    constante             ir al estado 49
-    lista                 ir al estado 50
-    llamada_funcion       ir al estado 51
-    sentencia_asignacion  ir al estado 52
-    sentencia_lista       ir al estado 53
-    sentencia_if          ir al estado 54
-    sentencia_while       ir al estado 55
-    sentencia_entrada     ir al estado 56
-    sentencia_salida      ir al estado 57
-    sentencia_do_until    ir al estado 58
-    sentencia_return      ir al estado 59
-
-
-Estado 132
-
-   68 sentencia_if: IF PARIZQ expresion PARDER sentencia bloque_else .
-
-    $default  reduce usando la regla 68 (sentencia_if)
-
-
-Estado 133
-
-   78 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER . PYC
-
-    PYC  desplazar e ir al estado 135
-
-
-Estado 134
-
-   69 bloque_else: ELSE sentencia .
-
-    $default  reduce usando la regla 69 (bloque_else)
+    constante             ir al estado 48
+    lista                 ir al estado 49
+    llamada_funcion       ir al estado 50
+    sentencia_asignacion  ir al estado 51
+    sentencia_lista       ir al estado 52
+    sentencia_if          ir al estado 53
+    sentencia_while       ir al estado 54
+    sentencia_entrada     ir al estado 55
+    sentencia_salida      ir al estado 56
+    sentencia_do_until    ir al estado 57
+    sentencia_return      ir al estado 58
 
 
 Estado 135
 
-   78 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER PYC .
+   62 sentencia_if: IF PARIZQ expresion PARDER sentencia bloque_else .
 
-    $default  reduce usando la regla 78 (sentencia_do_until)
+    $default  reduce usando la regla 62 (sentencia_if)
+
+
+Estado 136
+
+   72 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER . PYC
+
+    PYC  desplazar e ir al estado 138
+
+
+Estado 137
+
+   63 bloque_else: ELSE sentencia .
+
+    $default  reduce usando la regla 63 (bloque_else)
+
+
+Estado 138
+
+   72 sentencia_do_until: DO sentencia UNTIL PARIZQ expresion PARDER PYC .
+
+    $default  reduce usando la regla 72 (sentencia_do_until)
