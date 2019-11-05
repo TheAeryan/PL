@@ -4,7 +4,7 @@
 #define FINBLOQUE   258
 #define LOCAL       259
 #define TIPOSIMPLE  260
-#define ID		    261
+#define ID		      261
 #define PARIZQ      262
 #define PARDER      263
 #define PYC         264
