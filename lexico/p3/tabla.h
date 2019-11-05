@@ -2,14 +2,14 @@
 
 #define INIBLOQUE	257
 #define FINBLOQUE	258
-#define LOCAL		259
-#define TIPOSIMPLE	260
+#define LOCAL		  259
+#define TIPO    	260
 #define ID		    261
 #define PARIZQ		262
 #define PARDER		263
 #define PYC		    264
 #define CIN		    265
-#define COUT		266
+#define COUT		  266
 #define CADENA		267
 #define RETURN		268
 
@@ -41,7 +41,6 @@
 #define IF          289
 #define WHILE       290
 #define ELSE        291
-#define LISTA       292
 
-#define CORIZQ      293
-#define CORDER      294
+#define CORIZQ      292
+#define CORDER      293
