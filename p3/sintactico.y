@@ -1,40 +1,57 @@
 
 %start programa
-%token INIBLOQUE FINBLOQUE
-%token LOCAL TIPO ID
+%token MAIN
+%token LOCAL
+%token TIPO
+%token ID
 %token PYC
 %token CIN COUT
 %token CADENA
 %token RETURN
-
-%token PORPOR
-%token BORRLIST
-%token INTHASH
-
-%token CONST
-%token DOLLAR
-
-%token MAIN
 %token IF ELSE
-%token DO UNTIL WHILE
+%token DO UNTIL
+%token WHILE
+%token SHIFT
+%token DOLLAR
+%token CONST
+%token INIBLOQUE FINBLOQUE
 %token CORIZQ CORDER
 
-%right COMA
-%right ASIGN
-%token MASMAS AT
-%left ORLOG
-%left ANDLOG
-%left EQN
-%left REL
-%token SHIFT
-%left ADDSUB
-%left MULDIV
-%right EXCL
-%right MASMENOS
-%token INTHAS
-%token CONST ID
-%token PARIZQ PARDER
+/* Coma */
+%left COMA
 
+/* Ternario */
+%right MASMAS AT
+
+/* Asign */
+%right ASIGN
+
+/* Or log */
+%left ORLOG
+
+/* And log */
+%left ANDLOG
+
+/* Igual */
+%left EQN
+
+/* Rel */
+%left REL
+
+/* Op bin lista */
+%left PORPOR BORRLIST
+
+/* Sum rest */
+%left ADDSUB
+
+/* Mult div */
+%left MULDIV
+
+/* Unarios */
+%right INTHAS MASMENOS EXCL
+
+/* PostFix */
+%left PARIZQ PARDER
 
 %%
 

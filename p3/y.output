@@ -130,23 +130,23 @@ state 3
 	declar_de_variables_locales : .  (4)
 
 	LOCAL  shift 5
-	INIBLOQUE  reduce 4
-	FINBLOQUE  reduce 4
 	TIPO  reduce 4
 	ID  reduce 4
 	CIN  reduce 4
 	COUT  reduce 4
 	RETURN  reduce 4
-	INTHASH  reduce 4
-	CONST  reduce 4
-	DOLLAR  reduce 4
 	IF  reduce 4
 	DO  reduce 4
 	WHILE  reduce 4
+	DOLLAR  reduce 4
+	CONST  reduce 4
+	INIBLOQUE  reduce 4
+	FINBLOQUE  reduce 4
 	CORIZQ  reduce 4
 	ADDSUB  reduce 4
 	EXCL  reduce 4
 	PARIZQ  reduce 4
+	INTHASH  reduce 4
 
 	declar_de_variables_locales  goto 6
 
@@ -189,22 +189,22 @@ state 8
 	sentencias : .  (21)
 
 	TIPO  shift 12
-	INIBLOQUE  reduce 21
-	FINBLOQUE  reduce 21
 	ID  reduce 21
 	CIN  reduce 21
 	COUT  reduce 21
 	RETURN  reduce 21
-	INTHASH  reduce 21
-	CONST  reduce 21
-	DOLLAR  reduce 21
 	IF  reduce 21
 	DO  reduce 21
 	WHILE  reduce 21
+	DOLLAR  reduce 21
+	CONST  reduce 21
+	INIBLOQUE  reduce 21
+	FINBLOQUE  reduce 21
 	CORIZQ  reduce 21
 	ADDSUB  reduce 21
 	EXCL  reduce 21
 	PARIZQ  reduce 21
+	INTHASH  reduce 21
 
 	sentencias  goto 13
 	declar_subprog  goto 14
@@ -224,8 +224,8 @@ state 10
 	declar_de_variables_locales : LOCAL INIBLOQUE variables_locales . FINBLOQUE  (3)
 	variables_locales : variables_locales . cuerpo_declar_variables  (5)
 
-	FINBLOQUE  shift 18
 	TIPO  shift 9
+	FINBLOQUE  shift 18
 	.  error
 
 	cuerpo_declar_variables  goto 19
@@ -249,22 +249,22 @@ state 13
 	bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias . FINBLOQUE  (2)
 	sentencias : sentencias . sentencia  (20)
 
-	INIBLOQUE  shift 3
-	FINBLOQUE  shift 21
-	ID  shift 22
-	CIN  shift 23
-	COUT  shift 24
-	RETURN  shift 25
-	INTHASH  shift 26
-	CONST  shift 27
+	ID  shift 21
+	CIN  shift 22
+	COUT  shift 23
+	RETURN  shift 24
+	IF  shift 25
+	DO  shift 26
+	WHILE  shift 27
 	DOLLAR  shift 28
-	IF  shift 29
-	DO  shift 30
-	WHILE  shift 31
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	INIBLOQUE  shift 3
+	FINBLOQUE  shift 30
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	bloque  goto 36
@@ -335,12 +335,6 @@ state 20
 
 
 state 21
-	bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE .  (2)
-
-	.  reduce 2
-
-
-state 22
 	sentencia_asignacion : ID . ASIGN expresion PYC  (32)
 	expresion : ID .  (51)
 	llamada_funcion : ID . PARIZQ lista_expresiones PARDER  (65)
@@ -349,18 +343,18 @@ state 22
 	ASIGN  shift 55
 	PARIZQ  shift 56
 	PYC  reduce 51
-	PORPOR  reduce 51
-	BORRLIST  reduce 51
+	SHIFT  reduce 51
 	MASMAS  reduce 51
 	ORLOG  reduce 51
 	ANDLOG  reduce 51
 	EQN  reduce 51
-	SHIFT  reduce 51
+	PORPOR  reduce 51
+	BORRLIST  reduce 51
 	ADDSUB  reduce 51
 	MULDIV  reduce 51
 
 
-state 23
+state 22
 	sentencia_entrada : CIN . lista_variables PYC  (39)
 
 	ID  shift 16
@@ -369,17 +363,17 @@ state 23
 	lista_variables  goto 57
 
 
-state 24
+state 23
 	sentencia_salida : COUT . lista_expresiones_o_cadena PYC  (40)
 
 	ID  shift 58
 	CADENA  shift 59
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 60
@@ -391,16 +385,16 @@ state 24
 	lista  goto 50
 
 
-state 25
+state 24
 	sentencia_return : RETURN . expresion PYC  (46)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 63
@@ -410,67 +404,36 @@ state 25
 	lista  goto 50
 
 
-state 26
-	op_unarios : INTHASH .  (56)
-
-	.  reduce 56
-
-
-state 27
-	constante : CONST .  (67)
-
-	.  reduce 67
-
-
-state 28
-	sentencia_lista : DOLLAR . expresion  (34)
-
-	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
-	.  error
-
-	expresion  goto 64
-	op_unarios  goto 47
-	constante  goto 48
-	llamada_funcion  goto 49
-	lista  goto 50
-
-
-state 29
+state 25
 	sentencia_if : IF . PARIZQ expresion PARDER sentencia bloque_else  (35)
 
-	PARIZQ  shift 65
+	PARIZQ  shift 64
 	.  error
 
 
-state 30
+state 26
 	sentencia_do_until : DO . sentencia UNTIL PARIZQ expresion PARDER PYC  (45)
 
-	INIBLOQUE  shift 3
-	ID  shift 22
-	CIN  shift 23
-	COUT  shift 24
-	RETURN  shift 25
-	INTHASH  shift 26
-	CONST  shift 27
+	ID  shift 21
+	CIN  shift 22
+	COUT  shift 23
+	RETURN  shift 24
+	IF  shift 25
+	DO  shift 26
+	WHILE  shift 27
 	DOLLAR  shift 28
-	IF  shift 29
-	DO  shift 30
-	WHILE  shift 31
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	INIBLOQUE  shift 3
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	bloque  goto 36
 	expresion  goto 37
-	sentencia  goto 66
+	sentencia  goto 65
 	sentencia_asignacion  goto 39
 	sentencia_lista  goto 40
 	sentencia_if  goto 41
@@ -485,25 +448,56 @@ state 30
 	lista  goto 50
 
 
-state 31
+state 27
 	sentencia_while : WHILE . PARIZQ expresion PARDER sentencia  (38)
 
-	PARIZQ  shift 67
+	PARIZQ  shift 66
 	.  error
 
 
-state 32
+state 28
+	sentencia_lista : DOLLAR . expresion  (34)
+
+	ID  shift 58
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
+	.  error
+
+	expresion  goto 67
+	op_unarios  goto 47
+	constante  goto 48
+	llamada_funcion  goto 49
+	lista  goto 50
+
+
+state 29
+	constante : CONST .  (67)
+
+	.  reduce 67
+
+
+state 30
+	bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE .  (2)
+
+	.  reduce 2
+
+
+state 31
 	lista : CORIZQ . lista_expresiones CORDER  (69)
 	lista : CORIZQ . CORDER  (70)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
+	CONST  shift 29
+	CORIZQ  shift 31
 	CORDER  shift 68
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	lista_expresiones  goto 69
@@ -514,28 +508,28 @@ state 32
 	lista  goto 50
 
 
-state 33
+state 32
 	op_unarios : ADDSUB .  (54)
 
 	.  reduce 54
 
 
-state 34
+state 33
 	op_unarios : EXCL .  (55)
 
 	.  reduce 55
 
 
-state 35
+state 34
 	expresion : PARIZQ . expresion PARDER  (47)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 71
@@ -543,6 +537,12 @@ state 35
 	constante  goto 48
 	llamada_funcion  goto 49
 	lista  goto 50
+
+
+state 35
+	op_unarios : INTHASH .  (56)
+
+	.  reduce 56
 
 
 state 36
@@ -558,13 +558,13 @@ state 37
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
 	PYC  shift 72
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
-	SHIFT  shift 79
+	SHIFT  shift 73
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	.  error
@@ -630,12 +630,12 @@ state 47
 	expresion : op_unarios . expresion  (48)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 83
@@ -698,12 +698,12 @@ state 55
 	sentencia_asignacion : ID ASIGN . expresion PYC  (32)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 89
@@ -718,13 +718,13 @@ state 56
 	llamada_funcion : ID PARIZQ . PARDER  (66)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
 	PARDER  shift 90
+	INTHASH  shift 35
 	.  error
 
 	lista_expresiones  goto 91
@@ -744,43 +744,12 @@ state 57
 	.  error
 
 
-58: shift/reduce conflict (shift 56, reduce 51) on PARIZQ
 state 58
 	expresion : ID .  (51)
 	llamada_funcion : ID . PARIZQ lista_expresiones PARDER  (65)
 	llamada_funcion : ID . PARIZQ PARDER  (66)
 
-	PARIZQ  shift 56
-	INIBLOQUE  reduce 51
-	FINBLOQUE  reduce 51
-	ID  reduce 51
-	PYC  reduce 51
-	CIN  reduce 51
-	COUT  reduce 51
-	RETURN  reduce 51
-	PORPOR  reduce 51
-	BORRLIST  reduce 51
-	INTHASH  reduce 51
-	CONST  reduce 51
-	DOLLAR  reduce 51
-	IF  reduce 51
-	ELSE  reduce 51
-	DO  reduce 51
-	UNTIL  reduce 51
-	WHILE  reduce 51
-	CORIZQ  reduce 51
-	CORDER  reduce 51
-	COMA  reduce 51
-	MASMAS  reduce 51
-	AT  reduce 51
-	ORLOG  reduce 51
-	ANDLOG  reduce 51
-	EQN  reduce 51
-	SHIFT  reduce 51
-	ADDSUB  reduce 51
-	MULDIV  reduce 51
-	EXCL  reduce 51
-	PARDER  reduce 51
+	.  reduce 51
 
 
 state 59
@@ -794,12 +763,12 @@ state 60
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	PYC  reduce 43
@@ -829,12 +798,12 @@ state 63
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
 	PYC  shift 95
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	.  error
@@ -842,51 +811,16 @@ state 63
 	op_binarios  goto 82
 
 
-64: shift/reduce conflict (shift 80, reduce 34) on ADDSUB
 state 64
-	sentencia_lista : DOLLAR expresion .  (34)
-	expresion : expresion . op_binarios expresion  (49)
-	expresion : expresion . MASMAS expresion AT expresion  (50)
-
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
-	ADDSUB  shift 80
-	MULDIV  shift 81
-	INIBLOQUE  reduce 34
-	FINBLOQUE  reduce 34
-	ID  reduce 34
-	CIN  reduce 34
-	COUT  reduce 34
-	RETURN  reduce 34
-	INTHASH  reduce 34
-	CONST  reduce 34
-	DOLLAR  reduce 34
-	IF  reduce 34
-	ELSE  reduce 34
-	DO  reduce 34
-	UNTIL  reduce 34
-	WHILE  reduce 34
-	CORIZQ  reduce 34
-	EXCL  reduce 34
-	PARIZQ  reduce 34
-
-	op_binarios  goto 82
-
-
-state 65
 	sentencia_if : IF PARIZQ . expresion PARDER sentencia bloque_else  (35)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 96
@@ -896,23 +830,23 @@ state 65
 	lista  goto 50
 
 
-state 66
+state 65
 	sentencia_do_until : DO sentencia . UNTIL PARIZQ expresion PARDER PYC  (45)
 
 	UNTIL  shift 97
 	.  error
 
 
-state 67
+state 66
 	sentencia_while : WHILE PARIZQ . expresion PARDER sentencia  (38)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 98
@@ -920,6 +854,41 @@ state 67
 	constante  goto 48
 	llamada_funcion  goto 49
 	lista  goto 50
+
+
+67: shift/reduce conflict (shift 80, reduce 34) on ADDSUB
+state 67
+	sentencia_lista : DOLLAR expresion .  (34)
+	expresion : expresion . op_binarios expresion  (49)
+	expresion : expresion . MASMAS expresion AT expresion  (50)
+
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
+	ADDSUB  shift 80
+	MULDIV  shift 81
+	ID  reduce 34
+	CIN  reduce 34
+	COUT  reduce 34
+	RETURN  reduce 34
+	IF  reduce 34
+	ELSE  reduce 34
+	DO  reduce 34
+	UNTIL  reduce 34
+	WHILE  reduce 34
+	DOLLAR  reduce 34
+	CONST  reduce 34
+	INIBLOQUE  reduce 34
+	FINBLOQUE  reduce 34
+	CORIZQ  reduce 34
+	EXCL  reduce 34
+	PARIZQ  reduce 34
+	INTHASH  reduce 34
+
+	op_binarios  goto 82
 
 
 state 68
@@ -942,12 +911,12 @@ state 70
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	CORDER  reduce 11
@@ -962,12 +931,12 @@ state 71
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	PARDER  shift 101
@@ -983,27 +952,21 @@ state 72
 
 
 state 73
-	op_binarios : PORPOR .  (63)
+	sentencia_lista : expresion SHIFT .  (33)
 
-	.  reduce 63
+	.  reduce 33
 
 
 state 74
-	op_binarios : BORRLIST .  (64)
-
-	.  reduce 64
-
-
-state 75
 	expresion : expresion MASMAS . expresion AT expresion  (50)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 102
@@ -1013,37 +976,43 @@ state 75
 	lista  goto 50
 
 
-state 76
+state 75
 	op_binarios : ORLOG .  (58)
 
 	.  reduce 58
 
 
-state 77
+state 76
 	op_binarios : ANDLOG .  (57)
 
 	.  reduce 57
 
 
-state 78
+state 77
 	op_binarios : EQN .  (59)
 
 	.  reduce 59
 
 
-state 79
-	sentencia_lista : expresion SHIFT .  (33)
+state 78
+	op_binarios : PORPOR .  (63)
 
-	.  reduce 33
+	.  reduce 63
+
+
+state 79
+	op_binarios : BORRLIST .  (64)
+
+	.  reduce 64
 
 
 80: reduce/reduce conflict (reduce 60, reduce 62) on ID
-80: reduce/reduce conflict (reduce 60, reduce 62) on INTHASH
 80: reduce/reduce conflict (reduce 60, reduce 62) on CONST
 80: reduce/reduce conflict (reduce 60, reduce 62) on CORIZQ
 80: reduce/reduce conflict (reduce 60, reduce 62) on ADDSUB
 80: reduce/reduce conflict (reduce 60, reduce 62) on EXCL
 80: reduce/reduce conflict (reduce 60, reduce 62) on PARIZQ
+80: reduce/reduce conflict (reduce 60, reduce 62) on INTHASH
 state 80
 	op_binarios : ADDSUB .  (60)
 	op_binarios : ADDSUB .  (62)
@@ -1061,12 +1030,12 @@ state 82
 	expresion : expresion op_binarios . expresion  (49)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 103
@@ -1076,12 +1045,12 @@ state 82
 	lista  goto 50
 
 
-83: shift/reduce conflict (shift 73, reduce 48) on PORPOR
-83: shift/reduce conflict (shift 74, reduce 48) on BORRLIST
-83: shift/reduce conflict (shift 75, reduce 48) on MASMAS
-83: shift/reduce conflict (shift 76, reduce 48) on ORLOG
-83: shift/reduce conflict (shift 77, reduce 48) on ANDLOG
-83: shift/reduce conflict (shift 78, reduce 48) on EQN
+83: shift/reduce conflict (shift 74, reduce 48) on MASMAS
+83: shift/reduce conflict (shift 75, reduce 48) on ORLOG
+83: shift/reduce conflict (shift 76, reduce 48) on ANDLOG
+83: shift/reduce conflict (shift 77, reduce 48) on EQN
+83: shift/reduce conflict (shift 78, reduce 48) on PORPOR
+83: shift/reduce conflict (shift 79, reduce 48) on BORRLIST
 83: shift/reduce conflict (shift 80, reduce 48) on ADDSUB
 83: shift/reduce conflict (shift 81, reduce 48) on MULDIV
 state 83
@@ -1089,37 +1058,37 @@ state 83
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
-	INIBLOQUE  reduce 48
-	FINBLOQUE  reduce 48
 	ID  reduce 48
 	PYC  reduce 48
 	CIN  reduce 48
 	COUT  reduce 48
 	RETURN  reduce 48
-	INTHASH  reduce 48
-	CONST  reduce 48
-	DOLLAR  reduce 48
 	IF  reduce 48
 	ELSE  reduce 48
 	DO  reduce 48
 	UNTIL  reduce 48
 	WHILE  reduce 48
+	SHIFT  reduce 48
+	DOLLAR  reduce 48
+	CONST  reduce 48
+	INIBLOQUE  reduce 48
+	FINBLOQUE  reduce 48
 	CORIZQ  reduce 48
 	CORDER  reduce 48
 	COMA  reduce 48
 	AT  reduce 48
-	SHIFT  reduce 48
 	EXCL  reduce 48
 	PARIZQ  reduce 48
 	PARDER  reduce 48
+	INTHASH  reduce 48
 
 	op_binarios  goto 82
 
@@ -1164,12 +1133,12 @@ state 89
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
 	PYC  shift 107
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	.  error
@@ -1209,12 +1178,12 @@ state 94
 
 	ID  shift 58
 	CADENA  shift 59
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 60
@@ -1236,12 +1205,12 @@ state 96
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	PARDER  shift 110
@@ -1262,12 +1231,12 @@ state 98
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	PARDER  shift 112
@@ -1286,12 +1255,12 @@ state 100
 	lista_expresiones : lista_expresiones COMA . expresion  (10)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 113
@@ -1312,13 +1281,13 @@ state 102
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 	expresion : expresion MASMAS expresion . AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
+	MASMAS  shift 74
 	AT  shift 114
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	.  error
@@ -1326,12 +1295,12 @@ state 102
 	op_binarios  goto 82
 
 
-103: shift/reduce conflict (shift 73, reduce 49) on PORPOR
-103: shift/reduce conflict (shift 74, reduce 49) on BORRLIST
-103: shift/reduce conflict (shift 75, reduce 49) on MASMAS
-103: shift/reduce conflict (shift 76, reduce 49) on ORLOG
-103: shift/reduce conflict (shift 77, reduce 49) on ANDLOG
-103: shift/reduce conflict (shift 78, reduce 49) on EQN
+103: shift/reduce conflict (shift 74, reduce 49) on MASMAS
+103: shift/reduce conflict (shift 75, reduce 49) on ORLOG
+103: shift/reduce conflict (shift 76, reduce 49) on ANDLOG
+103: shift/reduce conflict (shift 77, reduce 49) on EQN
+103: shift/reduce conflict (shift 78, reduce 49) on PORPOR
+103: shift/reduce conflict (shift 79, reduce 49) on BORRLIST
 103: shift/reduce conflict (shift 80, reduce 49) on ADDSUB
 103: shift/reduce conflict (shift 81, reduce 49) on MULDIV
 state 103
@@ -1339,37 +1308,37 @@ state 103
 	expresion : expresion op_binarios expresion .  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
-	INIBLOQUE  reduce 49
-	FINBLOQUE  reduce 49
 	ID  reduce 49
 	PYC  reduce 49
 	CIN  reduce 49
 	COUT  reduce 49
 	RETURN  reduce 49
-	INTHASH  reduce 49
-	CONST  reduce 49
-	DOLLAR  reduce 49
 	IF  reduce 49
 	ELSE  reduce 49
 	DO  reduce 49
 	UNTIL  reduce 49
 	WHILE  reduce 49
+	SHIFT  reduce 49
+	DOLLAR  reduce 49
+	CONST  reduce 49
+	INIBLOQUE  reduce 49
+	FINBLOQUE  reduce 49
 	CORIZQ  reduce 49
 	CORDER  reduce 49
 	COMA  reduce 49
 	AT  reduce 49
-	SHIFT  reduce 49
 	EXCL  reduce 49
 	PARIZQ  reduce 49
 	PARDER  reduce 49
+	INTHASH  reduce 49
 
 	op_binarios  goto 82
 
@@ -1416,21 +1385,21 @@ state 109
 state 110
 	sentencia_if : IF PARIZQ expresion PARDER . sentencia bloque_else  (35)
 
-	INIBLOQUE  shift 3
-	ID  shift 22
-	CIN  shift 23
-	COUT  shift 24
-	RETURN  shift 25
-	INTHASH  shift 26
-	CONST  shift 27
+	ID  shift 21
+	CIN  shift 22
+	COUT  shift 23
+	RETURN  shift 24
+	IF  shift 25
+	DO  shift 26
+	WHILE  shift 27
 	DOLLAR  shift 28
-	IF  shift 29
-	DO  shift 30
-	WHILE  shift 31
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	INIBLOQUE  shift 3
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	bloque  goto 36
@@ -1454,12 +1423,12 @@ state 111
 	sentencia_do_until : DO sentencia UNTIL PARIZQ . expresion PARDER PYC  (45)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 117
@@ -1472,21 +1441,21 @@ state 111
 state 112
 	sentencia_while : WHILE PARIZQ expresion PARDER . sentencia  (38)
 
-	INIBLOQUE  shift 3
-	ID  shift 22
-	CIN  shift 23
-	COUT  shift 24
-	RETURN  shift 25
-	INTHASH  shift 26
-	CONST  shift 27
+	ID  shift 21
+	CIN  shift 22
+	COUT  shift 23
+	RETURN  shift 24
+	IF  shift 25
+	DO  shift 26
+	WHILE  shift 27
 	DOLLAR  shift 28
-	IF  shift 29
-	DO  shift 30
-	WHILE  shift 31
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	INIBLOQUE  shift 3
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	bloque  goto 36
@@ -1511,12 +1480,12 @@ state 113
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	CORDER  reduce 10
@@ -1530,12 +1499,12 @@ state 114
 	expresion : expresion MASMAS expresion AT . expresion  (50)
 
 	ID  shift 58
-	INTHASH  shift 26
-	CONST  shift 27
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	expresion  goto 119
@@ -1557,23 +1526,23 @@ state 116
 	bloque_else : .  (37)
 
 	ELSE  shift 120
-	INIBLOQUE  reduce 37
-	FINBLOQUE  reduce 37
 	ID  reduce 37
 	CIN  reduce 37
 	COUT  reduce 37
 	RETURN  reduce 37
-	INTHASH  reduce 37
-	CONST  reduce 37
-	DOLLAR  reduce 37
 	IF  reduce 37
 	DO  reduce 37
 	UNTIL  reduce 37
 	WHILE  reduce 37
+	DOLLAR  reduce 37
+	CONST  reduce 37
+	INIBLOQUE  reduce 37
+	FINBLOQUE  reduce 37
 	CORIZQ  reduce 37
 	ADDSUB  reduce 37
 	EXCL  reduce 37
 	PARIZQ  reduce 37
+	INTHASH  reduce 37
 
 	bloque_else  goto 121
 
@@ -1583,12 +1552,12 @@ state 117
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
 	PARDER  shift 122
@@ -1603,50 +1572,42 @@ state 118
 	.  reduce 38
 
 
-119: shift/reduce conflict (shift 73, reduce 50) on PORPOR
-119: shift/reduce conflict (shift 74, reduce 50) on BORRLIST
-119: shift/reduce conflict (shift 75, reduce 50) on MASMAS
-119: shift/reduce conflict (shift 76, reduce 50) on ORLOG
-119: shift/reduce conflict (shift 77, reduce 50) on ANDLOG
-119: shift/reduce conflict (shift 78, reduce 50) on EQN
-119: shift/reduce conflict (shift 80, reduce 50) on ADDSUB
-119: shift/reduce conflict (shift 81, reduce 50) on MULDIV
 state 119
 	expresion : expresion . op_binarios expresion  (49)
 	expresion : expresion . MASMAS expresion AT expresion  (50)
 	expresion : expresion MASMAS expresion AT expresion .  (50)
 
-	PORPOR  shift 73
-	BORRLIST  shift 74
-	MASMAS  shift 75
-	ORLOG  shift 76
-	ANDLOG  shift 77
-	EQN  shift 78
+	MASMAS  shift 74
+	ORLOG  shift 75
+	ANDLOG  shift 76
+	EQN  shift 77
+	PORPOR  shift 78
+	BORRLIST  shift 79
 	ADDSUB  shift 80
 	MULDIV  shift 81
-	INIBLOQUE  reduce 50
-	FINBLOQUE  reduce 50
 	ID  reduce 50
 	PYC  reduce 50
 	CIN  reduce 50
 	COUT  reduce 50
 	RETURN  reduce 50
-	INTHASH  reduce 50
-	CONST  reduce 50
-	DOLLAR  reduce 50
 	IF  reduce 50
 	ELSE  reduce 50
 	DO  reduce 50
 	UNTIL  reduce 50
 	WHILE  reduce 50
+	SHIFT  reduce 50
+	DOLLAR  reduce 50
+	CONST  reduce 50
+	INIBLOQUE  reduce 50
+	FINBLOQUE  reduce 50
 	CORIZQ  reduce 50
 	CORDER  reduce 50
 	COMA  reduce 50
 	AT  reduce 50
-	SHIFT  reduce 50
 	EXCL  reduce 50
 	PARIZQ  reduce 50
 	PARDER  reduce 50
+	INTHASH  reduce 50
 
 	op_binarios  goto 82
 
@@ -1654,21 +1615,21 @@ state 119
 state 120
 	bloque_else : ELSE . sentencia  (36)
 
-	INIBLOQUE  shift 3
-	ID  shift 22
-	CIN  shift 23
-	COUT  shift 24
-	RETURN  shift 25
-	INTHASH  shift 26
-	CONST  shift 27
+	ID  shift 21
+	CIN  shift 22
+	COUT  shift 23
+	RETURN  shift 24
+	IF  shift 25
+	DO  shift 26
+	WHILE  shift 27
 	DOLLAR  shift 28
-	IF  shift 29
-	DO  shift 30
-	WHILE  shift 31
-	CORIZQ  shift 32
-	ADDSUB  shift 33
-	EXCL  shift 34
-	PARIZQ  shift 35
+	CONST  shift 29
+	INIBLOQUE  shift 3
+	CORIZQ  shift 31
+	ADDSUB  shift 32
+	EXCL  shift 33
+	PARIZQ  shift 34
+	INTHASH  shift 35
 	.  error
 
 	bloque  goto 36
@@ -1717,13 +1678,11 @@ Rules never reduced:
 	op_binarios : ADDSUB  (62)
 
 
-State 58 contains 1 shift/reduce conflict.
-State 64 contains 1 shift/reduce conflict.
+State 67 contains 1 shift/reduce conflict.
 State 80 contains 7 reduce/reduce conflicts.
 State 83 contains 8 shift/reduce conflicts.
 State 103 contains 8 shift/reduce conflicts.
 State 116 contains 1 shift/reduce conflict.
-State 119 contains 8 shift/reduce conflicts.
 
 
 41 terminals, 32 nonterminals
