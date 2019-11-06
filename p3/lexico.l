@@ -1,8 +1,5 @@
 %option yylineno
 %option noyywrap
-%{
-	#include "tabla.h"
-%}
 
 %%
 
@@ -47,14 +44,3 @@
 <*>.|\n																{printf("Error en la línea %d. Lexema %s no reconocible.\n", yylineno, yytext);}
 
 %%
-main (){
-	int val;
-	val = yylex();
-
-	while (val != 0){
-		printf("%d\n", val);
-		val = yylex();
-	}
-
-	exit(0);
-}

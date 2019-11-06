@@ -1,82 +1,73 @@
+
 %start programa
 %token INIBLOQUE FINBLOQUE
-%token LOCAL TIPOSIMPLE ID 
-%token PARIZQ PARDER
+%token LOCAL TIPO ID
 %token PYC
 %token CIN COUT
 %token CADENA
 %token RETURN
 
-%token ORLOG ANDLOG
-%token OR XOR AND
-%token EQN REL
-%token ADDSUB MULDIV
-%token EXCL
 %token PORPOR
 %token BORRLIST
 %token INTHASH
 
-%token AT MASMAS
 %token CONST
 %token DOLLAR
-%token SHIFT
 
-%token ASIGN
-%token COMA
 %token MAIN
-%token IF ELSE 
+%token IF ELSE
 %token DO UNTIL WHILE
-%token LISTA
 %token CORIZQ CORDER
 
+%right COMA
+%right ASIGN
+%token MASMAS AT
 %left ORLOG
 %left ANDLOG
 %left EQN
 %left REL
+%token SHIFT
 %left ADDSUB
 %left MULDIV
 %right EXCL
+%right MASMENOS
+%token INTHAS
+%token CONST ID
+%token PARIZQ PARDER
 
 
 %%
 
-programa : cabecera_programa bloque ;
-
-cabecera_programa : MAIN ;
+programa : MAIN bloque ;
 
 bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE ;
 
-declar_de_variables_locales : marca_ini_declar_variables variables_locales marca_fin_declar_variables
+declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
                             | ;
-
-marca_ini_declar_variables : LOCAL INIBLOQUE ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : tipo_variable lista_variables PYC ;
+cuerpo_declar_variables : TIPO lista_variables PYC ;
 
-marca_fin_declar_variables : FINBLOQUE ;
+lista_variables : lista_variables COMA ID
+                | ID ;
+
+lista_expresiones : lista_expresiones COMA expresion
+                  | expresion ;
 
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | ;
 
 declar_subprog : cabecera_subprog bloque ;
 
-cabecera_subprog : tipo_variable ID PARIZQ parametros PARDER ;
+cabecera_subprog : TIPO ID PARIZQ parametros PARDER
+                 | TIPO ID PARIZQ PARDER
 
-tipo_variable : TIPOSIMPLE
-              | tipo_variable_complejo ;
-
-tipo_variable_complejo : LISTA TIPOSIMPLE ;
-
-lista_variables : ID COMA lista_variables
-                | ID ;
-
-parametros : parametro COMA parametros
+parametros : parametros COMA parametro
            | parametro ;
 
-parametro : tipo_variable ID ;
+parametro : TIPO ID ;
 
 sentencias : sentencias sentencia
            | ;
@@ -92,36 +83,7 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-expresion : ADDSUB expresion %prec EXCL
-	  | EXCL expresion
-	  | INTHASH expresion
-          | expresion ORLOG expresion
-	  | expresion ANDLOG expresion
-	  | expresion EQN expresion
-	  | expresion ADDSUB expresion
-	  | expresion MULDIV expresion
-	  | expresion PORPOR expresion
-	  | expresion BORRLIST expresion
-          | expresion MASMAS expresion AT expresion
-          | ID
-          | constante
-          | llamada_funcion
-          | PARIZQ expresion PARDER ;
-
-constante : CONST
-          | lista ;
-
-lista : CORIZQ lista_expresiones CORDER
-      | CORIZQ CORDER ;
-
-llamada_funcion : ID PARIZQ lista_expresiones PARDER
-                | ID PARIZQ PARDER ;
-
-lista_expresiones : expresion COMA lista_expresiones
-                  | expresion ;
-
-sentencia_asignacion : ID op_asignacion expresion PYC ;
-op_asignacion : ASIGN ;
+sentencia_asignacion : ID ASIGN expresion PYC ;
 
 sentencia_lista : expresion SHIFT
                 | DOLLAR expresion
@@ -137,7 +99,7 @@ sentencia_entrada : CIN lista_variables PYC ;
 
 sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
 
-lista_expresiones_o_cadena : expresion_cadena COMA lista_expresiones_o_cadena
+lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
                            | expresion_cadena ;
 
 expresion_cadena : expresion
@@ -147,9 +109,39 @@ sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 
 sentencia_return : RETURN expresion PYC ;
 
+expresion : PARIZQ expresion PARDER
+          | op_unarios expresion
+          | expresion op_binarios expresion
+          | expresion MASMAS expresion AT expresion
+          | ID
+          | constante
+          | llamada_funcion ;
+
+op_unarios : ADDSUB %prec MASMENOS
+           | EXCL
+           | INTHASH
+
+op_binarios : ANDLOG
+            | ORLOG
+            | EQN
+            | ADDSUB
+            | MULDIV
+            | ADDSUB
+            | PORPOR
+            | BORRLIST
+
+llamada_funcion : ID PARIZQ lista_expresiones PARDER
+                | ID PARIZQ PARDER ;
+
+constante : CONST
+          | lista ;
+
+lista : CORIZQ lista_expresiones CORDER
+      | CORIZQ CORDER ;
+
 %%
 
-#include "../lexico/p3/lex.yy.c"
+#include "lex.yy.c"
 
 void yyerror(){
     printf("\nLine %d: Syntax Error: Unexpected \"%s\"", yylineno, yytext);
