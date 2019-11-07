@@ -17,6 +17,7 @@
 %token INIBLOQUE FINBLOQUE
 %token CORIZQ CORDER
 %token INTHASH
+%token PARIZQ PARDER
 
 /* Coma */
 %left COMA
@@ -53,6 +54,7 @@
 
 /* PostFix */
 %left PARIZQ PARDER
+/* %nonassoc PARENTHESIS */
 
 %%
 
@@ -79,8 +81,10 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 
 declar_subprog : cabecera_subprog bloque ;
 
-cabecera_subprog : TIPO ID PARIZQ parametros PARDER
-                 | TIPO ID PARIZQ PARDER
+cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
+
+cabecera_argumentos : parametros
+                    | ;
 
 parametros : parametros COMA parametro
            | parametro ;
@@ -130,10 +134,10 @@ sentencia_return : RETURN expresion PYC ;
 expresion : PARIZQ expresion PARDER
           | op_unarios
           | op_binarios
-          | expresion MASMAS expresion AT expresion
+          | op_terciario
+          | llamada_funcion
           | ID
-          | constante
-          | llamada_funcion ;
+          | constante ;
 
 op_unarios : ADDSUB expresion %prec MASMENOS
            | EXCL expresion
@@ -148,8 +152,12 @@ op_binarios : expresion ANDLOG expresion
             | expresion BORRLIST expresion
             | expresion REL expresion ;
 
-llamada_funcion : ID PARIZQ lista_expresiones PARDER
-                | ID PARIZQ PARDER ;
+op_terciario : expresion MASMAS expresion AT expresion ;
+
+llamada_funcion : ID PARIZQ argumentos PARDER ;
+
+argumentos : lista_expresiones
+           | ;
 
 constante : CONST
           | lista ;
