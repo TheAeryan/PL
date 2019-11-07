@@ -26,8 +26,7 @@
 #define IF          280
 #define WHILE       281
 #define ELSE        282
-#define LISTA       283
-#define CORIZQ      284
-#define CORDER      285
-#define DOLLAR      286
-#define SHIFT       287
+#define CORIZQ      283
+#define CORDER      284
+#define DOLLAR      285
+#define SHIFT       286
