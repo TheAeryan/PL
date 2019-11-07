@@ -16,6 +16,7 @@
 %token CONST
 %token INIBLOQUE FINBLOQUE
 %token CORIZQ CORDER
+%token INTHASH
 
 /* Coma */
 %left COMA
@@ -48,7 +49,7 @@
 %left MULDIV
 
 /* Unarios */
-%right INTHAS MASMENOS EXCL
+%right INTHASH MASMENOS EXCL
 
 /* PostFix */
 %left PARIZQ PARDER
@@ -127,25 +128,25 @@ sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 sentencia_return : RETURN expresion PYC ;
 
 expresion : PARIZQ expresion PARDER
-          | op_unarios expresion
-          | expresion op_binarios expresion
+          | op_unarios
+          | op_binarios
           | expresion MASMAS expresion AT expresion
           | ID
           | constante
           | llamada_funcion ;
 
-op_unarios : ADDSUB %prec MASMENOS
-           | EXCL
-           | INTHASH
+op_unarios : ADDSUB expresion %prec MASMENOS
+           | EXCL expresion
+           | INTHASH expresion ;
 
-op_binarios : ANDLOG
-            | ORLOG
-            | EQN
-            | ADDSUB
-            | MULDIV
-            | ADDSUB
-            | PORPOR
-            | BORRLIST
+op_binarios : expresion ANDLOG expresion
+            | expresion ORLOG expresion
+            | expresion EQN expresion
+            | expresion ADDSUB expresion
+            | expresion MULDIV expresion
+            | expresion PORPOR expresion
+            | expresion BORRLIST expresion
+            | expresion REL expresion ;
 
 llamada_funcion : ID PARIZQ lista_expresiones PARDER
                 | ID PARIZQ PARDER ;
@@ -166,7 +167,8 @@ void yyerror(){
 
 int main(){
     #ifdef YYDEBUG
-        yydebug=1;
+        extern int yydebug;
+        yydebug = 1;
     #endif
 
     yyparse();
