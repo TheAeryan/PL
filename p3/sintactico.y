@@ -1,9 +1,18 @@
+%{
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
+
+void yyerror( const char * msg );
+
+#define YYERROR_VERBOSE
+%}
+
 
 %start programa
 %token MAIN
 %token LOCAL
 %token TIPO
-%token ID
 %token PYC
 %token CIN COUT
 %token CADENA
@@ -12,21 +21,19 @@
 %token DO UNTIL
 %token WHILE
 %token SHIFT
-%token DOLLAR
 %token CONST
 %token INIBLOQUE FINBLOQUE
 %token CORIZQ CORDER
-%token INTHASH
-%token PARIZQ PARDER
+%token COMA
+%token ASIGN
+%token PARDER
 
-/* Coma */
-%left COMA
+/* ParIzq va antes que ID*/
+%left ID
+%left PARIZQ
 
 /* Ternario */
 %right MASMAS AT
-
-/* Asign */
-%right ASIGN
 
 /* Or log */
 %left ORLOG
@@ -50,11 +57,7 @@
 %left MULDIV
 
 /* Unarios */
-%right INTHASH MASMENOS EXCL
-
-/* PostFix */
-%left PARIZQ PARDER
-/* %nonassoc PARENTHESIS */
+%right DOLLAR INTHASH MASMENOS EXCL
 
 %%
 
@@ -132,27 +135,21 @@ sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 sentencia_return : RETURN expresion PYC ;
 
 expresion : PARIZQ expresion PARDER
-          | op_unarios
-          | op_binarios
-          | op_terciario
+          | ADDSUB expresion %prec MASMENOS
+          | EXCL expresion
+          | INTHASH expresion
+          | expresion ANDLOG expresion
+          | expresion ORLOG expresion
+          | expresion EQN expresion
+          | expresion ADDSUB expresion
+          | expresion MULDIV expresion
+          | expresion PORPOR expresion
+          | expresion BORRLIST expresion
+          | expresion REL expresion
+          | expresion MASMAS expresion AT expresion
           | llamada_funcion
           | ID
           | constante ;
-
-op_unarios : ADDSUB expresion %prec MASMENOS
-           | EXCL expresion
-           | INTHASH expresion ;
-
-op_binarios : expresion ANDLOG expresion
-            | expresion ORLOG expresion
-            | expresion EQN expresion
-            | expresion ADDSUB expresion
-            | expresion MULDIV expresion
-            | expresion PORPOR expresion
-            | expresion BORRLIST expresion
-            | expresion REL expresion ;
-
-op_terciario : expresion MASMAS expresion AT expresion ;
 
 llamada_funcion : ID PARIZQ argumentos PARDER ;
 
@@ -169,17 +166,12 @@ lista : CORIZQ lista_expresiones CORDER
 
 #include "lex.yy.c"
 
-void yyerror(){
-    printf("\nLine %d: Syntax Error: Unexpected \"%s\"", yylineno, yytext);
+void yyerror(const char *msg){
+  fprintf(stderr, "[Linea %d]: %s\n", yylineno, msg);
 }
 
 int main(){
-    #ifdef YYDEBUG
-        extern int yydebug;
-        yydebug = 1;
-    #endif
+  yyparse();
 
-    yyparse();
-
-    return 0;
+  return 0;
 }
