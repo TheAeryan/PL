@@ -1,36 +1,106 @@
-main{
+main
+{
 
-	local{
-		int	entero1, entero2;
-		float real1;
-		char carac1, carac2, carac3;
-		bool logico1;
-		list_of int lista1;
+	local {
+		int	ve ;
+		float vf ;
+		char vc ;
+		bool v1 ;
+		list_of int pe, pe2 ;
+		list_of  float pf, pf2 ;
+		list_of bool p1;
 	}
 
- int func1 (int a, float b){
- 	lista1 = lista1 ++ a @ b;
- 	return lista1;
- }
+ int funcionA (int a1, float a2, char a3)
+ {
+ 		local {
+			int x1, x2 ;
+		}
 
- entero1 = 7;
+			char funcionB(char b1, bool b2)
+			{
+				local {
+					float xf, x2 ;
+				}
 
- if (logico1)
- 	entero2 = func1 (-2, 5);
- else{
- 	entero2 = 0;
- }
+					float funcionC (bool c1, int c2)
+					{
+						local {
+							float x1;
+						}
 
- while (real1 < entero2) {
- 	logico1 = ! logico1;
- 	cout "logico1 vale:", logico1;
+						x1 = 1.3;
+						if (c2>10)
+							c2= c2-1 ;
+						else
+							x1= 3.1 ;
+						return x1;
+					}
 
- 	do{
- 		carac1 = 'c';
- 	}until (false);
- }
+				xf= functionC (true, 10);
+				x2 = xf * (funcionC(false, 1)-funcionC(true,23)) /10.0;
 
- return 0;
- }
+				while (x2*funcionC(false,1)-xf<10.0)
+					x2= x2*xf;
+			}
 
+		int funcionF() {
+		
+		}
 
+			float funcionD (float d1)
+			{
+				local {
+					char dato;
+					int valor ;
+				}
+
+					char funcionE (char e1, char e2)
+					{
+						cout "introduzca ", (3-1), " caracteres: " ;
+						cin e1, e2;
+
+						if (e1 =='a')
+							return e1 ;
+						else
+							return ' ';
+
+					}
+
+					cout "introduzca un valor entero" ;
+					cin valor ;
+					if (d1>0.0)
+					{
+						local {
+							int dato ;
+						}
+
+						dato= 2;
+						dato= valor*20/dato;
+					}
+					else {
+						valor= valor * 100 ;
+						d1= d1/1000.0 ;
+					}
+					return d1 ;
+			}
+ 	}
+
+	pe= [1, 43, 5, 0, 0];
+	pe= ['z', 'A','B'];
+	pe=[2.5, 4.9*c, 3.0+f(b,c), 0.0];
+	pe = [true, false, true,true] ;
+	pe>> ;
+	pe<< ;
+	pe <<;
+	$pe;
+	if (#pe < ?pe2)
+		return pe@2 ;
+	else
+		return pe @ 3 ;
+	pe = pe**(ppf % 2) ;
+	pe = pe++true@3 ;
+	pe = pf--(3 + 2 / 2.0) ;
+	pe = pe ;
+	pe = pe ++ p2 @ pe @ p2 ++ p3 @ p2;
+}

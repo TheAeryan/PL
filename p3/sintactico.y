@@ -8,7 +8,6 @@ void yyerror( const char * msg );
 #define YYERROR_VERBOSE
 %}
 
-
 %start programa
 %token MAIN
 %token LOCAL
@@ -26,11 +25,9 @@ void yyerror( const char * msg );
 %token CORIZQ CORDER
 %token COMA
 %token ASIGN
-%token PARDER
-
-/* ParIzq va antes que ID*/
-%left ID
-%left PARIZQ
+%token PARDER PARIZQ
+%token DOLLAR
+%token ID
 
 /* Ternario */
 %right MASMAS AT
@@ -57,8 +54,7 @@ void yyerror( const char * msg );
 %left MULDIV
 
 /* Unarios */
-%right DOLLAR INTHASH MASMENOS EXCL
-
+%precedence INTHASH EXCL
 %%
 
 programa : MAIN bloque ;
@@ -66,7 +62,7 @@ programa : MAIN bloque ;
 bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE ;
 
 declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
-                            | ;
+                            | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
@@ -80,14 +76,14 @@ lista_expresiones : lista_expresiones COMA expresion
                   | expresion ;
 
 declar_de_subprogs : declar_de_subprogs declar_subprog
-                   | ;
+                   | %empty ;
 
 declar_subprog : cabecera_subprog bloque ;
 
 cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
 
 cabecera_argumentos : parametros
-                    | ;
+                    | %empty ;
 
 parametros : parametros COMA parametro
            | parametro ;
@@ -95,7 +91,7 @@ parametros : parametros COMA parametro
 parametro : TIPO ID ;
 
 sentencias : sentencias sentencia
-           | ;
+           | %empty ;
 
 sentencia : bloque
           | expresion PYC
@@ -110,13 +106,13 @@ sentencia : bloque
 
 sentencia_asignacion : ID ASIGN expresion PYC ;
 
-sentencia_lista : expresion SHIFT
-                | DOLLAR expresion
+sentencia_lista : expresion SHIFT PYC
+                | DOLLAR expresion PYC ;
 
 sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else ;
 
 bloque_else : ELSE sentencia
-            | ;
+            | %empty ;
 
 sentencia_while : WHILE PARIZQ expresion PARDER sentencia ;
 
@@ -135,9 +131,10 @@ sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 sentencia_return : RETURN expresion PYC ;
 
 expresion : PARIZQ expresion PARDER
-          | ADDSUB expresion %prec MASMENOS
+          | ADDSUB expresion %prec EXCL
           | EXCL expresion
           | INTHASH expresion
+          | expresion AT expresion
           | expresion ANDLOG expresion
           | expresion ORLOG expresion
           | expresion EQN expresion
@@ -154,7 +151,7 @@ expresion : PARIZQ expresion PARDER
 llamada_funcion : ID PARIZQ argumentos PARDER ;
 
 argumentos : lista_expresiones
-           | ;
+           | %empty ;
 
 constante : CONST
           | lista ;
