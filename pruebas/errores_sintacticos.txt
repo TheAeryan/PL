@@ -5,13 +5,53 @@ main{
 		float real1;
 		char carac1, carac2, carac3;
 		bool logico1;
+
 		list_of int lista1 ñ;
+
+		char error, de tipo2
+		int mierror detipo2;
 	}
 
  int func1 (int a, float b){
  	lista1 = lista1 ++ a @ b;
  	return lista1;
  }
+
+int funcWithError(int , int b) {
+	return b;
+}
+
+int funcWithError2( myId, int b) {
+	return b;
+}
+
+int erroresAritmeticos() {
+	a b;
+	(a / b) * (a - c) - ;
+	(a / b) (a - c) - d;
+
+	a = b;
+
+	(a / b (a - c);
+
+	a = (b + 7);
+
+	estoEsCorrecto = a + - b;
+	estoTambien = a / b * - c;
+
+	return 0;
+}
+
+int erroresTipoCinco() {
+
+
+	a = (b + 7);
+
+	estoEsCorrecto = a + - b;
+	estoTambien = a / b * - c;
+
+	return 0;
+}
 
  entero1 = 7;
 
@@ -29,6 +69,8 @@ main{
  		carac1 = 'c';
  	}until (false);
  }
+
+ errorFinal = añ;
 
  return 0;
  }

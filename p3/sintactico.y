@@ -67,10 +67,12 @@ declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO lista_variables PYC ;
+cuerpo_declar_variables : TIPO lista_variables PYC
+                        | error ;
 
 lista_variables : lista_variables COMA ID
-                | ID ;
+                | ID
+                | error ;
 
 lista_expresiones : lista_expresiones COMA expresion
                   | expresion ;
@@ -83,7 +85,8 @@ declar_subprog : cabecera_subprog bloque ;
 cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
 
 cabecera_argumentos : parametros
-                    | %empty ;
+                    | %empty
+                    | error ;
 
 parametros : parametros COMA parametro
            | parametro ;
@@ -146,7 +149,8 @@ expresion : PARIZQ expresion PARDER
           | expresion MASMAS expresion AT expresion
           | llamada_funcion
           | ID
-          | constante ;
+          | constante
+          | error;
 
 llamada_funcion : ID PARIZQ argumentos PARDER ;
 
