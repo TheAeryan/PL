@@ -105,7 +105,8 @@ sentencia : bloque
           | sentencia_entrada
           | sentencia_salida
           | sentencia_do_until
-          | sentencia_return ;
+          | sentencia_return
+          | error ;
 
 sentencia_asignacion : ID ASIGN expresion PYC ;
 
