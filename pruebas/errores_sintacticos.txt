@@ -12,65 +12,48 @@ main{
 		int mierror detipo2;
 	}
 
- int func1 (int a, float b){
- 	lista1 = lista1 ++ a @ b;
- 	return lista1;
- }
+	 int func1 (int a, float b){
+	 	lista1 = lista1 ++ a @ b;
+	 	return lista1;
+	 }
 
-int funcWithError(int , int b) {
-	return b;
-}
+	int funcWithError(int , int b) {
+		return b;
+	}
 
-int funcWithError2( myId, int b) {
-	return b;
-}
+	int funcWithError2( myId, int b) {
+		return b;
+	}
 
-int erroresAritmeticos() {
-	a b;
-	(a / b) * (a - c) - ;
-	(a / b) (a - c) - d;
+	int erroresAritmeticos() {
+		a b;
+		(a / b) * (a - c) - ;
+		(a / b) (a - c) - d;
 
-	a = b;
+		a = b;
 
-	(a / b (a - c);
+		a / b) * (a - c);
 
-	a = (b + 7);
+		estoEsCorrecto = a + - b;
+		estoTambien = a / b * - c;
+	}
 
-	estoEsCorrecto = a + - b;
-	estoTambien = a / b * - c;
+	int erroresTipoCinco() {
+		if faltan == parentesis {
+			detecta + dos + errores;
+		}
+
+		a = ;
+
+	 	do{
+
+	 	}until false;
+
+		a = b;
+		return ;
+	}
+
+	errorFinal = añ;
 
 	return 0;
 }
-
-int erroresTipoCinco() {
-
-
-	a = (b + 7);
-
-	estoEsCorrecto = a + - b;
-	estoTambien = a / b * - c;
-
-	return 0;
-}
-
- entero1 = 7;
-
- if (logico1)
- 	entero2 = func1 (-2, 5);
- else{
- 	entero2 = 0;
- }
-
- while (real1 < entero2) {
- 	logico1 = ! logico1;
- 	cout "logico1 vale:", logico1;
-
- 	do{
- 		carac1 = 'c';
- 	}until (false);
- }
-
- errorFinal = añ;
-
- return 0;
- }
