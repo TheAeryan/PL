@@ -70,9 +70,8 @@ variables_locales : variables_locales cuerpo_declar_variables
 cuerpo_declar_variables : TIPO lista_variables PYC
                         | error ;
 
-lista_variables : lista_variables COMA ID
-                | ID
-                | error ;
+lista_variables : ID COMA lista_variables
+                | ID ;
 
 lista_expresiones : lista_expresiones COMA expresion
                   | expresion ;
@@ -105,8 +104,7 @@ sentencia : bloque
           | sentencia_entrada
           | sentencia_salida
           | sentencia_do_until
-          | sentencia_return
-          | error ;
+          | sentencia_return ;
 
 sentencia_asignacion : ID ASIGN expresion PYC ;
 
@@ -151,7 +149,7 @@ expresion : PARIZQ expresion PARDER
           | llamada_funcion
           | ID
           | constante
-          | error;
+          | error ;
 
 llamada_funcion : ID PARIZQ argumentos PARDER ;
 
