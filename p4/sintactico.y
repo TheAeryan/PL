@@ -61,7 +61,11 @@ void yyerror( const char * msg );
 
 programa : MAIN bloque ;
 
-bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE ;
+bloque : INIBLOQUE
+         declar_de_variables_locales
+         declar_de_subprogs
+         sentencias
+         FINBLOQUE ;
 
 declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
                             | %empty ;
@@ -83,7 +87,10 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 
 declar_subprog : cabecera_subprog bloque ;
 
-cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
+cabecera_subprog : TIPO ID PARIZQ {
+                     insertaProcedimiento($2);
+                   }
+                   cabecera_argumentos PARDER ;
 
 cabecera_argumentos : parametros
                     | %empty

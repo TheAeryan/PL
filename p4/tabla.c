@@ -4,6 +4,25 @@
 #include "tabla.h"
 #include "y.tab.h"
 
+// Muestra DEBUG si y solo si DEBUG no es 0.
+#define DEBUG 0
+
+// Muestra tabla de símbolos antes de eliminar una marca
+// si y solo si IMPRIME no es 0
+#define IMPRIME 0
+
+// Tope de la tabla de símbolos
+long int tope = 0;
+
+// Posición en la tabla de símbolos del último procedimiento
+long int ultimoProcedimiento = -1;
+
+// Si los parámetros del último procedimiento se han insertado como variables
+int subProg = 0;
+
+// Número de bloques anidados
+int prof = 0;
+
 /***********************/
 /* OPERACIONES BÁSICAS */
 /***********************/
@@ -235,13 +254,13 @@ void insertaVar(char* identificador, char * nombre_tipo){
 
 /* Inserta procedimiento en la tabla de símbolos */
 void insertaProcedimiento(char * identificador){
-  if(DEBUG){
+  if (DEBUG) {
     printf("[insertaProcedimiento] procedimiento '%s' en línea %d\n", identificador, linea);
     fflush(stdout);
   }
 
-  if(esDuplicado(identificador)){
-    printf("[%d] Error semántico: Identificador duplicado '%s'\n", linea, identificador);
+  if (esDuplicado(identificador)) {
+    printf("[Linea %d] semantic error: duplicated identifier '%s'\n", linea, identificador);
     return;
   }
 
@@ -249,7 +268,7 @@ void insertaProcedimiento(char * identificador){
     procedimiento,
     strdup(identificador),
     desconocido,
-    0, // Inicialmente hay 0 parámetros
+    0, // Inicialmente0
     {NULL, NULL}
   };
 
@@ -444,9 +463,4 @@ char * findGotoElse(){
 
   printf("[Linea %d] Error de implementación, se intentó encontrar la etiqueta de else de la estructura de control actual cuando no la hay\n", linea);
   return NULL;
-}
-
-/* Indica si es main */
-int esMain(){
-  return prof == 1;
 }

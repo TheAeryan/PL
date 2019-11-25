@@ -1075,7 +1075,7 @@ case 46:
 /* rule 46 can match eol */
 YY_RULE_SETUP
 #line 51 "lexico.l"
-{printf("[Linea %d]: lexic errpr, unrecognizable lexema %s.\n", yylineno, yytext);}
+{printf("[Linea %d]: lexic error, unrecognizable lexema %s.\n", yylineno, yytext);}
 	YY_BREAK
 case 47:
 YY_RULE_SETUP

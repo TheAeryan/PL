@@ -105,7 +105,4 @@ char * findGotoSalida();
 char * findGotoElse();
 #define findGotoEntrada findGotoElse
 
-// Comprobar si es main
-int esMain();
-
 #endif
