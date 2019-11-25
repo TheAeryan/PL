@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include "tabla.h"
 
 void yyerror( const char * msg );
 
