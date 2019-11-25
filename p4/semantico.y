@@ -4,10 +4,10 @@
 #include <string.h>
 #include "tabla.h"
 
-void yyerror( const char * msg );
+void yyerror(const char * msg);
 
-#define YYERROR_VERBOSE
 %}
+%error-verbose
 
 %start programa
 %token MAIN
@@ -52,7 +52,7 @@ void yyerror( const char * msg );
 %left ADDSUB
 
 /* Mult div */
-%left MULDIV
+%left MUL DIV
 
 /* Unarios */
 %precedence INTHASH EXCL
@@ -150,7 +150,8 @@ expresion : PARIZQ expresion PARDER
           | expresion ORLOG expresion
           | expresion EQN expresion
           | expresion ADDSUB expresion
-          | expresion MULDIV expresion
+          | expresion MUL expresion
+          | expresion DIV expresion
           | expresion PORPOR expresion
           | expresion BORRLIST expresion
           | expresion REL expresion
@@ -174,13 +175,11 @@ lista : CORIZQ lista_expresiones CORDER
 %%
 
 #include "lex.yy.c"
-
-void yyerror(const char *msg){
-  fprintf(stderr, "[Linea %d]: %s\n", yylineno, msg);
-}
+#include "error.h"
 
 int main(){
+  
   yyparse();
-
   return 0;
+
 }
