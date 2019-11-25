@@ -2,9 +2,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "tabla.h"
 
-void yyerror(const char * msg);
+#include "lex.yy.c"
+#include "tabla.h"
+#include "error.h"
 
 %}
 %error-verbose
@@ -173,9 +174,6 @@ lista : CORIZQ lista_expresiones CORDER
       | CORIZQ CORDER ;
 
 %%
-
-#include "lex.yy.c"
-#include "error.h"
 
 int main(){
   
