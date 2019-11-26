@@ -8,7 +8,16 @@
 #include "error.h"
 
 %}
+
+/* Para permitir mensajes de error bonitos */
 %error-verbose
+
+/* Structs usados en herencia para la tabla de símbolos */
+ %union{
+  char * lexema;
+  struct atributos atrib;
+  TipoDato tipo;
+ }
 
 %start programa
 %token MAIN
@@ -62,23 +71,37 @@
 
 programa : MAIN bloque ;
 
-bloque : INIBLOQUE
+bloque : inicio_bloque
          declar_de_variables_locales
          declar_de_subprogs
          sentencias
-         FINBLOQUE ;
+         fin_bloque ;
 
-declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
+inicio_bloque: INIBLOQUE { entraBloqueTS(); }
+
+fin_bloque: FINBLOQUE { salBloqueTS(); }
+
+declar_de_variables_locales : LOCAL inicio_bloque variables_locales fin_bloque
                             | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO lista_variables PYC
+cuerpo_declar_variables : TIPO lista_variables PYC {
+                            for(int i=0; i<$2.lid.tope_id; i++) {
+                              insertaVar($2.lid.lista_ids[i], $1);
+                            }
+                          }
                         | error ;
 
-lista_variables : ID COMA lista_variables
-                | ID ;
+lista_variables : ID COMA lista_variables {
+                    $$.lid.lista_ids[$$.lid.tope_id] = $1;
+                    $$.lid.tope_id++;
+                  }
+                | ID {
+                  $$.lid.lista_ids[$$.lid.tope_id] = $1;
+                  $$.lid.tope_id++;
+                } ;
 
 lista_expresiones : lista_expresiones COMA expresion
                   | expresion ;
@@ -100,7 +123,7 @@ cabecera_argumentos : parametros
 parametros : parametros COMA parametro
            | parametro ;
 
-parametro : TIPO ID ;
+parametro : TIPO ID { insertaParametro($2, $1); } ;
 
 sentencias : sentencias sentencia
            | %empty ;
@@ -121,12 +144,27 @@ sentencia_asignacion : ID ASIGN expresion PYC ;
 sentencia_lista : expresion SHIFT PYC
                 | DOLLAR expresion PYC ;
 
-sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else ;
+sentencia_if : IF {
+                insertaIf("", "");
+              }
+              PARIZQ expresion PARDER {
+                comprobarCondicion();
+                // TODO: Implementar esta función que comprueba que
+                // la expresión del if es booleana.
+              } sentencia bloque_else {
+                salEstructuraControl();
+              } ;
 
 bloque_else : ELSE sentencia
             | %empty ;
 
-sentencia_while : WHILE PARIZQ expresion PARDER sentencia ;
+sentencia_while : WHILE {
+                  insertaWhile("");
+                } PARIZQ expresion PARDER {
+                  comprobarCondicion();
+                } sentencia {
+                  salEstructuraControl();
+                } ;
 
 sentencia_entrada : CIN lista_variables PYC ;
 
@@ -138,7 +176,11 @@ lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
 expresion_cadena : expresion
                  | CADENA ;
 
-sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
+sentencia_do_until : DO {
+                      insertaRepeatUntil("");
+                    } sentencia UNTIL PARIZQ expresion PARDER PYC {
+                      salEstructuraControl();
+                    } ;
 
 sentencia_return : RETURN expresion PYC ;
 
@@ -176,7 +218,7 @@ lista : CORIZQ lista_expresiones CORDER
 %%
 
 int main(){
-  
+
   yyparse();
   return 0;
 

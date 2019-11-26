@@ -43,8 +43,12 @@ char * tipoCStr(TipoDato tipo) {
     case listachar:
       return "Lista";
     default:
-      printf("[Línea %d] Error de implementación, %s no está asociado a ningún tipo nativo de C ni a una lista\n", linea, tipoStr(tipo));
-      return "error"; // TODO: este error puede aparecer como consecuencia de una variable no declarada, en cuyo caso probablemente no debería mostrarse (ejemplo en el que aparece: b = b sin haber declarado b)
+      printf("[Línea %d] Error de implementación, %s no está asociado a
+        ningún tipo nativo de C ni a una lista\n", linea, tipoStr(tipo));
+      return "error";
+      // TODO: este error puede aparecer como consecuencia de una variable
+      // no declarada, en cuyo caso probablemente no debería mostrarse
+      // (ejemplo en el que aparece: b = b sin haber declarado b)
   }
 }
 
@@ -87,7 +91,7 @@ TipoDato tipoTS(char * identificador){
 
 /* Lee el tipo de dato */
 TipoDato leeTipoDato(char * nombre_tipo){
-  if(DEBUG){
+  if (DEBUG) {
     printf("[leeTipoDato] Lee tipo '%s' en línea %d\n", nombre_tipo, linea);
     fflush(stdout);
   }
@@ -156,11 +160,11 @@ int esDuplicado(char * identificador) {
 
 char * imprimeTipoE(TipoEntrada tipo){
   switch (tipo) {
-  case marca: return "marca";
-  case procedimiento: return "procedimiento";
-  case variable: return "variable";
-  case parametroFormal: return "parámetro";
-  default: return "error";
+    case marca: return "marca";
+    case procedimiento: return "procedimiento";
+    case variable: return "variable";
+    case parametroFormal: return "parámetro";
+    default: return "error";
   }
 }
 
@@ -199,7 +203,6 @@ void imprimeTS(){
     }
   }
 }
-
 
 /*************************************/
 /* INSERCIÓN EN LA TABLA DE SÍMBOLOS */
@@ -247,7 +250,7 @@ void insertaVarTipo(char * identificador, TipoDato tipo_dato){
 }
 
 /* Inserta una variable en la tabla de símbolos */
-void insertaVar(char* identificador, char * nombre_tipo){
+void insertaVar(char * identificador, char * nombre_tipo){
   TipoDato tipo_dato = leeTipoDato(nombre_tipo);
   insertaVarTipo(identificador, tipo_dato);
 }
@@ -268,7 +271,7 @@ void insertaProcedimiento(char * identificador){
     procedimiento,
     strdup(identificador),
     desconocido,
-    0, // Inicialmente0
+    0, // Inicialmente
     {NULL, NULL}
   };
 
@@ -280,13 +283,14 @@ void insertaProcedimiento(char * identificador){
 /* Inserta parámetro formal en la tabla de símbolos */
 void insertaParametro(char * identificador, char * nombre_tipo){
   if(DEBUG){
-    printf("[insertaParametro] '%s' con tipo '%s' en línea %d\n", identificador, nombre_tipo, linea);
+    printf("[insertaParametro] '%s' con tipo '%s' en línea %d\n",
+      identificador, nombre_tipo, linea);
     fflush(stdout);
   }
 
   if(ultimoProcedimiento == -1){
-    printf("[%d] Error de implementación: Parámetro formal '%s' sin procedimiento anterior\n",
-           linea, identificador);
+    printf("[%d] Error de implementación: Parámetro formal '%s' sin
+      procedimiento anterior\n", linea, identificador);
     return;
   }
 
@@ -295,7 +299,7 @@ void insertaParametro(char * identificador, char * nombre_tipo){
     parametroFormal,
     strdup(identificador),
     tipo_dato,
-    0, // Inicialmente hay 0 parámetros
+    0,
     {NULL, NULL}
   };
 
@@ -378,10 +382,16 @@ void entraBloqueTS(){
     fflush(stdout);
   }
 
-  prof++;
   // Entrada que indica comienzo de bloque
-  const entrada_ts MARCA_BLOQUE = {marca, "[MARCA]", desconocido, 0, {NULL, NULL}};
+  const entrada_ts MARCA_BLOQUE = {
+    marca,
+    "[MARCA]",
+    desconocido,
+    0,
+    {NULL, NULL}
+  };
   insertaTS(MARCA_BLOQUE);
+  prof++;
 
   if(subProg){
     insertaParametrosComoVariables();
@@ -415,7 +425,7 @@ void salBloqueTS(){
 
 
 /*
- * Sale de bloque y elimina de la tabla de símbolos todos los símbolos
+ * Sale del bloque y elimina de la tabla de símbolos todos los símbolos
  * hasta el último descriptor de una instrucción de control
  */
 void salEstructuraControl(){
@@ -442,6 +452,7 @@ void salEstructuraControl(){
 /*
  * Encuentra el nombre de la etiqueta de salida de la
  * estructura de control actual
+ * Nota: Esta función la usaremos en la práctica 5
  */
 char * findGotoSalida(){
   for (int j = tope - 1; j >= 0; j--)
@@ -455,6 +466,7 @@ char * findGotoSalida(){
 /*
  * Encuentra el nombre de la etiqueta de else de la
  * estructura de control actual
+ * Nota: Esta función la usaremos en la práctica 5
  */
 char * findGotoElse(){
   for (int j = tope - 1; j >= 0; j--)
