@@ -105,4 +105,11 @@ char * findGotoSalida();
 char * findGotoElse();
 #define findGotoEntrada findGotoElse
 
+/******************/
+/* COMPROBACIONES */
+/******************/
+
+void comprobar condicionBooleana();
+void comprobarLlamadaProcedimiento(Elem * elems, char * id_proced);
+
 #endif

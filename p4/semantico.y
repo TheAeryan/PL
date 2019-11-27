@@ -40,6 +40,12 @@
 %token DOLLAR
 %token ID
 
+%type <lexema> tipo
+%type <atrib> lista_variables
+%type <atrib> expresion
+%type <atrib> argumentos
+%type <atrib> lista_expresiones
+
 /* Ternario */
 %right MASMAS AT
 
@@ -95,16 +101,24 @@ cuerpo_declar_variables : TIPO lista_variables PYC {
                         | error ;
 
 lista_variables : ID COMA lista_variables {
+                    $$ = $3;
                     $$.lid.lista_ids[$$.lid.tope_id] = $1;
                     $$.lid.tope_id++;
                   }
                 | ID {
-                  $$.lid.lista_ids[$$.lid.tope_id] = $1;
-                  $$.lid.tope_id++;
+                  $$.lid.lista_ids[0] = $1;
+                  $$.lid.tope_id = 1;
                 } ;
 
-lista_expresiones : lista_expresiones COMA expresion
-                  | expresion ;
+lista_expresiones : lista_expresiones COMA expresion {
+                    $$ = $1;
+                    $$.el.tipos[$$.el.tope_elem] = $3.tipo;
+                    $$.el.tope_elem++;
+                  }
+                  | expresion {
+                    $$.el.tipos[0] = $3.tipo;
+                    $$.el.tope_elem = 1;
+                  };
 
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
@@ -112,7 +126,7 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 declar_subprog : cabecera_subprog bloque ;
 
 cabecera_subprog : TIPO ID PARIZQ {
-                     insertaProcedimiento($2);
+                     insertaProcedimiento($2, $1);
                    }
                    cabecera_argumentos PARDER ;
 
@@ -148,9 +162,7 @@ sentencia_if : IF {
                 insertaIf("", "");
               }
               PARIZQ expresion PARDER {
-                comprobarCondicion();
-                // TODO: Implementar esta función que comprueba que
-                // la expresión del if es booleana.
+                comprobarCondicionBooleana();
               } sentencia bloque_else {
                 salEstructuraControl();
               } ;
@@ -161,7 +173,7 @@ bloque_else : ELSE sentencia
 sentencia_while : WHILE {
                   insertaWhile("");
                 } PARIZQ expresion PARDER {
-                  comprobarCondicion();
+                  comprobarCondicionBooleana();
                 } sentencia {
                   salEstructuraControl();
                 } ;
@@ -204,9 +216,13 @@ expresion : PARIZQ expresion PARDER
           | constante
           | error ;
 
-llamada_funcion : ID PARIZQ argumentos PARDER ;
+llamada_funcion : ID PARIZQ argumentos PARDER {
+                  $$.tipo = comprobarLlamadaProcedimiento(&$3.el, $1);
+                } ;
 
-argumentos : lista_expresiones
+argumentos : lista_expresiones {
+              $$ = $1;
+            }
            | %empty ;
 
 constante : CONST

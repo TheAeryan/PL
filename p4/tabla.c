@@ -90,7 +90,7 @@ TipoDato tipoTS(char * identificador){
 }
 
 /* Lee el tipo de dato */
-TipoDato leeTipoDato(char * nombre_tipo){
+TipoDato leeTipoDato(char * nombre_tipo) {
   if (DEBUG) {
     printf("[leeTipoDato] Lee tipo '%s' en línea %d\n", nombre_tipo, linea);
     fflush(stdout);
@@ -256,7 +256,7 @@ void insertaVar(char * identificador, char * nombre_tipo){
 }
 
 /* Inserta procedimiento en la tabla de símbolos */
-void insertaProcedimiento(char * identificador){
+void insertaProcedimiento(char * identificador, char * nombre_tipo) {
   if (DEBUG) {
     printf("[insertaProcedimiento] procedimiento '%s' en línea %d\n", identificador, linea);
     fflush(stdout);
@@ -267,10 +267,16 @@ void insertaProcedimiento(char * identificador){
     return;
   }
 
+  TipoDato tipo_proc;
+  if (nombre_tipo == "void")
+    tipo_proc = desconocido;
+  else
+    tipo_proc = leeTipoDato(nombre_tipo);
+
   entrada_ts entrada = {
     procedimiento,
     strdup(identificador),
-    desconocido,
+    tipo_proc,
     0, // Inicialmente
     {NULL, NULL}
   };
@@ -454,7 +460,7 @@ void salEstructuraControl(){
  * estructura de control actual
  * Nota: Esta función la usaremos en la práctica 5
  */
-char * findGotoSalida(){
+char * findGotoSalida() {
   for (int j = tope - 1; j >= 0; j--)
     if (TS[j].tipo_entrada == instrControl)
       return TS[j].etiquetasControl.EtiquetaSalida;
@@ -468,11 +474,54 @@ char * findGotoSalida(){
  * estructura de control actual
  * Nota: Esta función la usaremos en la práctica 5
  */
-char * findGotoElse(){
+char * findGotoElse() {
   for (int j = tope - 1; j >= 0; j--)
     if (TS[j].tipo_entrada == instrControl)
       return TS[j].etiquetasControl.EtiquetaElse;
 
-  printf("[Linea %d] Error de implementación, se intentó encontrar la etiqueta de else de la estructura de control actual cuando no la hay\n", linea);
+  printf("[Linea %d] Error de implementación, se intentó encontrar la etiqueta
+    de else de la estructura de control actual cuando no la hay\n", linea);
   return NULL;
+}
+
+/******************/
+/* COMPROBACIONES */
+/******************/
+
+
+// TODO: Implementar esta función que comprueba que
+// la expresión del if/while/etc es booleana.
+void comprobarCondicionBooleana();
+
+// Devuelve el tipo de la función. Si la función no está definida
+// devuelve desconocido.
+TipoDato comprobarLlamadaProcedimiento (Elem * elems, char * id_proced) {
+  int i_proced = findTS();
+  if (i_proced == -1) {
+    printf("[Linea %d] Error semántico, intentando llamar a un procedimiento
+      no definido en el contexto actual: %s\n", linea, id_proced);
+    return desconocido;
+  }
+
+  int n_parametros = TS[i_proced].parametros;
+  if (n_parametros != elems->tope_elem) {
+    printf("[Linea %d] Error semántico, número de parámetros incorrecto en
+      llamada a '%s': recibidos %d - esperados %d\n", linea, id_proced,
+      elems->tope_elem, n_parametros);
+  }
+
+  if (n_parametros > elems->tope_elem)
+    n_parametros = elems->tope_elem;
+
+  for (int i=0; i<n_parametros; i++) {
+    TipoDato recibido = elems->tipo[i];
+    TipoDato esperado = TS[proced_id + 1 + i].tipo_dato;
+    if ( recibido != esperado ) {
+      printf("[Linea %d] Error semántico, el parámetro número %d de '%s'
+        es de tipo erróneo: recibido %s - esperado %s\n", linea, i+1, id_proced,
+        tipoStr(recibido), tipoStr(esperado));
+    }
+  }
+
+  return TS[i_proced].tipo_dato;
 }
