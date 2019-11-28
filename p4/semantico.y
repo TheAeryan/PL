@@ -3,6 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "lex.yy.c"
+#include "tabla.h"
+
 void yyerror( const char * msg );
 
 #define YYERROR_VERBOSE
@@ -57,9 +60,13 @@ void yyerror( const char * msg );
 %precedence INTHASH EXCL
 %%
 
-programa : MAIN bloque ;
+programa : MAIN {
+                 // Indico que el bloque no se corresponde con el de un subprograma
+                 $2.es_subprog = 0;
+                } 
+                bloque ;
 
-bloque : INIBLOQUE declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE ;
+bloque : INIBLOQUE { inicioBloque($$.es_subprog); } declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE { finBloque(); } ;
 
 declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
                             | %empty ;
@@ -67,10 +74,15 @@ declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO lista_variables PYC
+cuerpo_declar_variables : TIPO
+                        {
+                          // Hago que 'lista_variables' herede el lexema de 'TIPO'
+                          $2.tipo_var = $1;
+                        }
+                         lista_variables PYC 
                         | error ;
 
-lista_variables : ID COMA lista_variables
+lista_variables : ID COMA lista_variables { insertarVariable($1, stringToTipoDato($$.tipo_var)); }
                 | ID ;
 
 lista_expresiones : lista_expresiones COMA expresion
@@ -79,7 +91,11 @@ lista_expresiones : lista_expresiones COMA expresion
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
 
-declar_subprog : cabecera_subprog bloque ;
+declar_subprog : cabecera_subprog {
+                 // Indico que el bloque se corresponde con el de un subprograma
+                 $2.es_subprog = 1;
+                } 
+                bloque ;
 
 cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
 
@@ -95,7 +111,10 @@ parametro : TIPO ID ;
 sentencias : sentencias sentencia
            | %empty ;
 
-sentencia : bloque
+sentencia : bloque {
+                 // Indico que el bloque no se corresponde con el de un subprograma
+                 $1.es_subprog = 0;
+                } 
           | expresion PYC
           | sentencia_asignacion
           | sentencia_lista
