@@ -81,13 +81,13 @@ TipoDato stringToTipoDato(char* tipo_dato){
 		tipo_dato_nuevo = booleano; 
 	else if (strcmp(tipo_dato, "caracter") == 0)
 		tipo_dato_nuevo = caracter; 
-	else if (strcmp(tipo_dato, "listaentero") == 0)
+	else if (strcmp(tipo_dato, "list_of int") == 0)
 		tipo_dato_nuevo = listaentero; 
-	else if (strcmp(tipo_dato, "listareal") == 0)
+	else if (strcmp(tipo_dato, "list_of float") == 0)
 		tipo_dato_nuevo = listareal; 
-	else if (strcmp(tipo_dato, "listabool") == 0)
+	else if (strcmp(tipo_dato, "list_of bool") == 0)
 		tipo_dato_nuevo = listabool; 
-	else if (strcmp(tipo_dato, "listachar") == 0)
+	else if (strcmp(tipo_dato, "list_of char") == 0)
 		tipo_dato_nuevo = listachar; 
 
 	return tipo_dato_nuevo;

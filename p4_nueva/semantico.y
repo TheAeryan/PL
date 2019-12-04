@@ -6,6 +6,20 @@
 #include "lex.yy.c"
 #include "tabla.h"
 
+// Defino los atributos de la pila
+
+struct{
+  int a, b, c;
+}atributo_pila;
+
+#define YYSTYPE atributo_pila
+
+// <Variables Auxiliares>
+
+TipoDato tipo_variables; // Almacena el tipo de dato de las variables de una declaración (ej.: int a, b, c;)
+int es_subprog; // Almacena si el bloque actual se corresponde con el bloque de un subprograma (función) (1) o no (0)
+
+
 void yyerror( const char * msg );
 
 #define YYERROR_VERBOSE
@@ -62,11 +76,11 @@ void yyerror( const char * msg );
 
 programa : MAIN {
                  // Indico que el bloque no se corresponde con el de un subprograma
-                 $2.es_subprog = 0;
+                 es_subprog = 0;
                 } 
                 bloque ;
 
-bloque : INIBLOQUE { inicioBloque($$.es_subprog); } declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE { finBloque(); } ;
+bloque : INIBLOQUE { inicioBloque(es_subprog); } declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE { finBloque(); } ;
 
 declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
                             | %empty ;
@@ -74,16 +88,20 @@ declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO
-                        {
-                          // Hago que 'lista_variables' herede el lexema de 'TIPO'
-                          $2.tipo_var = $1;
+cuerpo_declar_variables : TIPO lista_variables PYC {
+                          // Guardo el tipo de dato de la lista de variables
+                          tipo_variables = stringToTipoDato($1);
                         }
-                         lista_variables PYC 
                         | error ;
 
-lista_variables : ID COMA lista_variables { insertarVariable($1, stringToTipoDato($$.tipo_var)); }
-                | ID ;
+lista_variables : ID COMA lista_variables { insertarVariable($1, tipo_variables); }
+                | ID {
+                      // Inserto la variable según el tipo correspondiente
+                      // (almacenado en "tipo_variables")
+                      // Esta función comprueba si existe un identificador duplicado
+                      insertarVariable($1, tipo_variables);
+                }
+                ;
 
 lista_expresiones : lista_expresiones COMA expresion
                   | expresion ;
@@ -93,7 +111,7 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 
 declar_subprog : cabecera_subprog {
                  // Indico que el bloque se corresponde con el de un subprograma
-                 $2.es_subprog = 1;
+                 es_subprog = 1;
                 } 
                 bloque ;
 
@@ -113,7 +131,7 @@ sentencias : sentencias sentencia
 
 sentencia : bloque {
                  // Indico que el bloque no se corresponde con el de un subprograma
-                 $1.es_subprog = 0;
+                 es_subprog = 0;
                 } 
           | expresion PYC
           | sentencia_asignacion
