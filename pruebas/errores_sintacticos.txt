@@ -1,15 +1,15 @@
 main{
 
 	local{
-		int	entero1, entero2;
-		float real1;
+		int	entero1 entero2,s,f,g
+		float real1,g,h k;
 		char carac1, carac2, carac3;
 		bool logico1;
 
 		list_of int lista1 ñ;
 
-		char error, de tipo2
-		int mierror detipo2;
+		char error de, tipo2
+		int otro, mierror detipo2;
 	}
 
 	 int func1 (int a, float b){
@@ -30,8 +30,6 @@ main{
 		(a / b) * (a - c) - ;
 		(a / b) (a - c) - d;
 
-		a = b;
-
 		a / b) * (a - c);
 
 		estoEsCorrecto = a + - b;
@@ -39,18 +37,18 @@ main{
 	}
 
 	int erroresTipoCinco() {
-		if faltan == parentesis {
-			detecta + dos + errores;
+		if (true) {
+			a b;
+			if (true) {
+				a b;
+			}
+
+		 	do{
+				a b;
+		 	}until (false);
 		}
 
-		a = ;
-
-	 	do{
-
-	 	}until false;
-
-		a = b;
-		return ;
+		return a;
 	}
 
 	errorFinal = añ;

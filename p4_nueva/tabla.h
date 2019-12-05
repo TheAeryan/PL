@@ -3,21 +3,21 @@
 #ifndef __TABLA_H__
 #define __TABLA_H__
 
-/*********************/
-/* TABLA DE SÍMBOLOS */
-/*********************/
+/*********/
+/* TIPOS */
+/*********/
 
 /* Campos de las entradas */
 
 // Tipo de entrada
 typedef enum {
   marca,             // Marca de principio de bloque
-  funcion,			 // Función
+  funcion,			     // Función
   variable,          // Variable local
-  parametro-formal   // Parámetro de una función situada en una entrada anterior de la tabla
+  parametroFormal    // Parámetro de una función situada en una entrada anterior de la tabla
 } TipoEntrada;
 
-// Tipo de dato. 
+// Tipo de dato.
 // Solo aplicable cuando TipoEntrada sea funcion, variable o parametro-formal
 typedef enum {
   entero,
@@ -38,16 +38,29 @@ typedef struct entrada_ts {
   char* nombre;             // Nombre del identificador (si tipo_entrada es marca, no se usa)
   TipoDato tipo_dato;       // Tipo de dato
   int parametros;           // Número de parámetros. Solo se usa si tipo_entrada es funcion
-} entrada_ts; 
+} entrada_ts;
 
-/* Tabla de símbolos */
+/*************************************/
+/* VARIABLES DE LA TABLA DE SIMBOLOS */
+/*************************************/
 
-#define MAX_TAM_TS 2000 // Longitud máxima de la tabla de símbolos
+// Longitud máxima de la tabla de símbolos
+#define MAX_TAM_TS 2000
 
-struct entrada_ts TS[MAX_TAM_TS]; // Tabla de símbolos. Es un array de MAX_TAM_TS elementos. Cada elemento es una entrada_ts
-long int TOPE = -1; // Última entrada de la tabla de símbolos usada. Se inicializa a -1
+// Tabla de símbolos. Es un array de MAX_TAM_TS elementos.
+// Cada elemento es una entrada_ts
+struct entrada_ts TS[MAX_TAM_TS];
 
-long int ultimoProcedimiento = -1; // Posición en la tabla de símbolos del último procedimiento
+// Última entrada de la tabla de símbolos usada. Se inicializa a -1
+long int TOPE = -1;
+
+// Posición en la tabla de símbolos del último procedimiento
+long int ultimaFuncion = -1;
+
+// Guardar si la proxima vez que entremos en un bloque, este es
+// un subprograma y, en tal caso, inserta los parametros como
+// variables en la pila.
+int esSubProg = 0;
 
 /*************************************/
 /* IMPRESIÓN DE LA TABLA DE SIMBOLOS */
@@ -73,7 +86,7 @@ void insertarEntrada(entrada_ts entrada);
 // TipoDato correspondiente (ej.: "real" -> real)
 TipoDato stringToTipoDato(char* tipo_dato);
 
-// Función que comprueba si un identificador ya está siendo 
+// Función que comprueba si un identificador ya está siendo
 // usado en el mismo bloque. Devuelve 1 si está duplicado y
 // 0 si no.
 int identificadorDuplicado(char* identificador);
@@ -85,6 +98,11 @@ int identificadorDuplicado(char* identificador);
 // Comprueba que en el mismo bloque no se use el mismo identificador.
 void insertarVariable(char* identificador, TipoDato tipo_dato);
 
+// Inserta una función nueva al ser declarada.
+// Comprueba que en el mismo bloque no se use el mismo identificador y
+// actualiza el valor de esSubProg. Los parámetros se añadirán a continuación.
+void insertarFuncion (char * identificador, char * str_tipo_dato) {
+
 // Inserta los parámetros de una función como variables locales
 // dentro del bloque de dicha función.
 void insertaParametrosComoVariables();
@@ -92,12 +110,11 @@ void insertaParametrosComoVariables();
 // Función llamada cuando empieza un bloque.
 // Inserta una marca de inicio de bloque y, si es el cuerpo de un subprograma (es_subprog vale 1),
 // se introducen los parámetros formales como variables locales
-void inicioBloque(int es_subprog);
+void inicioBloque();
 
 // Función llamada cuando termina un bloque.
-// Se eliminan todas las entradas de la TS hasta la última marca de 
+// Se eliminan todas las entradas de la TS hasta la última marca de
 // inicio de bloque, inclusive.
 void finBloque();
-
 
 #endif

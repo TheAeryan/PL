@@ -8,17 +8,17 @@
 
 // Defino los atributos de la pila
 
-struct{
+struct {
   int a, b, c;
-}atributo_pila;
+} atributo_pila;
 
 #define YYSTYPE atributo_pila
 
 // <Variables Auxiliares>
 
-TipoDato tipo_variables; // Almacena el tipo de dato de las variables de una declaración (ej.: int a, b, c;)
-int es_subprog; // Almacena si el bloque actual se corresponde con el bloque de un subprograma (función) (1) o no (0)
-
+// Almacena el tipo de dato de las variables de una declaración
+// (ej.: int a, b, c;)
+TipoDato tipo_variables;
 
 void yyerror( const char * msg );
 
@@ -74,15 +74,15 @@ void yyerror( const char * msg );
 %precedence INTHASH EXCL
 %%
 
-programa : MAIN {
-                 // Indico que el bloque no se corresponde con el de un subprograma
-                 es_subprog = 0;
-                } 
-                bloque ;
+programa : MAIN bloque ;
 
-bloque : INIBLOQUE { inicioBloque(es_subprog); } declar_de_variables_locales declar_de_subprogs sentencias FINBLOQUE { finBloque(); } ;
+ini_bloque : INIBLOQUE { inicioBloque(); } ;
 
-declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
+fin_bloque : FINBLOQUE { finBloque(); } ;
+
+bloque : ini_bloque declar_de_variables_locales declar_de_subprogs sentencias fin_bloque ;
+
+declar_de_variables_locales : LOCAL ini_bloque variables_locales fin_bloque
                             | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
@@ -109,11 +109,7 @@ lista_expresiones : lista_expresiones COMA expresion
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
 
-declar_subprog : cabecera_subprog {
-                 // Indico que el bloque se corresponde con el de un subprograma
-                 es_subprog = 1;
-                } 
-                bloque ;
+declar_subprog : cabecera_subprog bloque ;
 
 cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
 
@@ -129,10 +125,7 @@ parametro : TIPO ID ;
 sentencias : sentencias sentencia
            | %empty ;
 
-sentencia : bloque {
-                 // Indico que el bloque no se corresponde con el de un subprograma
-                 es_subprog = 0;
-                } 
+sentencia : bloque
           | expresion PYC
           | sentencia_asignacion
           | sentencia_lista

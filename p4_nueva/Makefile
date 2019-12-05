@@ -11,7 +11,7 @@ lex.yy.c: lexico.l
 	flex lexico.l
 
 limpia:
-	rm -f prueba y.tab.c lex.yy.c y.output y.tab.h
+	rm -f prueba y.tab.c y.tab.h lex.yy.c y.output
 
 todo:
 	make --no-print-directory limpia

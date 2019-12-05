@@ -9,7 +9,7 @@
 char * imprimeTipoE(TipoEntrada tipo){
   switch (tipo) {
     case marca: return "marca";
-    case procedimiento: return "procedimiento";
+    case funcion: return "función";
     case variable: return "variable";
     case parametroFormal: return "parámetro";
     default: return "error";
@@ -59,7 +59,7 @@ void imprimeTS(){
 /* Funciones auxiliares */
 
 void insertarEntrada(entrada_ts entrada){
-	TOPE++; // TOPE es la última posición usada de la tabla
+	TOPE++;
 
 	if (TOPE >= MAX_TAM_TS) {
 		printf("[%d] Error: La tabla de símbolos está llena\n", yylineno);
@@ -74,21 +74,26 @@ TipoDato stringToTipoDato(char* tipo_dato){
 	TipoDato tipo_dato_nuevo;
 
 	if (strcmp(tipo_dato, "entero") == 0)
-		tipo_dato_nuevo = entero; 
+		tipo_dato_nuevo = entero;
 	else if (strcmp(tipo_dato, "real") == 0)
 		tipo_dato_nuevo = real;
 	else if (strcmp(tipo_dato, "booleano") == 0)
-		tipo_dato_nuevo = booleano; 
+		tipo_dato_nuevo = booleano;
 	else if (strcmp(tipo_dato, "caracter") == 0)
-		tipo_dato_nuevo = caracter; 
+		tipo_dato_nuevo = caracter;
 	else if (strcmp(tipo_dato, "list_of int") == 0)
-		tipo_dato_nuevo = listaentero; 
+		tipo_dato_nuevo = listaentero;
 	else if (strcmp(tipo_dato, "list_of float") == 0)
-		tipo_dato_nuevo = listareal; 
+		tipo_dato_nuevo = listareal;
 	else if (strcmp(tipo_dato, "list_of bool") == 0)
-		tipo_dato_nuevo = listabool; 
+		tipo_dato_nuevo = listabool;
 	else if (strcmp(tipo_dato, "list_of char") == 0)
-		tipo_dato_nuevo = listachar; 
+		tipo_dato_nuevo = listachar;
+  else {
+    printf("[%d] Error semántico: Identificador duplicado '%s'\n",
+        yylineno, identificador);
+    tipo_dato_nuevo = desconocido;
+  }
 
 	return tipo_dato_nuevo;
 }
@@ -109,8 +114,9 @@ int identificadorDuplicado(char* identificador) {
 /* Funciones para insertar entradas en TS */
 
 void insertarVariable(char* identificador, TipoDato tipo_dato){
-	if(identificadorDuplicado(identificador)){
-		printf("[%d] Error semántico: Identificador duplicado '%s'\n", yylineno, identificador);
+	if ( identificadorDuplicado(identificador) ) {
+		printf("[%d] Error semántico: Identificador duplicado '%s'\n",
+        yylineno, identificador);
 		return;
 	}
 
@@ -124,16 +130,36 @@ void insertarVariable(char* identificador, TipoDato tipo_dato){
 	insertarEntrada(entrada);
 }
 
-// <TODO>
-// ESTABLECER EL VALOR DE LA POSICIÓN EN LA TABLA DEL ÚLTIMO PROCEDIMIENTO CUANDO
-// SE INSERTA EN LA TS
+void insertarFuncion (char * identificador, char * str_tipo_dato) {
+  if ( identificadorDuplicado(identificador) ) {
+		printf("[%d] Error semántico: Identificador duplicado '%s'\n",
+        yylineno, identificador);
+		return;
+	}
 
-void insertaParametrosComoVariables(){
-  for (int i = 1; i <= TS[ultimoProcedimiento].parametros; i++)
-    insertarVariable(TS[ultimoProcedimiento + i].nombre, TS[ultimoProcedimiento + i].tipo_dato);
+  // TODO: estoy asumiendo que todas nuestras funciones devuelven algo
+  // es decir, NO TENEMOS TIPO VOID. Si esto no es cierto y si que hay
+  // tipo void, hay que añadir la posibilidad de que el tipo sea desconocido.
+  tipo_funcion = stringToTipoDato(str_tipo_dato);
+
+  entrada_ts entrada = {
+    funcion,
+    strdup(identificador),
+    tipo_funcion,
+    0 // Número de parámetros, inicialmente 0.
+  };
+
+  insertarEntrada(entrada_ts);
+  ultimaFuncion = TOPE;
+  esSubProg = 1;
 }
 
-void inicioBloque(int es_subprog){
+void insertaParametrosComoVariables(){
+  for (int i = 1; i <= TS[ultimaFuncion].parametros; i++)
+    insertarVariable(TS[ultimaFuncion + i].nombre, TS[ultimaFuncion + i].tipo_dato);
+}
+
+void inicioBloque(){
 	const entrada_ts marca_ini_bloque = {
 		marca,
 		(char) 0,
@@ -141,21 +167,24 @@ void inicioBloque(int es_subprog){
 		0
 	};
 
-	insertaTS(marca_ini_bloque);
+	insertaTS(marca_ini_b loque);
 	// prof++;
 
-	if(es_subprog)
+	if (esSubProg) {
 		insertaParametrosComoVariables();
+    esSubProg = 0;
+  }
 }
 
 void finBloque(){
-	imprimeTS(); // Imprimir los contenidos de la TS
+  // Imprimir los contenidos de la TS
+  imprimeTS();
 
 	//prof--;
 
-	for(int j = tope; j >= 0; j--){
+	for(int j = TOPE; j >= 0; j--){
 		if(TS[j].tipo_entrada == marca){
-			tope = j-1;
+			TOPE = j-1;
 			return;
 		}
 	}
