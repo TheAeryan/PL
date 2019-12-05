@@ -168,7 +168,6 @@ void inicioBloque(){
 	};
 
 	insertaTS(marca_ini_b loque);
-	// prof++;
 
 	if (esSubProg) {
 		insertaParametrosComoVariables();
@@ -179,8 +178,6 @@ void inicioBloque(){
 void finBloque(){
   // Imprimir los contenidos de la TS
   imprimeTS();
-
-	//prof--;
 
 	for(int j = TOPE; j >= 0; j--){
 		if(TS[j].tipo_entrada == marca){
