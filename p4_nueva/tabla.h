@@ -52,15 +52,15 @@ typedef struct entrada_ts {
 struct entrada_ts TS[MAX_TAM_TS];
 
 // Última entrada de la tabla de símbolos usada. Se inicializa a -1
-long int TOPE = -1;
+long int TOPE;
 
 // Posición en la tabla de símbolos del último procedimiento
-long int ultimaFuncion = -1;
+long int ultimaFuncion;
 
 // Guardar si la proxima vez que entremos en un bloque, este es
 // un subprograma y, en tal caso, inserta los parametros como
 // variables en la pila.
-int esSubProg = 0;
+int esSubProg;
 
 /*************************************/
 /* IMPRESIÓN DE LA TABLA DE SIMBOLOS */
@@ -87,8 +87,8 @@ void insertarEntrada(entrada_ts entrada);
 TipoDato stringToTipoDato(char* tipo_dato);
 
 // Función que comprueba si un identificador ya está siendo
-// usado en el mismo bloque. Devuelve 1 si está duplicado y
-// 0 si no.
+// usado en el mismo bloque para una variable o función.
+// Devuelve 1 si está duplicado y 0 si no.
 int identificadorDuplicado(char* identificador);
 
 
@@ -101,7 +101,12 @@ void insertarVariable(char* identificador, TipoDato tipo_dato);
 // Inserta una función nueva al ser declarada.
 // Comprueba que en el mismo bloque no se use el mismo identificador y
 // actualiza el valor de esSubProg. Los parámetros se añadirán a continuación.
-void insertarFuncion (char * identificador, char * str_tipo_dato) {
+void insertarFuncion (char * identificador, char * str_tipo_dato);
+
+// Inserta un parámetro de una función declarada anteriormente
+// Además, aumenta en 1 el número de parámetros de dicha función
+// (aquella cuya posición en la tabla es "ultimaFuncion")
+void insertarParametroFuncion(char* identificador, char * str_tipo_dato);
 
 // Inserta los parámetros de una función como variables locales
 // dentro del bloque de dicha función.

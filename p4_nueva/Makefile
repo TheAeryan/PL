@@ -1,7 +1,7 @@
 .SUFFIXES:
 
 prueba: y.tab.c
-	gcc -o prueba y.tab.c
+	gcc -o prueba y.tab.c tabla.c
 
 y.tab.c: semantico.y lex.yy.c
 	bison -d -v -o y.tab.c semantico.y

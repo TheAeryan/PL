@@ -1,4 +1,11 @@
- #include "tabla.h"
+#include "tabla.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+// Para imprimir los números de línea
+extern int yylineno;
 
 /* Ver tabla.h para la documentación */
 
@@ -89,11 +96,9 @@ TipoDato stringToTipoDato(char* tipo_dato){
 		tipo_dato_nuevo = listabool;
 	else if (strcmp(tipo_dato, "list_of char") == 0)
 		tipo_dato_nuevo = listachar;
-  else {
-    printf("[%d] Error semántico: Identificador duplicado '%s'\n",
-        yylineno, identificador);
-    tipo_dato_nuevo = desconocido;
-  }
+	else {
+	    tipo_dato_nuevo = desconocido;
+	}
 
 	return tipo_dato_nuevo;
 }
@@ -138,9 +143,9 @@ void insertarFuncion (char * identificador, char * str_tipo_dato) {
 	}
 
   // TODO: estoy asumiendo que todas nuestras funciones devuelven algo
-  // es decir, NO TENEMOS TIPO VOID. Si esto no es cierto y si que hay
+  // es decir, NO TENEMOS TIPO VOID. Si esto no es cierto y sí que hay
   // tipo void, hay que añadir la posibilidad de que el tipo sea desconocido.
-  tipo_funcion = stringToTipoDato(str_tipo_dato);
+  TipoDato tipo_funcion = stringToTipoDato(str_tipo_dato);
 
   entrada_ts entrada = {
     funcion,
@@ -149,9 +154,27 @@ void insertarFuncion (char * identificador, char * str_tipo_dato) {
     0 // Número de parámetros, inicialmente 0.
   };
 
-  insertarEntrada(entrada_ts);
+  insertarEntrada(entrada);
   ultimaFuncion = TOPE;
   esSubProg = 1;
+}
+
+void insertarParametroFuncion(char* identificador, char * str_tipo_dato){
+	// Inserto la entrada en la tabla
+
+	TipoDato tipo_parametro = stringToTipoDato(str_tipo_dato);
+
+	entrada_ts entrada = {
+	    parametroFormal,
+	    strdup(identificador),
+	    tipo_parametro,
+	    0
+  	};
+
+  	insertarEntrada(entrada);
+
+  	// Aumento en 1 el número de parámetros de la función
+  	TS[ultimaFuncion].parametros++;
 }
 
 void insertaParametrosComoVariables(){
@@ -167,7 +190,7 @@ void inicioBloque(){
 		0
 	};
 
-	insertaTS(marca_ini_b loque);
+	insertarEntrada(marca_ini_bloque);
 
 	if (esSubProg) {
 		insertaParametrosComoVariables();

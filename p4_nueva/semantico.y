@@ -3,14 +3,12 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "lex.yy.c"
 #include "tabla.h"
 
 // Defino los atributos de la pila
 
-struct {
-  int a, b, c;
-} atributo_pila;
+// Los atributos sintetizados serán de tipo char*
+typedef char* atributo_pila;
 
 #define YYSTYPE atributo_pila
 
@@ -111,7 +109,11 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 
 declar_subprog : cabecera_subprog bloque ;
 
-cabecera_subprog : TIPO ID PARIZQ cabecera_argumentos PARDER ;
+cabecera_subprog : TIPO ID { 
+                    // Inserto la entrada de la función.
+                    // Los parámetros se insertarán después.
+                    insertarFuncion($2, $1); 
+                  } PARIZQ cabecera_argumentos PARDER ;
 
 cabecera_argumentos : parametros
                     | %empty
@@ -120,7 +122,12 @@ cabecera_argumentos : parametros
 parametros : parametros COMA parametro
            | parametro ;
 
-parametro : TIPO ID ;
+parametro : TIPO ID {
+              // Inserto el parámetro en la tabla
+              // (esta función ya se encarga en aumentar el número
+              // de parámetros de la función en 1)
+              insertarParametroFuncion($2, $1);
+           } ;
 
 sentencias : sentencias sentencia
            | %empty ;
@@ -201,6 +208,12 @@ void yyerror(const char *msg){
 }
 
 int main(){
+  // <Inicializar variables de tabla.h>
+
+  TOPE = -1;
+  ultimaFuncion = -1;
+  esSubProg = 0;
+
   yyparse();
 
   return 0;
