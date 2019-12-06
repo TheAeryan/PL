@@ -20,5 +20,8 @@ todo:
 test_programita: todo
 	./prueba < ../pruebas/programa_correcto.prog
 
+test_vacio: todo
+	./prueba < ../pruebas/programa_vacio.prog
+
 test_sintactico: todo
 	./prueba < ../pruebas/errores_sintacticos.txt

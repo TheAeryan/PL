@@ -80,13 +80,16 @@ void insertarEntrada(entrada_ts entrada){
 TipoDato stringToTipoDato(char* tipo_dato){
 	TipoDato tipo_dato_nuevo;
 
-	if (strcmp(tipo_dato, "entero") == 0)
+  printf("    [DEBUG] Pidiendo tipo de dato");
+  printf("    [DEBUG] Tipo pedido: %s", tipo_dato);
+
+	if (strcmp(tipo_dato, "int") == 0)
 		tipo_dato_nuevo = entero;
-	else if (strcmp(tipo_dato, "real") == 0)
+	else if (strcmp(tipo_dato, "float") == 0)
 		tipo_dato_nuevo = real;
-	else if (strcmp(tipo_dato, "booleano") == 0)
+	else if (strcmp(tipo_dato, "bool") == 0)
 		tipo_dato_nuevo = booleano;
-	else if (strcmp(tipo_dato, "caracter") == 0)
+	else if (strcmp(tipo_dato, "char") == 0)
 		tipo_dato_nuevo = caracter;
 	else if (strcmp(tipo_dato, "list_of int") == 0)
 		tipo_dato_nuevo = listaentero;
@@ -97,8 +100,12 @@ TipoDato stringToTipoDato(char* tipo_dato){
 	else if (strcmp(tipo_dato, "list_of char") == 0)
 		tipo_dato_nuevo = listachar;
 	else {
-	    tipo_dato_nuevo = desconocido;
+    printf("[%d] Error de implementación: Tipo desconocido '%s'\n",
+        yylineno, tipo_dato);
+	  tipo_dato_nuevo = desconocido;
 	}
+
+  printf("[DEBUG] tipo devuelto: %s", imprimeTipoD(tipo_dato_nuevo));
 
 	return tipo_dato_nuevo;
 }
@@ -160,8 +167,6 @@ void insertarFuncion (char * identificador, char * str_tipo_dato) {
 }
 
 void insertarParametroFuncion(char* identificador, char * str_tipo_dato){
-	// Inserto la entrada en la tabla
-
 	TipoDato tipo_parametro = stringToTipoDato(str_tipo_dato);
 
 	entrada_ts entrada = {

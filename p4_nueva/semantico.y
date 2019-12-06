@@ -5,12 +5,12 @@
 
 #include "tabla.h"
 
-// Defino los atributos de la pila
-
 // Los atributos sintetizados serán de tipo char*
 typedef char* atributo_pila;
 
 #define YYSTYPE atributo_pila
+
+int yylex();
 
 // <Variables Auxiliares>
 
@@ -86,10 +86,10 @@ declar_de_variables_locales : LOCAL ini_bloque variables_locales fin_bloque
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO lista_variables PYC {
+cuerpo_declar_variables : TIPO {
                           // Guardo el tipo de dato de la lista de variables
                           tipo_variables = stringToTipoDato($1);
-                        }
+                        } lista_variables PYC
                         | error ;
 
 lista_variables : ID COMA lista_variables { insertarVariable($1, tipo_variables); }
@@ -109,10 +109,10 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 
 declar_subprog : cabecera_subprog bloque ;
 
-cabecera_subprog : TIPO ID { 
+cabecera_subprog : TIPO ID {
                     // Inserto la entrada de la función.
                     // Los parámetros se insertarán después.
-                    insertarFuncion($2, $1); 
+                    insertarFuncion($2, $1);
                   } PARIZQ cabecera_argumentos PARDER ;
 
 cabecera_argumentos : parametros
