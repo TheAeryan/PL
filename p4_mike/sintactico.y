@@ -132,7 +132,10 @@ void idRepetida(char* id) {
   }
 }
 
-void insertarEntrada(EntradaTS entrada) {
+void insertarEntrada(TipoEntrada te, char* nombre, TipoDato td, int nParam) {
+  // Hacemos la entrada
+  EntradaTS entrada = { te, strdup(nombre), td, nParam };
+
   // Si la tabla está llena da error
   if (tope + 1 >= MAX_TAM_TS) {
     fprintf(stderr, "[%d] Error: La tabla de símbolos está llena\n", yylineno);
@@ -163,18 +166,12 @@ TipoDato buscarTipo(char* id) {
 /****************/
 
 void insertarMarca() {
-  // Ponemos una marca al inicio del bloque
-  EntradaTS marcaBloque = { marca, "", desconocido, -1 };
-  // Metemos la entrada
-  insertarEntrada(marcaBloque);
+  // Metemos la marca
+  insertarEntrada(marca, "", desconocido, -1);
   // Si es subprograma añadimos las variables al bloque
-  if (subProg) {
-    for (int i = tope - 1; ts[i].tipoEntrada != funcion; --i) {
-      EntradaTS entrada = { variable, ts[i].nombre, ts[i].tipoDato, -1 };
-      insertarEntrada(entrada);
-    }
-  }
-  imprimir();
+  if (subProg)
+    for (int i = tope - 1; ts[i].tipoEntrada != funcion; --i)
+      insertarEntrada(variable, ts[i].nombre, ts[i].tipoDato, -1);
 }
 
 void vaciarEntradas() {
@@ -189,16 +186,14 @@ void insertarVariable(char* id) {
   // Comprobamos que no esté repetida la id
   idRepetida(id);
   // Si no está duplicado añadimos la entrada
-  EntradaTS entrada = { variable, strdup(id), tipoTmp, -1 };
-  insertarEntrada(entrada);
+  insertarEntrada(variable, id, tipoTmp, -1);
 }
 
 void insertarFuncion(TipoDato tipoDato, char* id) {
   // Comprobamos que el id no esté usado ya
   idRepetida(id);
   // Añadimos la entrada
-  EntradaTS entrada = { funcion, strdup(id), tipoDato, 0 };
-  insertarEntrada(entrada);
+  insertarEntrada(funcion, id, tipoDato, 0);
 }
 
 void insertarParametro(TipoDato tipoDato, char* id) {
@@ -213,8 +208,7 @@ void insertarParametro(TipoDato tipoDato, char* id) {
     }
   }
   // Añadimos la entrada
-  EntradaTS entrada = { parametroFormal, strdup(id), tipoDato, -1};
-  insertarEntrada(entrada);
+  insertarEntrada(parametroFormal, id, tipoDato, -1);
   // Actualizamos el nº de parámetros de la función
   ++ts[i].parametros;
 }
