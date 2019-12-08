@@ -9,7 +9,10 @@ main
 		list_of int pe, pe2 ;
 		list_of  float pf, pf2 ;
 		list_of bool p1;
+		list_of char pd;
+		list_of    int ppf;
 	}
+
 
  int funcionA (int a1, float a2, char a3)
  {
@@ -86,20 +89,20 @@ main
  	}
 
 	pe= [1, 43, 5, 0, 0];
-	pe= ['z', 'A','B'];
-	pe=[2.5, 4.9*c, 3.0+f(b,c), 0.0];
-	pe = [true, false, true,true] ;
+	pd= ['z', 'A','B'];
+	pf = [2.5, 4.9*b, 3.0+f(b,v), 0.0];
+	p1 = [true, false, true,true] ;
 	pe>> ;
 	pe<< ;
 	pe <<;
 	$pe;
 	if (#pe < ?pe2)
-		return pe@2 ;
+		pe@2;
 	else
-		return pe @ 3 ;
+		pe @ 3 ;
 	pe = pe**(ppf % 2) ;
-	pe = pe++true@3 ;
-	pe = pf--(3 + 2 / 2.0) ;
+	p1 = p1 ++true@3 ;
+	pf = pf -- (3 + 2 / 2.0) ;
 	pe = pe ;
-	pe = pe ++ p2 @ pe @ p2 ++ p3 @ p2;
+	pe = pe ++ 3 @ 2;
 }

@@ -34,8 +34,7 @@ typedef enum {
   listaEntero,
   listaReal,
   listaBooleano,
-  listaCaracter,
-  desconocido
+  listaCaracter
 } TipoDato;
 
 
@@ -53,11 +52,13 @@ EntradaTS ts[MAX_TAM_TS];
 long int tope = -1;
 
 // Tipo auxiliar para declaración de variables
-TipoDato tipoTmp = desconocido;
+TipoDato tipoTmp;
 
 // Si entramos en un bloque de un subprograma
 // Si es 0 es un bloque de un subprograma; en caso contrario no
 int subProg = 0;
+
+int idFuncion = -1;
 
 typedef struct {
   int atributo;
@@ -68,13 +69,21 @@ typedef struct {
 char* tipoAString(TipoDato td) {
   switch (td) {
     case real:
-      return "real";
+      return "float";
     case entero:
-      return "entero";
+      return "int";
     case booleano:
-      return "booleano";
+      return "bool";
     case caracter:
-      return "caracter";
+      return "char";
+    case listaReal:
+      return "list_of float";
+    case listaEntero:
+      return "list_of int";
+    case listaCaracter:
+      return "list_of char";
+    case listaBooleano:
+      return "list_of bool";
     default:
       return "error";
   }
@@ -92,7 +101,7 @@ TipoDato tipoLista(TipoDato td) {
       return real;
     default:
       fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
-      return desconocido;
+      exit(EXIT_FAILURE);
   }
 }
 
@@ -101,7 +110,8 @@ int esLista(TipoDato td) {
 }
 
 void imprimir() {
-  for (int i = 0; i <= tope; ++i)
+  for (int i = 0; i <= tope; ++i) {
+    printf("[%i]: ", i);
     switch(ts[i].tipoEntrada) {
       case variable:
         printf("Variable %s, tipo: %s\n", ts[i].nombre, tipoAString(ts[i].tipoDato));
@@ -119,6 +129,7 @@ void imprimir() {
         printf("error\n");
         break;
     }
+  }
 }
 
 void idRepetida(char* id) {
@@ -148,7 +159,7 @@ void insertarEntrada(TipoEntrada te, char* nombre, TipoDato td, int nParam) {
   ts[tope] = entrada;
 }
 
-TipoDato buscarTipo(char* id) {
+int buscarEntrada(char* id) {
   int i;
   for (i = tope; i >= 0; --i)
     if (ts[i].tipoEntrada != parametroFormal && !strcmp(id, ts[i].nombre))
@@ -158,7 +169,7 @@ TipoDato buscarTipo(char* id) {
     fprintf(stderr, "[%d] Error: variable %s no declarada\n", yylineno, id);
     exit(EXIT_FAILURE);
   }
-  return ts[i].tipoDato;
+  return i;
 }
 
 /****************/
@@ -167,7 +178,7 @@ TipoDato buscarTipo(char* id) {
 
 void insertarMarca() {
   // Metemos la marca
-  insertarEntrada(marca, "", desconocido, -1);
+  insertarEntrada(marca, "", -1, -1);
   // Si es subprograma añadimos las variables al bloque
   if (subProg)
     for (int i = tope - 1; ts[i].tipoEntrada != funcion; --i)
@@ -214,9 +225,9 @@ void insertarParametro(TipoDato tipoDato, char* id) {
 }
 
 void comprobarAsignacion(char* id, TipoDato td) {
-  TipoDato tdID = buscarTipo(id);
+  TipoDato tdID = ts[buscarEntrada(id)].tipoDato;
   if (tdID != td) {
-    fprintf(stderr, "[%d] Error: mal asignación, %s es tipo %s, se esperaba %s\n", yylineno, id, tipoAString(tdID), tipoAString(td));
+    fprintf(stderr, "[%d] Error: mal asignación, %s es tipo %s y se obtuvo %s\n", yylineno, id, tipoAString(tdID), tipoAString(td));
     exit(EXIT_FAILURE);
   }
 }
@@ -236,7 +247,7 @@ void sentenciaLista(TipoDato td, char* sentencia) {
 
 TipoDato mismoTipoLista(TipoDato t1, TipoDato t2) {
   if (t1 != t2) {
-    fprintf(stderr, "[%d] Error: no coincide la lista %s, con el tipo de elemento %s\n", yylineno, tipoAString(t1), tipoAString(t2));
+    fprintf(stderr, "[%d] Error: lista dos tipos de tipo %s y %s\n", yylineno, tipoAString(t1), tipoAString(t2));
     exit(EXIT_FAILURE);
   }
 
@@ -255,11 +266,9 @@ TipoDato aTipoLista(TipoDato td) {
       return listaBooleano;
     default:
       fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
-      return desconocido;
+      exit(EXIT_FAILURE);
   }
 }
-
-
 
 TipoDato masMenos(int atr, TipoDato td) {
   char* operador = atr ? "-" : "+";
@@ -287,7 +296,7 @@ TipoDato intHash(int atr, TipoDato td) {
     exit(EXIT_FAILURE);
   }
   if (atr)
-    return tipoLista(atr);
+    return tipoLista(td);
   else
     return entero;
 }
@@ -345,6 +354,8 @@ TipoDato borrList(TipoDato td1, int atr, TipoDato td2) {
     fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n", yylineno, operador, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
   }
+
+  return td1;
 }
 
 TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
@@ -378,6 +389,35 @@ TipoDato ternario(TipoDato td1, TipoDato td2, TipoDato td3) {
   }
 
   return td1;
+}
+
+void comprobarReturn(TipoDato td) {
+  int i = tope;
+  int marcaEncontrada = 0;
+  int funcionEncontrada = 0;
+
+  while (i >= 1 && !funcionEncontrada) {
+    funcionEncontrada = marcaEncontrada && ts[i].tipoEntrada == funcion;
+    marcaEncontrada = (!marcaEncontrada && ts[i].tipoEntrada == marca) || (marcaEncontrada && ts[i].tipoEntrada == parametroFormal);
+    --i;
+  }
+
+  if (funcionEncontrada) ++i;
+
+  if (i <= 0) {
+    fprintf(stderr, "[%d] Error: return no asignado a ninguna función\n", yylineno);
+    exit(EXIT_FAILURE);
+  }
+
+  if (td != ts[i].tipoDato) {
+    fprintf(stderr, "[%d] Error: return devuelve tipo %s, y función es de tipo %s\n", yylineno, tipoAString(td), tipoAString(ts[i].tipoDato));
+    exit(EXIT_FAILURE);
+  }
+}
+
+TipoDato comprobarFuncion(char* id) {
+  idFuncion = buscarEntrada(id);
+  return ts[idFuncion].tipoDato;
 }
 
 
@@ -497,7 +537,7 @@ sentencia_while : WHILE PARIZQ expresion PARDER sentencia { expresionBooleana($3
 
 sentencia_entrada : CIN lista_id PYC ;
 
-lista_id : ID COMA lista_id
+lista_id : lista_id COMA ID
          | ID ;
 
 sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
@@ -510,7 +550,7 @@ expresion_cadena : expresion
 
 sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC { expresionBooleana($5.dtipo); };
 
-sentencia_return : RETURN expresion PYC ;
+sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); } ;
 
 expresion : PARIZQ expresion PARDER                  { $$.dtipo = $2.dtipo; }
           | ADDSUB expresion %prec EXCL              { $$.dtipo = masMenos($1.atributo, $2.dtipo); }
@@ -527,11 +567,11 @@ expresion : PARIZQ expresion PARDER                  { $$.dtipo = $2.dtipo; }
           | expresion REL expresion                  { $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
           | expresion MASMAS expresion AT expresion  { $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo); }
           | llamada_funcion                          { $$.dtipo = $1.dtipo; }
-          | ID                                       { $$.dtipo = buscarTipo($1.lexema); }
+          | ID                                       { $$.dtipo = ts[buscarEntrada($1.lexema)].tipoDato; }
           | constante                                { $$.dtipo = $1.dtipo; }
           | error ;
 
-llamada_funcion : ID PARIZQ argumentos PARDER { $$.dtipo = buscarTipo($1.lexema); } ;
+llamada_funcion : ID { $$.dtipo = comprobarFuncion($1.lexema); } PARIZQ argumentos PARDER  ;
 
 argumentos : lista_argumentos
            | %empty ;
@@ -542,8 +582,7 @@ lista_argumentos : lista_argumentos COMA expresion
 constante : CONST { $$.dtipo = $1.dtipo; }
           | lista { $$.dtipo = $1.dtipo; } ;
 
-lista : CORIZQ lista_expresiones CORDER { $$.dtipo = aTipoLista($2.dtipo); }
-      | CORIZQ CORDER { $$.dtipo = desconocido; } ;
+lista : CORIZQ lista_expresiones CORDER { $$.dtipo = aTipoLista($2.dtipo); } ;
 
 lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista($1.dtipo, $3.dtipo);  }
                   | expresion { $$.dtipo = $1.dtipo; };
