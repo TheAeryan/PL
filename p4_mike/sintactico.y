@@ -80,20 +80,40 @@ char* tipoAString(TipoDato td) {
   }
 }
 
+TipoDato tipoLista(TipoDato td) {
+  switch (td) {
+    case listaEntero:
+      return entero;
+    case listaCaracter:
+      return caracter;
+    case listaBooleano:
+      return booleano;
+    case listaReal:
+      return real;
+    default:
+      fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
+      return desconocido;
+  }
+}
+
+int esLista(TipoDato td) {
+  return td == listaEntero || td == listaReal || td == listaBooleano || td == listaCaracter;
+}
+
 void imprimir() {
   for (int i = 0; i <= tope; ++i)
     switch(ts[i].tipoEntrada) {
       case variable:
-        printf("Variable %s\n", ts[i].nombre);
+        printf("Variable %s, tipo: %s\n", ts[i].nombre, tipoAString(ts[i].tipoDato));
         break;
       case funcion:
-        printf("Funcion %s\n", ts[i].nombre);
+        printf("Funcion %s, tipo: %s, nº parametros: %i\n", ts[i].nombre, tipoAString(ts[i].tipoDato), ts[i].parametros);
         break;
       case marca:
         printf("Marca\n");
         break;
       case parametroFormal:
-        printf("Parametro formal %s\n", ts[i].nombre);
+        printf("Parametro formal %s, tipo: %s\n", ts[i].nombre, tipoAString(ts[i].tipoDato));
         break;
       default:
         printf("error\n");
@@ -104,7 +124,7 @@ void imprimir() {
 void idRepetida(char* id) {
   // Miramos si id estaba declarado después de la última marca
   for (int i = tope; ts[i].tipoEntrada != marca; --i) {
-    if (!ts[i].tipoEntrada != parametroFormal && !strcmp(ts[i].nombre, id)) {
+    if (ts[i].tipoEntrada != parametroFormal && !strcmp(ts[i].nombre, id)) {
       fprintf(stderr, "[%d] Error: identificador %s ya declarado\n", yylineno, id);
       fflush(stderr);
       exit(EXIT_FAILURE);
@@ -125,6 +145,19 @@ void insertarEntrada(EntradaTS entrada) {
   ts[tope] = entrada;
 }
 
+TipoDato buscarTipo(char* id) {
+  int i;
+  for (i = tope; i >= 0; --i)
+    if (ts[i].tipoEntrada != parametroFormal && !strcmp(id, ts[i].nombre))
+      break;
+
+  if (i <= -1) {
+    fprintf(stderr, "[%d] Error: variable %s no declarada\n", yylineno, id);
+    exit(EXIT_FAILURE);
+  }
+  return ts[i].tipoDato;
+}
+
 /****************/
 /* FUNCIONES TS */
 /****************/
@@ -141,6 +174,7 @@ void insertarMarca() {
       insertarEntrada(entrada);
     }
   }
+  imprimir();
 }
 
 void vaciarEntradas() {
@@ -185,10 +219,171 @@ void insertarParametro(TipoDato tipoDato, char* id) {
   ++ts[i].parametros;
 }
 
-void comprobarTipo(Atributos atr, TipoDato td) {
-  if (atr.dtipo != td) {
-    fprintf(stderr, "[%d] Error: %s es tipo %s, se esperaba %s\n", yylineno, atr.lexema, tipoAString(atr.dtipo), tipoAString(td));
+void comprobarAsignacion(char* id, TipoDato td) {
+  TipoDato tdID = buscarTipo(id);
+  if (tdID != td) {
+    fprintf(stderr, "[%d] Error: mal asignación, %s es tipo %s, se esperaba %s\n", yylineno, id, tipoAString(tdID), tipoAString(td));
+    exit(EXIT_FAILURE);
   }
+}
+
+void expresionBooleana(TipoDato td) {
+  if (td != booleano) {
+    fprintf(stderr, "[%d] Error: condición no es de tipo booleano, se tiene tipo %s", yylineno, tipoAString(td));
+    exit(EXIT_FAILURE);
+  }
+}
+
+void sentenciaLista(TipoDato td, char* sentencia) {
+  if (!esLista(td)) {
+    fprintf(stderr, "[%d] Error: sentencia %s no aplicable al tipo %s\n", yylineno, sentencia, tipoAString(td));    exit(EXIT_FAILURE);
+  }
+}
+
+TipoDato mismoTipoLista(TipoDato t1, TipoDato t2) {
+  if (t1 != t2) {
+    fprintf(stderr, "[%d] Error: no coincide la lista %s, con el tipo de elemento %s\n", yylineno, tipoAString(t1), tipoAString(t2));
+    exit(EXIT_FAILURE);
+  }
+
+  return t1;
+}
+
+TipoDato aTipoLista(TipoDato td) {
+  switch (td) {
+    case entero:
+      return listaEntero;
+    case real:
+      return listaReal;
+    case caracter:
+      return listaCaracter;
+    case booleano:
+      return listaBooleano;
+    default:
+      fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
+      return desconocido;
+  }
+}
+
+
+
+TipoDato masMenos(int atr, TipoDato td) {
+  char* operador = atr ? "-" : "+";
+  if (td != real && td != entero) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable al tipo %s\n", yylineno, operador, tipoAString(td));
+    exit(EXIT_FAILURE);
+  }
+
+  return td;
+}
+
+TipoDato excl(TipoDato td) {
+  if (td != booleano) {
+    fprintf(stderr, "[%d] Error: operador ! no aplicable al tipo %s\n", yylineno, tipoAString(td));
+    exit(EXIT_FAILURE);
+  }
+
+  return booleano;
+}
+
+TipoDato intHash(int atr, TipoDato td) {
+  char* operador = atr ? "#" : "?";
+  if (!esLista(td)) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable al tipo %s\n", yylineno, operador, tipoAString(td));
+    exit(EXIT_FAILURE);
+  }
+  if (atr)
+    return tipoLista(atr);
+  else
+    return entero;
+}
+
+TipoDato at(TipoDato td1, TipoDato td2) {
+  if (!esLista(td1) || td2 != entero) {
+    fprintf(stderr, "[%d] Error: operador @ no aplicable a los tipos %s, %s\n", yylineno, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+
+  return tipoLista(td1);
+}
+
+TipoDato andLog(TipoDato td1, TipoDato td2) {
+  if (td1 != booleano || td2 != booleano) {
+    fprintf(stderr, "[%d] Error: operador && no aplicable a los tipos %s, %s\n", yylineno, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+
+  return booleano;
+}
+
+TipoDato orLog(TipoDato td1, TipoDato td2) {
+  if (td1 != booleano || td2 != booleano) {
+    fprintf(stderr, "[%d] Error: operador || no aplicable a los tipos %s, %s\n", yylineno, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+
+  return booleano;
+}
+
+TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
+  char* operador = atr ? "!=" : "==";
+  if (td1 != td2) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n", yylineno, operador, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+  return booleano;
+}
+
+
+
+TipoDato porPor(TipoDato td1, TipoDato td2) {
+  if (td1 != td2 || !esLista(td1) || !esLista(td2)) {
+    fprintf(stderr, "[%d] Error: operador ** no aplicable a los tipos %s, %s\n", yylineno, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+
+  return td1;
+}
+
+TipoDato borrList(TipoDato td1, int atr, TipoDato td2) {
+  char* operador = atr ? "%" : "--";
+  if (!esLista(td1) || td2 != entero) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n", yylineno, operador, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+}
+
+TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
+  char* operador;
+  switch (atr) {
+    case 0:
+      operador = "<";
+      break;
+    case 1:
+      operador = ">";
+      break;
+    case 2:
+      operador = "<=";
+      break;
+    case 3:
+      operador = ">=";
+      break;
+  }
+  if (td1 != td2 || (td1 != real && td1 != entero) || (td2 != real && td2 != entero)) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n", yylineno, operador, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+
+  return booleano;
+}
+
+TipoDato ternario(TipoDato td1, TipoDato td2, TipoDato td3) {
+  if (!esLista(td1) || tipoLista(td1) != td2 || td3 != entero) {
+    fprintf(stderr, "[%d] Error: operador ++ @ no aplicable a los tipos %s, %s, %s\n", yylineno, tipoAString(td1), tipoAString(td2), tipoAString(td3));
+    exit(EXIT_FAILURE);
+  }
+
+  return td1;
 }
 
 
@@ -263,9 +458,6 @@ cuerpo_declar_variables : TIPO { tipoTmp = $1.dtipo; } lista_variables PYC
 lista_variables : ID COMA lista_variables { insertarVariable($1.lexema); }
                 | ID { insertarVariable($1.lexema); } ;
 
-lista_expresiones : lista_expresiones COMA expresion
-                  | expresion ;
-
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
 
@@ -297,19 +489,22 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-sentencia_asignacion : ID ASIGN expresion PYC { comprobarTipo($1, $3.dtipo); } ;
+sentencia_asignacion : ID ASIGN expresion PYC { comprobarAsignacion($1.lexema, $3.dtipo); } ;
 
-sentencia_lista : expresion SHIFT PYC
-                | DOLLAR expresion PYC ;
+sentencia_lista : expresion SHIFT PYC { sentenciaLista($1.dtipo, $2.lexema); }
+                | DOLLAR expresion PYC { sentenciaLista($2.dtipo, $1.lexema); } ;
 
-sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else ;
+sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else { expresionBooleana($3.dtipo); } ;
 
 bloque_else : ELSE sentencia
             | %empty ;
 
-sentencia_while : WHILE PARIZQ expresion PARDER sentencia ;
+sentencia_while : WHILE PARIZQ expresion PARDER sentencia { expresionBooleana($3.dtipo); } ;
 
-sentencia_entrada : CIN lista_variables PYC ;
+sentencia_entrada : CIN lista_id PYC ;
+
+lista_id : ID COMA lista_id
+         | ID ;
 
 sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
 
@@ -319,39 +514,45 @@ lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
 expresion_cadena : expresion
                  | CADENA ;
 
-sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
+sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC { expresionBooleana($5.dtipo); };
 
 sentencia_return : RETURN expresion PYC ;
 
-expresion : PARIZQ expresion PARDER { $$.dtipo = $2.dtipo; }
-          | ADDSUB expresion %prec EXCL
-          | EXCL expresion
-          | INTHASH expresion
-          | expresion AT expresion
-          | expresion ANDLOG expresion
-          | expresion ORLOG expresion
-          | expresion EQN expresion
-          | expresion ADDSUB expresion
-          | expresion MULDIV expresion
-          | expresion PORPOR expresion
-          | expresion BORRLIST expresion
-          | expresion REL expresion
-          | expresion MASMAS expresion AT expresion
-          | llamada_funcion
-          | ID { $$.dtipo = $1.dtipo; }
-          | constante { $$.dtipo = $1.dtipo; }
+expresion : PARIZQ expresion PARDER                  { $$.dtipo = $2.dtipo; }
+          | ADDSUB expresion %prec EXCL              { $$.dtipo = masMenos($1.atributo, $2.dtipo); }
+          | EXCL expresion                           { $$.dtipo = excl($2.dtipo); }
+          | INTHASH expresion                        { $$.dtipo = intHash($1.atributo, $2.dtipo); }
+          | expresion AT expresion                   { $$.dtipo = at($1.dtipo, $3.dtipo); }
+          | expresion ANDLOG expresion               { $$.dtipo = andLog($1.dtipo, $3.dtipo); }
+          | expresion ORLOG expresion                { $$.dtipo = orLog($1.dtipo, $3.dtipo); }
+          | expresion EQN expresion                  { $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion ADDSUB expresion               { $$.dtipo = $1.dtipo; }
+          | expresion MULDIV expresion               { $$.dtipo = $1.dtipo; }
+          | expresion PORPOR expresion               { $$.dtipo = porPor($1.dtipo, $3.dtipo); }
+          | expresion BORRLIST expresion             { $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion REL expresion                  { $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion MASMAS expresion AT expresion  { $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo); }
+          | llamada_funcion                          { $$.dtipo = $1.dtipo; }
+          | ID                                       { $$.dtipo = buscarTipo($1.lexema); }
+          | constante                                { $$.dtipo = $1.dtipo; }
           | error ;
 
-llamada_funcion : ID PARIZQ argumentos PARDER ;
+llamada_funcion : ID PARIZQ argumentos PARDER { $$.dtipo = buscarTipo($1.lexema); } ;
 
-argumentos : lista_expresiones
+argumentos : lista_argumentos
            | %empty ;
 
-constante : CONST { $$.dtipo = $1.dtipo; }
-          | lista ;
+lista_argumentos : lista_argumentos COMA expresion
+                 | expresion ;
 
-lista : CORIZQ lista_expresiones CORDER
-      | CORIZQ CORDER ;
+constante : CONST { $$.dtipo = $1.dtipo; }
+          | lista { $$.dtipo = $1.dtipo; } ;
+
+lista : CORIZQ lista_expresiones CORDER { $$.dtipo = aTipoLista($2.dtipo); }
+      | CORIZQ CORDER { $$.dtipo = desconocido; } ;
+
+lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista($1.dtipo, $3.dtipo);  }
+                  | expresion { $$.dtipo = $1.dtipo; };
 
 %%
 
