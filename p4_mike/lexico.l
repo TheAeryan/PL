@@ -3,7 +3,7 @@
 
 %%
 
-"{"                         { printf("aaa"); return INIBLOQUE; }
+"{"                         { return INIBLOQUE; }
 "}"                         { return FINBLOQUE; }
 "["                         { return CORIZQ; }
 "]"                         { return CORDER; }

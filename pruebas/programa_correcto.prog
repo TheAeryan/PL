@@ -58,7 +58,7 @@ main
 					char funcionE (char e1, char e2)
 					{
 						cout "introduzca ", (3-1), " caracteres: " ;
-						cin e1, e2;
+
 
 						if (e1 =='a')
 							return e1 ;
@@ -68,7 +68,6 @@ main
 					}
 
 					cout "introduzca un valor entero" ;
-					cin valor ;
 					if (d1>0.0)
 					{
 						local {

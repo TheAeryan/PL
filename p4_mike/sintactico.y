@@ -59,11 +59,53 @@ TipoDato tipoTmp = desconocido;
 // Si es 0 es un bloque de un subprograma; en caso contrario no
 int subProg = 0;
 
+typedef struct {
+  int atributo;
+  char* lexema;
+  TipoDato dtipo;
+} Atributos;
+
+char* tipoAString(TipoDato td) {
+  switch (td) {
+    case real:
+      return "real";
+    case entero:
+      return "entero";
+    case booleano:
+      return "booleano";
+    case caracter:
+      return "caracter";
+    default:
+      return "error";
+  }
+}
+
+void imprimir() {
+  for (int i = 0; i <= tope; ++i)
+    switch(ts[i].tipoEntrada) {
+      case variable:
+        printf("Variable %s\n", ts[i].nombre);
+        break;
+      case funcion:
+        printf("Funcion %s\n", ts[i].nombre);
+        break;
+      case marca:
+        printf("Marca\n");
+        break;
+      case parametroFormal:
+        printf("Parametro formal %s\n", ts[i].nombre);
+        break;
+      default:
+        printf("error\n");
+        break;
+    }
+}
+
 void idRepetida(char* id) {
   // Miramos si id estaba declarado después de la última marca
   for (int i = tope; ts[i].tipoEntrada != marca; --i) {
     if (!ts[i].tipoEntrada != parametroFormal && !strcmp(ts[i].nombre, id)) {
-      fprintf(stderr, "[%d] Error: identificador %s ya declarado", yylineno, id);
+      fprintf(stderr, "[%d] Error: identificador %s ya declarado\n", yylineno, id);
       fflush(stderr);
       exit(EXIT_FAILURE);
     }
@@ -90,8 +132,6 @@ void insertarEntrada(EntradaTS entrada) {
 void insertarMarca() {
   // Ponemos una marca al inicio del bloque
   EntradaTS marcaBloque = { marca, "", desconocido, -1 };
-  printf("aaaa");
-  fflush(stdin);
   // Metemos la entrada
   insertarEntrada(marcaBloque);
   // Si es subprograma añadimos las variables al bloque
@@ -104,9 +144,8 @@ void insertarMarca() {
 }
 
 void vaciarEntradas() {
-  int i = tope;
   // Hasta la última marca borramos todo
-  while (ts[i].tipoEntrada != marca)
+  while (ts[tope].tipoEntrada != marca)
     --tope;
   // Elimina la última marca
   --tope;
@@ -134,7 +173,7 @@ void insertarParametro(TipoDato tipoDato, char* id) {
   int i;
   for (i = tope; ts[i].tipoEntrada != funcion; --i) {
     if (!strcmp(ts[i].nombre, id)) {
-      fprintf(stderr, "[%d] Error: parámetro %s ya declarado", yylineno, id);
+      fprintf(stderr, "[%d] Error: parámetro %s ya declarado\n", yylineno, id);
       fflush(stderr);
       exit(EXIT_FAILURE);
     }
@@ -146,11 +185,12 @@ void insertarParametro(TipoDato tipoDato, char* id) {
   ++ts[i].parametros;
 }
 
-typedef struct {
-  int atributo;
-  char* lexema;
-  TipoDato dtipo;
-} Atributos;
+void comprobarTipo(Atributos atr, TipoDato td) {
+  if (atr.dtipo != td) {
+    fprintf(stderr, "[%d] Error: %s es tipo %s, se esperaba %s\n", yylineno, atr.lexema, tipoAString(atr.dtipo), tipoAString(td));
+  }
+}
+
 
 #define YYSTYPE Atributos
 %}
@@ -257,7 +297,7 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-sentencia_asignacion : ID ASIGN expresion PYC ;
+sentencia_asignacion : ID ASIGN expresion PYC { comprobarTipo($1, $3.dtipo); } ;
 
 sentencia_lista : expresion SHIFT PYC
                 | DOLLAR expresion PYC ;
@@ -283,7 +323,7 @@ sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC ;
 
 sentencia_return : RETURN expresion PYC ;
 
-expresion : PARIZQ expresion PARDER
+expresion : PARIZQ expresion PARDER { $$.dtipo = $2.dtipo; }
           | ADDSUB expresion %prec EXCL
           | EXCL expresion
           | INTHASH expresion
@@ -298,8 +338,8 @@ expresion : PARIZQ expresion PARDER
           | expresion REL expresion
           | expresion MASMAS expresion AT expresion
           | llamada_funcion
-          | ID
-          | constante
+          | ID { $$.dtipo = $1.dtipo; }
+          | constante { $$.dtipo = $1.dtipo; }
           | error ;
 
 llamada_funcion : ID PARIZQ argumentos PARDER ;
@@ -307,7 +347,7 @@ llamada_funcion : ID PARIZQ argumentos PARDER ;
 argumentos : lista_expresiones
            | %empty ;
 
-constante : CONST
+constante : CONST { $$.dtipo = $1.dtipo; }
           | lista ;
 
 lista : CORIZQ lista_expresiones CORDER
@@ -322,10 +362,7 @@ void yyerror(const char *msg){
 }
 
 int main(){
-  printf("aa");
-  fflush(stdin);
   yyparse();
-  printf("aabec");
 
   return 0;
 }
