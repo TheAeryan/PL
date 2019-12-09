@@ -317,7 +317,6 @@ TipoDato masMenos(int atr, TipoDato td) {
         yylineno, operador, tipoAString(td));
     exit(EXIT_FAILURE);
   }
-
   return td;
 }
 
@@ -327,7 +326,6 @@ TipoDato excl(TipoDato td) {
         yylineno, tipoAString(td));
     exit(EXIT_FAILURE);
   }
-
   return booleano;
 }
 
@@ -369,7 +367,6 @@ TipoDato orLog(TipoDato td1, TipoDato td2) {
         yylineno, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
   }
-
   return booleano;
 }
 
@@ -383,13 +380,72 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
   return booleano;
 }
 
+TipoDato addSub(TipoDato td1, int atr, TipoDato td2) {
+  char* operador = atr ? "-" : "+";
+  int l1 = esLista(td1);
+  int l2 = esLista(td2);
+  TipoDato tipo1 = l1 ? tipoLista(td1) : td1;
+  TipoDato tipo2 = l2 ? tipoLista(td2) : td2;
+
+  int error = (l1 && l2) ||
+              (tipo1 != tipo2) ||
+              (tipo1 != entero && tipo1 != real);
+  TipoDato resultado = td1;
+
+  if (!error && (l1 || l2) ) {
+    // Llegado a este punto hay exactamente una lista. Vemos si el tipo de
+    // la lista encaja con el tipo del otro atributo:
+    if ( (operador == "+") || l1 ) {
+      resultado = l1 ? td1 : td2;
+    } else {
+      error = 1;
+    }
+  }
+
+  if (error) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
+        yylineno, operador, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+  return resultado;
+}
+
+TipoDato porDiv(TipoDato td1, int atr, TipoDato td2) {
+  char* operador = atr ? "/" : "*";
+  int l1 = esLista(td1);
+  int l2 = esLista(td2);
+  TipoDato tipo1 = l1 ? tipoLista(td1) : td1;
+  TipoDato tipo2 = l2 ? tipoLista(td2) : td2;
+
+  int error = (l1 && l2) ||
+              (tipo1 != tipo2) ||
+              (tipo1 != entero && tipo1 != real);
+  TipoDato resultado = td1;
+
+  if (!error && (l1 || l2) ) {
+    // Llegado a este punto hay exactamente una lista. Vemos si el tipo de
+    // la lista encaja con el tipo del otro atributo:
+    if ( (operador == "*") || l1 ) {
+      resultado = l1 ? td1 : td2;
+    } else {
+      error = 1;
+    }
+  }
+
+  if (error) {
+    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
+        yylineno, operador, tipoAString(td1), tipoAString(td2));
+    exit(EXIT_FAILURE);
+  }
+  return resultado;
+}
+
 TipoDato porPor(TipoDato td1, TipoDato td2) {
   if (td1 != td2 || !esLista(td1) || !esLista(td2)) {
     fprintf(stderr, "[%d] Error: operador ** no aplicable a los tipos %s, %s\n",
         yylineno, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
   }
-
   return td1;
 }
 
@@ -400,7 +456,6 @@ TipoDato borrList(TipoDato td1, int atr, TipoDato td2) {
         yylineno, operador, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
   }
-
   return td1;
 }
 
@@ -425,7 +480,6 @@ TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
         yylineno, operador, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
   }
-
   return booleano;
 }
 
@@ -435,7 +489,6 @@ TipoDato ternario(TipoDato td1, TipoDato td2, TipoDato td3) {
         yylineno, tipoAString(td1), tipoAString(td2), tipoAString(td3));
     exit(EXIT_FAILURE);
   }
-
   return td1;
 }
 
@@ -640,8 +693,8 @@ expresion : PARIZQ expresion PARDER                  { $$.dtipo = $2.dtipo; }
           | expresion ANDLOG expresion               { $$.dtipo = andLog($1.dtipo, $3.dtipo); }
           | expresion ORLOG expresion                { $$.dtipo = orLog($1.dtipo, $3.dtipo); }
           | expresion EQN expresion                  { $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion ADDSUB expresion               { $$.dtipo = $1.dtipo; }
-          | expresion MULDIV expresion               { $$.dtipo = $1.dtipo; }
+          | expresion ADDSUB expresion               { $$.dtipo = addSub($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion MULDIV expresion               { $$.dtipo = porDiv($1.dtipo, $2.atributo, $3.dtipo); }
           | expresion PORPOR expresion               { $$.dtipo = porPor($1.dtipo, $3.dtipo); }
           | expresion BORRLIST expresion             { $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo); }
           | expresion REL expresion                  { $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }

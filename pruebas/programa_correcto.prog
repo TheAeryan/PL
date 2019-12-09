@@ -47,40 +47,40 @@ main
 
 		}
 
-			float funcionD (float d1)
-			{
+		float funcionD (float d1) 			{
+			local {
+				char dato;
+				int valor ;
+			}
+
+			char funcionE (char e1, char e2) {
+				cout "introduzca ", (3-1), " caracteres: " ;
+				if (e1 =='a')
+					return e1 ;
+				else
+					return ' ';
+			}
+
+			cout "introduzca un valor entero" ;
+
+			if (d1>0.0) {
 				local {
-					char dato;
-					int valor ;
+					int dato ;
 				}
 
-					char funcionE (char e1, char e2) {
-						cout "introduzca ", (3-1), " caracteres: " ;
-						if (e1 =='a')
-							return e1 ;
-						else
-							return ' ';
-					}
-
-					cout "introduzca un valor entero" ;
-					if (d1>0.0) {
-						local {
-							int dato ;
-						}
-
-						dato = 2;
-						dato = valor*20/dato;
-					} else {
-						valor = valor * 100 ;
-						d1 = d1/1000.0 ;
-					}
-					return d1 ;
+				dato = 2;
+				dato = valor*20/dato;
+			} else {
+				valor = valor * 100 ;
+				d1 = d1/1000.0 ;
 			}
+			return d1 ;
+		}
  	}
 
 	pe = [1, 43, 5, 0, 0];
-	pd = ['z', 'A','B'];
-	pf = [2.5, 4.9*b, 3.0+f(b,v), 0.0];
+	pd = ['z', 'A', 'B'];
+	pf = [2.5, 4.9, 3.0, 0.0];
 	p1 = [true, false, true,true] ;
 	pe >> ;
 	pe << ;
@@ -92,7 +92,9 @@ main
 		pe @ 3 ;
 	pe = pe**(ppf % 2) ;
 	p1 = p1 ++true@3 ;
-	pf = pf -- (3 + 2 / 2.0) ;
+	pf = pf -- (3 + 2 / 2) ;
 	pe = pe ;
 	pe = pe ++ 3 @ 2;
+
+	pe = pe / 3;
 }
