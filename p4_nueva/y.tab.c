@@ -71,8 +71,9 @@
 #include "tabla.h"
 
 // Los atributos sintetizados serán de tipo char*
-/* typedef char* atributo_pila;
-#define YYSTYPE atributo_pila */
+typedef char* atributo_pila;
+
+#define YYSTYPE atributo_pila
 
 int yylex();
 
@@ -86,7 +87,7 @@ void yyerror( const char * msg );
 
 #define YYERROR_VERBOSE
 
-#line 90 "y.tab.c" /* yacc.c:339  */
+#line 91 "y.tab.c" /* yacc.c:339  */
 
 # ifndef YY_NULLPTR
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -177,7 +178,7 @@ int yyparse (void);
 
 /* Copy the second part of user declarations.  */
 
-#line 181 "y.tab.c" /* yacc.c:358  */
+#line 182 "y.tab.c" /* yacc.c:358  */
 
 #ifdef short
 # undef short
@@ -478,14 +479,14 @@ static const yytype_uint8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    74,    74,    76,    78,    80,    82,    83,    85,    86,
-      88,    88,    92,    94,    95,   103,   104,   106,   107,   109,
-     111,   111,   117,   118,   119,   121,   122,   124,   131,   132,
-     134,   135,   136,   137,   138,   139,   140,   141,   142,   143,
-     145,   147,   148,   150,   152,   153,   155,   157,   159,   161,
-     162,   164,   165,   167,   169,   171,   172,   173,   174,   175,
-     176,   177,   178,   179,   180,   181,   182,   183,   184,   185,
-     186,   187,   188,   190,   192,   193,   195,   196,   198,   199
+       0,    75,    75,    77,    79,    81,    83,    84,    86,    87,
+      89,    89,    93,    95,    96,   104,   105,   107,   108,   110,
+     112,   112,   118,   119,   120,   122,   123,   125,   132,   133,
+     135,   136,   137,   138,   139,   140,   141,   142,   143,   144,
+     146,   148,   149,   151,   153,   154,   156,   158,   160,   162,
+     163,   165,   166,   168,   170,   172,   173,   174,   175,   176,
+     177,   178,   179,   180,   181,   182,   183,   184,   185,   186,
+     187,   188,   189,   191,   193,   194,   196,   197,   199,   200
 };
 #endif
 
@@ -1391,66 +1392,66 @@ yyreduce:
   switch (yyn)
     {
         case 3:
-#line 76 "semantico.y" /* yacc.c:1646  */
+#line 77 "semantico.y" /* yacc.c:1646  */
     { inicioBloque(); }
-#line 1397 "y.tab.c" /* yacc.c:1646  */
+#line 1398 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 4:
-#line 78 "semantico.y" /* yacc.c:1646  */
+#line 79 "semantico.y" /* yacc.c:1646  */
     { finBloque(); }
-#line 1403 "y.tab.c" /* yacc.c:1646  */
+#line 1404 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 10:
-#line 88 "semantico.y" /* yacc.c:1646  */
+#line 89 "semantico.y" /* yacc.c:1646  */
     {
                           // Guardo el tipo de dato de la lista de variables
                           tipo_variables = stringToTipoDato((yyvsp[0]));
                         }
-#line 1412 "y.tab.c" /* yacc.c:1646  */
+#line 1413 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 13:
-#line 94 "semantico.y" /* yacc.c:1646  */
+#line 95 "semantico.y" /* yacc.c:1646  */
     { insertarVariable((yyvsp[-2]), tipo_variables); }
-#line 1418 "y.tab.c" /* yacc.c:1646  */
+#line 1419 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 14:
-#line 95 "semantico.y" /* yacc.c:1646  */
+#line 96 "semantico.y" /* yacc.c:1646  */
     {
                       // Inserto la variable según el tipo correspondiente
                       // (almacenado en "tipo_variables")
                       // Esta función comprueba si existe un identificador duplicado
                       insertarVariable((yyvsp[0]), tipo_variables);
                 }
-#line 1429 "y.tab.c" /* yacc.c:1646  */
+#line 1430 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 20:
-#line 111 "semantico.y" /* yacc.c:1646  */
+#line 112 "semantico.y" /* yacc.c:1646  */
     {
                     // Inserto la entrada de la función.
                     // Los parámetros se insertarán después.
                     insertarFuncion((yyvsp[0]), (yyvsp[-1]));
                   }
-#line 1439 "y.tab.c" /* yacc.c:1646  */
+#line 1440 "y.tab.c" /* yacc.c:1646  */
     break;
 
   case 27:
-#line 124 "semantico.y" /* yacc.c:1646  */
+#line 125 "semantico.y" /* yacc.c:1646  */
     {
               // Inserto el parámetro en la tabla
               // (esta función ya se encarga en aumentar el número
               // de parámetros de la función en 1)
               insertarParametroFuncion((yyvsp[0]), (yyvsp[-1]));
            }
-#line 1450 "y.tab.c" /* yacc.c:1646  */
+#line 1451 "y.tab.c" /* yacc.c:1646  */
     break;
 
 
-#line 1454 "y.tab.c" /* yacc.c:1646  */
+#line 1455 "y.tab.c" /* yacc.c:1646  */
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1678,7 +1679,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 201 "semantico.y" /* yacc.c:1906  */
+#line 202 "semantico.y" /* yacc.c:1906  */
 
 
 #include "lex.yy.c"

@@ -13,38 +13,34 @@ main
 		list_of    int ppf;
 	}
 
-
- int funcionA (int a1, float a2, char a3)
- {
+ int funcionA (int a1, float a2, char a3) {
  		local {
 			int x1, x2 ;
 		}
 
-			char funcionB(char b1, bool b2)
-			{
+		char funcionB(char b1, bool b2) {
+			local {
+				float xf, x2 ;
+			}
+
+			float funcionC (bool c1, int c2) {
 				local {
-					float xf, x2 ;
+					float x1;
 				}
 
-					float funcionC (bool c1, int c2)
-					{
-						local {
-							float x1;
-						}
+				x1 = 1.3;
+				if (c2>10)
+					c2= c2-1 ;
+				else
+					x1= 3.1 ;
+				return x1;
+			}
 
-						x1 = 1.3;
-						if (c2>10)
-							c2= c2-1 ;
-						else
-							x1= 3.1 ;
-						return x1;
-					}
+			xf = funcionC (true, 10);
+			x2 = xf * (funcionC(false, 1)-funcionC(true,23)) /10.0;
 
-				xf= funcionC (true, 10);
-				x2 = xf * (funcionC(false, 1)-funcionC(true,23)) /10.0;
-
-				while (x2*funcionC(false,1)-xf<10.0)
-					x2= x2*xf;
+			while (x2*funcionC(false,1)-xf<10.0)
+				x2 = x2*xf;
 			}
 
 		int funcionF() {
@@ -58,44 +54,38 @@ main
 					int valor ;
 				}
 
-					char funcionE (char e1, char e2)
-					{
+					char funcionE (char e1, char e2) {
 						cout "introduzca ", (3-1), " caracteres: " ;
-
-
 						if (e1 =='a')
 							return e1 ;
 						else
 							return ' ';
-
 					}
 
 					cout "introduzca un valor entero" ;
-					if (d1>0.0)
-					{
+					if (d1>0.0) {
 						local {
 							int dato ;
 						}
 
-						dato= 2;
-						dato= valor*20/dato;
-					}
-					else {
-						valor= valor * 100 ;
-						d1= d1/1000.0 ;
+						dato = 2;
+						dato = valor*20/dato;
+					} else {
+						valor = valor * 100 ;
+						d1 = d1/1000.0 ;
 					}
 					return d1 ;
 			}
  	}
 
-	pe= [1, 43, 5, 0, 0];
-	pd= ['z', 'A','B'];
+	pe = [1, 43, 5, 0, 0];
+	pd = ['z', 'A','B'];
 	pf = [2.5, 4.9*b, 3.0+f(b,v), 0.0];
 	p1 = [true, false, true,true] ;
-	pe>> ;
-	pe<< ;
-	pe <<;
-	$pe;
+	pe >> ;
+	pe << ;
+	pe << ;
+	$pe ;
 	if (#pe < ?pe2)
 		pe@2;
 	else
