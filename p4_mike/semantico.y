@@ -44,7 +44,6 @@ typedef struct {
   char* nombre;               // Nombre del identificador (no se usa con marca)
   TipoDato tipoDato;          // Tipo de dato
   int parametros;             // Nº de parámetros formales (sólo se usa con función)
-  int marcaSubProg;           // Indica si la marca corresponde a un subprog (śolo se usa con marca)
 } EntradaTS;
 
 // La Tabla de Símbolos
@@ -152,14 +151,13 @@ void idRepetida(char* id) {
   }
 }
 
-void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nParam, int esMarcaSubProg) {
+void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nParam) {
   // Hacemos la entrada
   EntradaTS entrada = {
     te,
     strdup(nombre),
     tipo_dato,
-    nParam,
-    esMarcaSubProg
+    nParam
   };
 
   // Si la tabla está llena da error
@@ -182,9 +180,6 @@ int buscarEntrada(char* id) {
   for (i = tope; i >= 0; --i) {
     if (ts[i].tipoEntrada != parametroFormal && !strcmp(id, ts[i].nombre)) {
       break;
-    } else if (ts[i].tipoEntrada == marca && ts[i].marcaSubProg == 1) {
-      // Estamos saliendo del ámbito actual al salirnos de la función.
-      i = -1;
     }
   }
   return i;
@@ -216,11 +211,11 @@ int buscarEntradaFuncion(char* id) {
 
 void insertarMarca() {
   // Metemos la marca
-  insertarEntrada(marca, "", -1, -1, subProg);
+  insertarEntrada(marca, "", -1, -1);
   // Si es subprograma añadimos las variables al bloque
   if (subProg) {
     for (int i = tope - 1; ts[i].tipoEntrada != funcion; --i) {
-      insertarEntrada(variable, ts[i].nombre, ts[i].tipoDato, -1, -1);
+      insertarEntrada(variable, ts[i].nombre, ts[i].tipoDato, -1);
     }
     subProg = 0;
   }
@@ -238,14 +233,14 @@ void insertarVariable(char* id) {
   // Comprobamos que no esté repetida la id
   idRepetida(id);
   // Si no está duplicado añadimos la entrada
-  insertarEntrada(variable, id, tipoTmp, -1, -1);
+  insertarEntrada(variable, id, tipoTmp, -1);
 }
 
 void insertarFuncion(TipoDato tipoDato, char* id) {
   // Comprobamos que el id no esté usado ya
   idRepetida(id);
   // Añadimos la entrada
-  insertarEntrada(funcion, id, tipoDato, 0, -1);
+  insertarEntrada(funcion, id, tipoDato, 0);
 }
 
 void insertarParametro(TipoDato tipoDato, char* id) {
@@ -260,7 +255,7 @@ void insertarParametro(TipoDato tipoDato, char* id) {
     }
   }
   // Añadimos la entrada
-  insertarEntrada(parametroFormal, id, tipoDato, -1, -1);
+  insertarEntrada(parametroFormal, id, tipoDato, -1);
   // Actualizamos el nº de parámetros de la función
   ++ts[i].parametros;
 }
@@ -484,10 +479,10 @@ TipoDato comprobarFuncion(char* id) {
   if (n_argumentos_esperados < n_argumentos)
     n_argumentos = n_argumentos_esperados;
   for (int i=0; i<n_argumentos; i++) {
-    TipoDato tipoEsperado = ts[iFuncion + i].tipoDato;
+    TipoDato tipoEsperado = ts[iFuncion + i + 1].tipoDato;
     TipoDato tipoObtenido = argumentos_tipo_datos[i];
     if ( tipoEsperado != tipoObtenido ) {
-      fprintf(stderr, "[%d] Error: argumentos número %d al llamar a la función %s de tipo erróneo. Esperado: %s, encontrado: %s\n",
+      fprintf(stderr, "[%d] Error: argumento número %d de tipo erróneo al llamar a la función %s. Esperado: %s, encontrado: %s\n",
           yylineno, i, id, tipoAString(tipoEsperado), tipoAString(tipoObtenido));
       error = 1;
     }
@@ -495,8 +490,6 @@ TipoDato comprobarFuncion(char* id) {
 
   // De esta forma mostramos el máximo número de errores posibles.
   if (error) {
-    imprimir();
-    printf("iFuncion %d, esperados: %d\n", iFuncion, ts[iFuncion].parametros);
     exit(EXIT_FAILURE);
   }
 
@@ -663,9 +656,14 @@ llamada_funcion : ID PARIZQ argumentos PARDER { $$.dtipo = comprobarFuncion($1.l
 argumentos : lista_argumentos
            | %empty ;
 
-lista_argumentos : lista_argumentos COMA expresion
-                 | expresion { argumentos_tipo_datos[n_argumentos] = $1.dtipo;
-                               n_argumentos++; } ;
+lista_argumentos : lista_argumentos COMA expresion {
+                    argumentos_tipo_datos[n_argumentos] = $3.dtipo;
+                    n_argumentos++;
+                  }
+                 | expresion {
+                    argumentos_tipo_datos[n_argumentos] = $1.dtipo;
+                    n_argumentos++;
+                  }
 
 constante : CONST { $$.dtipo = $1.dtipo; }
           | lista { $$.dtipo = $1.dtipo; } ;
