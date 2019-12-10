@@ -3,7 +3,11 @@
 #include <stdio.h>
 #include <string.h>
 
+
 #define YYERROR_VERBOSE
+
+#define min(a, b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
+#define max(a, b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a > _b ? _a : _b; })
 
 void yyerror( const char * msg );
 
@@ -109,9 +113,12 @@ TipoDato tipoLista(TipoDato tipo_dato) {
   }
 }
 
-int esLista(TipoDato tipo_dato) {
-  return tipo_dato == listaEntero || tipo_dato == listaReal
-          || tipo_dato == listaBooleano || tipo_dato == listaCaracter;
+int esLista(TipoDato tipo_dato){
+  return tipo_dato == listaEntero || tipo_dato == listaReal || tipo_dato == listaBooleano || tipo_dato == listaCaracter;
+}
+
+int esNumero(TipoDato tipo_dato){
+  return tipo_dato == entero || tipo_dato == real;
 }
 
 void imprimir() {
@@ -312,7 +319,7 @@ TipoDato aTipoLista(TipoDato td) {
 
 TipoDato masMenos(int atr, TipoDato td) {
   char* operador = atr ? "-" : "+";
-  if (td != real && td != entero) {
+  if (!esNumero(td)) {
     fprintf(stderr, "[%d] Error: operador %s no aplicable al tipo %s\n",
         yylineno, operador, tipoAString(td));
     exit(EXIT_FAILURE);
@@ -380,8 +387,8 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
   return booleano;
 }
 
-TipoDato addSub(TipoDato td1, int atr, TipoDato td2) {
-  char* operador = atr ? "-" : "+";
+TipoDato op2Binario(TipoDato td1, int atr, TipoDato td2, char* op1, char* op2) {
+  char* operador = atr ? op1 : op2;
   int l1 = esLista(td1);
   int l2 = esLista(td2);
   TipoDato tipo1 = l1 ? tipoLista(td1) : td1;
@@ -389,13 +396,14 @@ TipoDato addSub(TipoDato td1, int atr, TipoDato td2) {
 
   int error = (l1 && l2) ||
               (tipo1 != tipo2) ||
-              (tipo1 != entero && tipo1 != real);
+              !esNumero(tipo1);
+              
   TipoDato resultado = td1;
 
   if (!error && (l1 || l2) ) {
     // Llegado a este punto hay exactamente una lista. Vemos si el tipo de
     // la lista encaja con el tipo del otro atributo:
-    if ( (operador == "+") || l1 ) {
+    if ( (operador == op2) || l1 ) {
       resultado = l1 ? td1 : td2;
     } else {
       error = 1;
@@ -410,34 +418,12 @@ TipoDato addSub(TipoDato td1, int atr, TipoDato td2) {
   return resultado;
 }
 
+TipoDato addSub(TipoDato td1, int atr, TipoDato td2) {
+  return op2Binario(td1, atr, td2, "-", "+");
+}
+
 TipoDato porDiv(TipoDato td1, int atr, TipoDato td2) {
-  char* operador = atr ? "/" : "*";
-  int l1 = esLista(td1);
-  int l2 = esLista(td2);
-  TipoDato tipo1 = l1 ? tipoLista(td1) : td1;
-  TipoDato tipo2 = l2 ? tipoLista(td2) : td2;
-
-  int error = (l1 && l2) ||
-              (tipo1 != tipo2) ||
-              (tipo1 != entero && tipo1 != real);
-  TipoDato resultado = td1;
-
-  if (!error && (l1 || l2) ) {
-    // Llegado a este punto hay exactamente una lista. Vemos si el tipo de
-    // la lista encaja con el tipo del otro atributo:
-    if ( (operador == "*") || l1 ) {
-      resultado = l1 ? td1 : td2;
-    } else {
-      error = 1;
-    }
-  }
-
-  if (error) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
-        yylineno, operador, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
-  }
-  return resultado;
+  return op2Binario(td1, atr, td2, "/", "*");
 }
 
 TipoDato porPor(TipoDato td1, TipoDato td2) {
@@ -475,7 +461,8 @@ TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
       operador = ">=";
       break;
   }
-  if (td1 != td2 || (td1 != real && td1 != entero) || (td2 != real && td2 != entero)) {
+
+  if (td1 != td2 || !esNumero(td1) || !esNumero(td2)) {
     fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
         yylineno, operador, tipoAString(td1), tipoAString(td2));
     exit(EXIT_FAILURE);
@@ -527,14 +514,14 @@ TipoDato comprobarFuncion(char* id) {
     fprintf(stderr, "[%d] Error: número de argumentos errónea al llamar a la función %s. Esperados: %d, encontrados: %d\n",
         yylineno, id, n_argumentos_esperados, n_argumentos);
     error = 1;
-  }
+  }  
 
-  if (n_argumentos_esperados < n_argumentos)
-    n_argumentos = n_argumentos_esperados;
-  for (int i=0; i<n_argumentos; i++) {
+  n_argumentos = min(n_argumentos, n_argumentos_esperados);
+  
+  for(int i = 0; i < n_argumentos; i++){
     TipoDato tipoEsperado = ts[iFuncion + i + 1].tipoDato;
     TipoDato tipoObtenido = argumentos_tipo_datos[i];
-    if ( tipoEsperado != tipoObtenido ) {
+    if(tipoEsperado != tipoObtenido){
       fprintf(stderr, "[%d] Error: argumento número %d de tipo erróneo al llamar a la función %s. Esperado: %s, encontrado: %s\n",
           yylineno, i, id, tipoAString(tipoEsperado), tipoAString(tipoObtenido));
       error = 1;
