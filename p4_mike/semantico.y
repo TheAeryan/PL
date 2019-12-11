@@ -387,6 +387,13 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
   return booleano;
 }
 
+
+// Comprueba el tipo de la operación binaria realizada. En caso de error, lo
+// gestiona. En caso contrario, devuelve el tipo tras la operación binaria.
+// IMPORTANTE: Se asume que op1 esta asociado al valor 1 del atributo (atr)
+// mientras que op2 está asociado al valor 0.
+// IMPORTANE: Se asume que el op1 es simétrico y que el op2 no es simétrico y
+// unicamente funciona de la forma "T op2 T" o bien "list_of T op2 T".
 TipoDato op2Binario(TipoDato td1, int atr, TipoDato td2, char* op1, char* op2) {
   char* operador = atr ? op1 : op2;
   int l1 = esLista(td1);
@@ -397,7 +404,7 @@ TipoDato op2Binario(TipoDato td1, int atr, TipoDato td2, char* op1, char* op2) {
   int error = (l1 && l2) ||
               (tipo1 != tipo2) ||
               !esNumero(tipo1);
-              
+
   TipoDato resultado = td1;
 
   if (!error && (l1 || l2) ) {
@@ -514,10 +521,10 @@ TipoDato comprobarFuncion(char* id) {
     fprintf(stderr, "[%d] Error: número de argumentos errónea al llamar a la función %s. Esperados: %d, encontrados: %d\n",
         yylineno, id, n_argumentos_esperados, n_argumentos);
     error = 1;
-  }  
+  }
 
   n_argumentos = min(n_argumentos, n_argumentos_esperados);
-  
+
   for(int i = 0; i < n_argumentos; i++){
     TipoDato tipoEsperado = ts[iFuncion + i + 1].tipoDato;
     TipoDato tipoObtenido = argumentos_tipo_datos[i];
