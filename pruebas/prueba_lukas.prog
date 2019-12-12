@@ -5,6 +5,20 @@ main{
         list_of char ls;
     }
 
+    float iterador(int a, int b, int c){
+
+        if(b == c){
+
+            ls = ls % 1;
+            ls = ls ** ['l','k','s'];
+
+        }
+
+        b = 2 * b + (c / 5);
+
+        return iterador(a, b, c);
+    }
+
     a = 10;
     b = 0;
 
@@ -14,7 +28,7 @@ main{
     if(c < 0 || c > a){
         cout "Fuera de rango";
     }
- 
+
     while(b < c || b < a){
         ls = ls ** ['a'];
         b = b + 1;
@@ -22,19 +36,7 @@ main{
 
     b = 0;
 
-    float iterador(int a, int b, int c){
-        
-        if(b == c){
 
-            ls = ls % 1;
-            ls = ls ** ["l","k","s"];
-
-        }
-
-        b = 2 * b + (c / 5); 
-
-        return iterador(a, b, c);
-    }
 
     iterador(5.0, b, c);
 
