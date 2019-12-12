@@ -2,6 +2,7 @@
 *.output
 
 */prueba
+*/traductor
 
 */lex.yy.c
 
