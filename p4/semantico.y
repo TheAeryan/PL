@@ -15,6 +15,8 @@ void yyerror( const char * msg );
 
 extern int yylineno;
 
+char msgError[256];
+
 // Esto elimina un Warning, no debería cambiar nada más.
 int yylex();
 
@@ -40,7 +42,8 @@ typedef enum {
   listaEntero,
   listaReal,
   listaBooleano,
-  listaCaracter
+  listaCaracter,
+  error // Si da un error con expresiones
 } TipoDato;
 
 typedef struct {
@@ -92,8 +95,11 @@ char* tipoAString(TipoDato tipo_dato) {
       return "list_of char";
     case listaBooleano:
       return "list_of bool";
-    default:
+    case error:
       return "error";
+    default:
+      fprintf(stderr, "Error en tipoAString(), no se conoce el tipo dato\n");
+      exit(EXIT_FAILURE);
   }
 }
 
@@ -107,6 +113,26 @@ TipoDato tipoLista(TipoDato tipo_dato) {
       return booleano;
     case listaReal:
       return real;
+    case error:
+      return error;
+    default:
+      fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
+      exit(EXIT_FAILURE);
+  }
+}
+
+TipoDato aTipoLista(TipoDato td) {
+  switch (td) {
+    case entero:
+      return listaEntero;
+    case real:
+      return listaReal;
+    case caracter:
+      return listaCaracter;
+    case booleano:
+      return listaBooleano;
+    case error:
+      return error;
     default:
       fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
       exit(EXIT_FAILURE);
@@ -141,19 +167,20 @@ void imprimir() {
             tipoAString(ts[i].tipoDato));
         break;
       default:
-        printf("error\n");
-        break;
+        fprintf(stderr, "Error en imprimir(), no debería salir\n");
+        exit(EXIT_FAILURE);
     }
   }
 }
 
 void idRepetida(char* id) {
   // Miramos si id estaba declarado después de la última marca
-  for (int i = tope; ts[i].tipoEntrada != marca; --i) {
+  int repetida = 0;
+  for (int i = tope; !repetida && ts[i].tipoEntrada != marca; --i) {
     if (ts[i].tipoEntrada != parametroFormal && !strcmp(ts[i].nombre, id)) {
-      fprintf(stderr, "[%d] Error: identificador %s ya declarado\n", yylineno, id);
-      fflush(stderr);
-      exit(EXIT_FAILURE);
+      sprintf(msgError, "ERROR SINTÁCTICO: identificador %s ya declarado\n", id);
+      yyerror(msgError);
+      repetida = 1;
     }
   }
 }
@@ -169,9 +196,8 @@ void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nPara
 
   // Si la tabla está llena da error
   if (tope + 1 >= MAX_TAM_TS) {
-    fprintf(stderr, "[%d] Error: La tabla de símbolos está llena\n", yylineno);
-    fflush(stderr);
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: La tabla de símbolos está llena\n");
+    yyerror(msgError);
   }
   // Aumentamos el tope
   ++tope;
@@ -182,32 +208,13 @@ void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nPara
 // Busca una entrada en la TS con el id especificado en el ámbito del programa
 // actual. Si no lo encuentra, devuelve -1. No gestiona errores!
 int buscarEntrada(char* id) {
-  int i;
-  int noEncontrado = 0;
-  for (i = tope; i >= 0; --i) {
-    if (ts[i].tipoEntrada != parametroFormal && !strcmp(id, ts[i].nombre)) {
-      break;
-    }
-  }
-  return i;
-}
+  int i = tope;
+  while(i >= 0 && (ts[i].tipoEntrada == parametroFormal || strcmp(id, ts[i].nombre)))
+    --i;
 
-// Busca una entrada en la TS con el id especificado en el ámbito del programa actual,
-// que además sea de tipo variable. Gestiona errores.
-int buscarEntradaVariable(char* id) {
-  int i = buscarEntrada(id);
-  if (i < 0 || ts[i].tipoEntrada != variable) {
-    fprintf(stderr, "[%d] Error: variable %s no declarada\n", yylineno, id);
-    exit(EXIT_FAILURE);
-  }
-  return i;
-}
-
-int buscarEntradaFuncion(char* id) {
-  int i = buscarEntrada(id);
-  if (i < 0 || ts[i].tipoEntrada != funcion) {
-    fprintf(stderr, "[%d] Error: función %s no declarada\n", yylineno, id);
-    exit(EXIT_FAILURE);
+  if (i < 0) {
+    sprintf(msgError, "ERROR SINTÁCTICO: identificador %s no declarado\n", id);
+    yyerror(msgError);
   }
   return i;
 }
@@ -239,14 +246,12 @@ void vaciarEntradas() {
 void insertarVariable(char* id) {
   // Comprobamos que no esté repetida la id
   idRepetida(id);
-  // Si no está duplicado añadimos la entrada
   insertarEntrada(variable, id, tipoTmp, -1);
 }
 
 void insertarFuncion(TipoDato tipoDato, char* id) {
   // Comprobamos que el id no esté usado ya
   idRepetida(id);
-  // Añadimos la entrada
   insertarEntrada(funcion, id, tipoDato, 0);
 }
 
@@ -254,11 +259,12 @@ void insertarParametro(TipoDato tipoDato, char* id) {
   // Comprobamos que no haya parámetros con nombres repetidos
   // Además guardamos el índice de la función
   int i;
-  for (i = tope; ts[i].tipoEntrada != funcion; --i) {
+  int parametroRepetido = 0;
+  for (i = tope; !parametroRepetido && ts[i].tipoEntrada != funcion; --i) {
     if (!strcmp(ts[i].nombre, id)) {
-      fprintf(stderr, "[%d] Error: parámetro %s ya declarado\n", yylineno, id);
-      fflush(stderr);
-      exit(EXIT_FAILURE);
+      sprintf(msgError, "ERROR SINTÁCTICO: identificador del parámetro %s ya declarado\n", id);
+      yyerror(msgError);
+      parametroRepetido = 1;
     }
   }
   // Añadimos la entrada
@@ -267,82 +273,98 @@ void insertarParametro(TipoDato tipoDato, char* id) {
   ++ts[i].parametros;
 }
 
+TipoDato buscarID(char* id) {
+  int i = buscarEntrada(id);
+
+  if (i < 0)
+    return error;
+  return ts[i].tipoDato;
+}
+
 void comprobarAsignacion(char* id, TipoDato td) {
-  TipoDato tdID = ts[buscarEntradaVariable(id)].tipoDato;
-  if (tdID != td) {
-    fprintf(stderr, "[%d] Error: asignación incorrecta, %s es tipo %s y se obtuvo %s\n",
-        yylineno, id, tipoAString(tdID), tipoAString(td));
-    exit(EXIT_FAILURE);
+  int i = buscarEntrada(id);
+  if (i >= 0) {
+    if (ts[i].tipoEntrada != variable) {
+      sprintf(msgError, "ERROR SINTÁCTICO: se intenta asignar a %s, y no es una variable\n", id);
+      yyerror(msgError);
+    } else {
+      if (td != error && td != ts[i].tipoDato) {
+        sprintf(msgError, "ERROR SINTÁCTICO: asignación incorrecta, %s es tipo %s y se obtuvo %s\n",
+            id, tipoAString(td), tipoAString(td));
+        yyerror(msgError);
+      }
+    }
   }
 }
 
 void expresionBooleana(TipoDato td) {
-  if (td != booleano) {
-    fprintf(stderr, "[%d] Error: condición no es de tipo booleano, se tiene tipo %s",
-        yylineno, tipoAString(td));
-    exit(EXIT_FAILURE);
+  if (td != error && td != booleano) {
+    sprintf(msgError, "ERROR SINTÁCTICO: condición no es de tipo booleano, se tiene tipo %s",
+        tipoAString(td));
+    yyerror(msgError);
   }
 }
 
 void sentenciaLista(TipoDato td, char* sentencia) {
-  if (!esLista(td)) {
-    fprintf(stderr, "[%d] Error: sentencia %s no aplicable al tipo %s\n",
-        yylineno, sentencia, tipoAString(td));
-    exit(EXIT_FAILURE);
+  if (td != error && !esLista(td)) {
+    sprintf(msgError, "ERROR SINTÁCTICO: sentencia %s no aplicable al tipo %s\n",
+        sentencia, tipoAString(td));
+    yyerror(msgError);
   }
 }
 
 TipoDato mismoTipoLista(TipoDato t1, TipoDato t2) {
+
+  if (t1 == error || t2 == error)
+    return error;
+
   if (t1 != t2) {
-    fprintf(stderr, "[%d] Error: lista dos tipos de tipo %s y %s\n",
-        yylineno, tipoAString(t1), tipoAString(t2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: lista con dos tipos distintos %s y %s\n",
+        tipoAString(t1), tipoAString(t2));
+    yyerror(msgError);
+    return error;
   }
   return t1;
 }
 
-TipoDato aTipoLista(TipoDato td) {
-  switch (td) {
-    case entero:
-      return listaEntero;
-    case real:
-      return listaReal;
-    case caracter:
-      return listaCaracter;
-    case booleano:
-      return listaBooleano;
-    default:
-      fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
-      exit(EXIT_FAILURE);
-  }
-}
-
 TipoDato masMenos(int atr, TipoDato td) {
+  if (td == error)
+    return error;
+
   char* operador = atr ? "-" : "+";
   if (!esNumero(td)) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable al tipo %s\n",
-        yylineno, operador, tipoAString(td));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable al tipo %s\n",
+        operador, tipoAString(td));
+    yyerror(msgError);
+    return error;
   }
   return td;
 }
 
 TipoDato excl(TipoDato td) {
+  if (td == error)
+    return error;
   if (td != booleano) {
-    fprintf(stderr, "[%d] Error: operador ! no aplicable al tipo %s\n",
-        yylineno, tipoAString(td));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador ! no aplicable al tipo %s\n",
+        tipoAString(td));
+    yyerror(msgError);
+    return error;
   }
   return booleano;
 }
 
 TipoDato intHash(int atr, TipoDato td) {
+  if (td == error)
+    return error;
+
   char* operador = atr ? "#" : "?";
   if (!esLista(td)) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable al tipo %s\n",
-        yylineno, operador, tipoAString(td));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable al tipo %s\n",
+        operador, tipoAString(td));
+    yyerror(msgError);
+    return error;
   }
+
   if (atr)
     return tipoLista(td);
   else
@@ -350,44 +372,66 @@ TipoDato intHash(int atr, TipoDato td) {
 }
 
 TipoDato at(TipoDato td1, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   if (!esLista(td1) || td2 != entero) {
-    fprintf(stderr, "[%d] Error: operador @ no aplicable a los tipos %s, %s\n",
-        yylineno, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador @ no aplicable a los tipos %s, %s\n",
+        tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
 
   return tipoLista(td1);
 }
 
 TipoDato andLog(TipoDato td1, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   if (td1 != booleano || td2 != booleano) {
-    fprintf(stderr, "[%d] Error: operador && no aplicable a los tipos %s, %s\n",
-        yylineno, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador && no aplicable a los tipos %s, %s\n",
+        tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return booleano;
 }
 
 TipoDato orLog(TipoDato td1, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   if (td1 != booleano || td2 != booleano) {
-    fprintf(stderr, "[%d] Error: operador || no aplicable a los tipos %s, %s\n",
-        yylineno, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador || no aplicable a los tipos %s, %s\n",
+        tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return booleano;
 }
 
 TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   char* operador = atr ? "!=" : "==";
   if (td1 != td2) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
-        yylineno, operador, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable a los tipos %s, %s\n",
+        operador, tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return booleano;
 }
 
+<<<<<<< HEAD:p4_mike/semantico.y
 
+=======
+>>>>>>> 7017533453c1ed9ca9301a1c78916fcf680e9f55:p4/semantico.y
 // Comprueba el tipo de la operación binaria realizada. En caso de error, lo
 // gestiona. En caso contrario, devuelve el tipo tras la operación binaria.
 // IMPORTANTE: Se asume que op1 esta asociado al valor 1 del atributo (atr)
@@ -395,32 +439,36 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
 // IMPORTANE: Se asume que el op1 es simétrico y que el op2 no es simétrico y
 // unicamente funciona de la forma "T op2 T" o bien "list_of T op2 T".
 TipoDato op2Binario(TipoDato td1, int atr, TipoDato td2, char* op1, char* op2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   char* operador = atr ? op1 : op2;
   int l1 = esLista(td1);
   int l2 = esLista(td2);
   TipoDato tipo1 = l1 ? tipoLista(td1) : td1;
   TipoDato tipo2 = l2 ? tipoLista(td2) : td2;
 
-  int error = (l1 && l2) ||
+  int op_error = (l1 && l2) ||
               (tipo1 != tipo2) ||
               !esNumero(tipo1);
 
   TipoDato resultado = td1;
 
-  if (!error && (l1 || l2) ) {
+  if (!op_error && (l1 || l2) ) {
     // Llegado a este punto hay exactamente una lista. Vemos si el tipo de
     // la lista encaja con el tipo del otro atributo:
     if ( (operador == op2) || l1 ) {
       resultado = l1 ? td1 : td2;
     } else {
-      error = 1;
+      op_error = 1;
     }
   }
 
-  if (error) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
-        yylineno, operador, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+  if (op_error) {
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable a los tipos %s, %s\n",
+        operador, tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
   return resultado;
 }
@@ -434,25 +482,38 @@ TipoDato porDiv(TipoDato td1, int atr, TipoDato td2) {
 }
 
 TipoDato porPor(TipoDato td1, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   if (td1 != td2 || !esLista(td1) || !esLista(td2)) {
-    fprintf(stderr, "[%d] Error: operador ** no aplicable a los tipos %s, %s\n",
-        yylineno, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador ** no aplicable a los tipos %s, %s\n",
+        tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return td1;
 }
 
 TipoDato borrList(TipoDato td1, int atr, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   char* operador = atr ? "%" : "--";
   if (!esLista(td1) || td2 != entero) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
-        yylineno, operador, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable a los tipos %s, %s\n",
+        operador, tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return td1;
 }
 
 TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
+  if (td1 == error || td2 == error)
+    return error;
+
   char* operador;
   switch (atr) {
     case 0:
@@ -470,18 +531,24 @@ TipoDato rel(TipoDato td1, int atr, TipoDato td2) {
   }
 
   if (td1 != td2 || !esNumero(td1) || !esNumero(td2)) {
-    fprintf(stderr, "[%d] Error: operador %s no aplicable a los tipos %s, %s\n",
-        yylineno, operador, tipoAString(td1), tipoAString(td2));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: operador %s no aplicable a los tipos %s, %s\n",
+        operador, tipoAString(td1), tipoAString(td2));
+    yyerror(msgError);
+    return error;
   }
+
   return booleano;
 }
 
 TipoDato ternario(TipoDato td1, TipoDato td2, TipoDato td3) {
+  if (td1 == error || td2 == error || td3 == error)
+    return error;
+
   if (!esLista(td1) || tipoLista(td1) != td2 || td3 != entero) {
-    fprintf(stderr, "[%d] Error: operador ++ @ no aplicable a los tipos %s, %s, %s\n",
+    sprintf(msgError, "ERROR SINTÁCTICO: operador ++ @ no aplicable a los tipos %s, %s, %s\n",
         yylineno, tipoAString(td1), tipoAString(td2), tipoAString(td3));
-    exit(EXIT_FAILURE);
+    yyerror(msgError);
+    return error;
   }
   return td1;
 }
@@ -501,44 +568,48 @@ void comprobarReturn(TipoDato td) {
   if (funcionEncontrada) ++i;
 
   if (i <= 0) {
-    fprintf(stderr, "[%d] Error: return no asignado a ninguna función\n", yylineno);
-    exit(EXIT_FAILURE);
-  }
-
-  if (td != ts[i].tipoDato) {
-    fprintf(stderr, "[%d] Error: return devuelve tipo %s, y función es de tipo %s\n",
-        yylineno, tipoAString(td), tipoAString(ts[i].tipoDato));
-    exit(EXIT_FAILURE);
+    sprintf(msgError, "ERROR SINTÁCTICO: return no asignado a ninguna función\n");
+    yyerror(msgError);
+  } else if (td != error && td != ts[i].tipoDato) {
+    sprintf(msgError, "ERROR SINTÁCTICO: return devuelve tipo %s, y función es de tipo %s\n",
+        tipoAString(td), tipoAString(ts[i].tipoDato));
+    yyerror(msgError);
   }
 }
 
 TipoDato comprobarFuncion(char* id) {
-  int iFuncion = buscarEntradaFuncion(id);
+  int iFuncion = buscarEntrada(id);
+
+  if (iFuncion < 0)
+    return error;
+
+  if (ts[iFuncion].tipoEntrada != funcion) {
+    sprintf(msgError, "ERROR SINTÁCTICO: %s no es una función y no puede ser llamada\n", id);
+    yyerror(msgError);
+    return error;
+  }
+
   int n_argumentos_esperados = ts[iFuncion].parametros;
-  int error = 0;
 
   if ( n_argumentos != n_argumentos_esperados ) {
-    fprintf(stderr, "[%d] Error: número de argumentos errónea al llamar a la función %s. Esperados: %d, encontrados: %d\n",
-        yylineno, id, n_argumentos_esperados, n_argumentos);
-    error = 1;
+    sprintf(msgError, "ERROR SINTÁCTICO: número de argumentos errónea al llamar a la función %s. Esperados: %d, encontrados: %d\n",
+        id, n_argumentos_esperados, n_argumentos);
+    yyerror(msgError);
   }
 
   n_argumentos = min(n_argumentos, n_argumentos_esperados);
 
-  for(int i = 0; i < n_argumentos; i++){
+  for (int i = 0; i < n_argumentos; i++){
     TipoDato tipoEsperado = ts[iFuncion + i + 1].tipoDato;
     TipoDato tipoObtenido = argumentos_tipo_datos[i];
-    if(tipoEsperado != tipoObtenido){
-      fprintf(stderr, "[%d] Error: argumento número %d de tipo erróneo al llamar a la función %s. Esperado: %s, encontrado: %s\n",
-          yylineno, i, id, tipoAString(tipoEsperado), tipoAString(tipoObtenido));
-      error = 1;
+    if (tipoObtenido != error && tipoEsperado != tipoObtenido){
+      sprintf(msgError, "ERROR SINTÁCTICO: argumento número %d de tipo erróneo al llamar a la función %s. Esperado: %s, encontrado: %s\n",
+          i, id, tipoAString(tipoEsperado), tipoAString(tipoObtenido));
+      yyerror(msgError);
     }
   }
 
   // De esta forma mostramos el máximo número de errores posibles.
-  if (error) {
-    exit(EXIT_FAILURE);
-  }
 
   // Borramos los argumentos recibidos.
   n_argumentos = 0;
@@ -634,7 +705,7 @@ cabecera_argumentos : parametros
 parametros : parametros COMA parametro
            | parametro ;
 
-parametro : TIPO ID { insertarParametro($1.dtipo, $2.lexema); };
+parametro : TIPO ID { insertarParametro($1.dtipo, $2.lexema); } ;
 
 sentencias : sentencias sentencia
            | %empty ;
@@ -694,7 +765,7 @@ expresion : PARIZQ expresion PARDER                  { $$.dtipo = $2.dtipo; }
           | expresion REL expresion                  { $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
           | expresion MASMAS expresion AT expresion  { $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo); }
           | llamada_funcion                          { $$.dtipo = $1.dtipo; }
-          | ID                                       { $$.dtipo = ts[buscarEntradaVariable($1.lexema)].tipoDato; }
+          | ID                                       { $$.dtipo = buscarID($1.lexema); }
           | constante                                { $$.dtipo = $1.dtipo; }
           | error ;
 
@@ -710,7 +781,7 @@ lista_argumentos : lista_argumentos COMA expresion {
                  | expresion {
                     argumentos_tipo_datos[n_argumentos] = $1.dtipo;
                     n_argumentos++;
-                  }
+                  } ;
 
 constante : CONST { $$.dtipo = $1.dtipo; }
           | lista { $$.dtipo = $1.dtipo; } ;
@@ -725,7 +796,7 @@ lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista
 #include "lex.yy.c"
 
 void yyerror(const char *msg){
-  fprintf(stderr, "[Linea %d]: %s\n", yylineno, msg);
+  fprintf(stderr, "[Linea %d] %s\n", yylineno, msg);
 }
 
 int main(){
