@@ -428,6 +428,12 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
   return booleano;
 }
 
+// Comprueba el tipo de la operación binaria realizada. En caso de error, lo
+// gestiona. En caso contrario, devuelve el tipo tras la operación binaria.
+// IMPORTANTE: Se asume que op1 esta asociado al valor 1 del atributo (atr)
+// mientras que op2 está asociado al valor 0.
+// IMPORTANE: Se asume que el op1 es simétrico y que el op2 no es simétrico y
+// unicamente funciona de la forma "T op2 T" o bien "list_of T op2 T".
 TipoDato op2Binario(TipoDato td1, int atr, TipoDato td2, char* op1, char* op2) {
   if (td1 == error || td2 == error)
     return error;
