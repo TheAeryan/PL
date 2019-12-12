@@ -1,6 +1,8 @@
 %option yylineno
 %option noyywrap
 
+char* msgError[256];
+
 %%
 
 "{"                         { return INIBLOQUE; }
@@ -60,6 +62,6 @@
 "true"|"false"              { yylval.atributo = 3; yylval.dtipo = booleano; return CONST; }
 [a-z|A-Z][a-z|A-Z|0-9|_]*   { yylval.lexema = strdup(yytext); return ID; }
 [ \t\n]                     { ; }
-<*>.|\n                     {printf("Error en la línea %d. Lexema %s no reconocible.\n", yylineno, yytext);}
+<*>.|\n                     {sprintf(msgError, "ERROR LÉXICO: Lexema %s no reconocible.\n", yytext); yyerror(msgError);}
 
 %%

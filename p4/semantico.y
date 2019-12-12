@@ -428,10 +428,6 @@ TipoDato eqn(TipoDato td1, int atr, TipoDato td2) {
   return booleano;
 }
 
-<<<<<<< HEAD:p4_mike/semantico.y
-
-=======
->>>>>>> 7017533453c1ed9ca9301a1c78916fcf680e9f55:p4/semantico.y
 // Comprueba el tipo de la operación binaria realizada. En caso de error, lo
 // gestiona. En caso contrario, devuelve el tipo tras la operación binaria.
 // IMPORTANTE: Se asume que op1 esta asociado al valor 1 del atributo (atr)
@@ -797,6 +793,7 @@ lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista
 
 void yyerror(const char *msg){
   fprintf(stderr, "[Linea %d] %s\n", yylineno, msg);
+  fflush(stderr);
 }
 
 int main(){
