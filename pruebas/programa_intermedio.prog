@@ -1,0 +1,12 @@
+main {
+
+  local {
+    int a, b, c;
+    bool d, e, f;
+    char ch;
+  }
+
+  a = b + c;
+  d = e || f;
+
+}
