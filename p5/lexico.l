@@ -14,7 +14,7 @@ char* msgError[256];
 ";"                         { return PYC; }
 ","                         { return COMA; }
 "="                         { return ASIGN; }
-"@"                         { return AT; }
+"@"                         { yylval.lexema = strdup(yytext); return AT; }
 "cin"                       { return CIN; }
 "cout"                      { return COUT; }
 "return"                    { return RETURN; }

@@ -6,6 +6,11 @@ main {
     char ch;
   }
 
+  bool funcA(int ad, bool bd, char cd) {
+    ad = ad * ad;
+    return bd;
+  }
+
   a = b + c;
   d = e || f;
 

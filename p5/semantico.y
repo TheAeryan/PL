@@ -3,8 +3,9 @@
 #include <stdio.h>
 #include <string.h>
 
-
 #define YYERROR_VERBOSE
+
+FILE* yyout;
 
 #define min(a, b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a < _b ? _a : _b; })
 #define max(a, b) ({ __typeof__ (a) _a = (a); __typeof__ (b) _b = (b); _a > _b ? _a : _b; })
@@ -14,6 +15,7 @@ void yyerror( const char * msg );
 #define MAX_TAM_TS 500
 
 extern int yylineno;
+
 
 char msgError[256];
 
@@ -137,6 +139,19 @@ TipoDato aTipoLista(TipoDato td) {
       fprintf(stderr, "Error en tipoLista(), tipo no es lista.\n");
       exit(EXIT_FAILURE);
   }
+}
+
+char* tipoOp(TipoDato td, char * op) {
+  if (!strcmp(op, "+") || !strcmp(op, "-") || !strcmp(op, "*") || !strcmp(op, "/") ||
+        !strcmp(op, "**") || !strcmp(op, "--") || !strcmp(op, "%"))
+    return tipoAString(td);
+
+  if (!strcmp(op, "!") || !strcmp(op, "&&") || !strcmp(op, "||") || !strcmp(op, ">") || !strcmp(op, "?") ||
+        !strcmp(op, "<") || !strcmp(op, ">=") || !strcmp(op, "<=") || !strcmp(op, "!=") || !strcmp(op, "=="))
+    return "int";
+
+  if (!strcmp(op, "#") || !strcmp(op, "@"))
+    return tipoAString(tipoLista(td));
 }
 
 int esLista(TipoDato tipo_dato){
@@ -619,43 +634,43 @@ TipoDato comprobarFuncion(char* id) {
 // ** Generación código intermedio **
 // **********************************
 
+int hayError = 0;
 int nTabs = 0;
 
-void addTab() {
-  for (int i = 0; i < nTabs; ++i)
-    fprintf(stdout, "\t");
-}
+#define addTab() { for (int i = 0; i < nTabs; ++i) fprintf(yyout, "\t"); }
+#define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
 
-char* tempNuevo() {
+char* temporal() {
   static int indice = 1;
   char* etiqueta = malloc(sizeof(char) * 10);
   sprintf(etiqueta, "tmp%i", indice++);
   return etiqueta;
 }
 
-char* leerOp(char* exp1, char* op, char* exp2) {
-  char* etiqueta = tempNuevo();
-  addTab();
-  fprintf(stdout, "%s := %s %s %s;\n", etiqueta, exp1, op, exp2);
+char* leerOp(TipoDato td, char* exp1, char* op, char* exp2) {
+  char* etiqueta = temporal();
+  gen("%s %s;\n", tipoOp(td, op), etiqueta);
+  gen("%s = %s %s %s;\n", etiqueta, exp1, op, exp2);
   return etiqueta;
 }
 
-char* asignacion(char* id, char* exp) {
-  addTab();
-  fprintf(stdout, "%s := %s;\n", id, exp);
-  return exp;
-}
 
 char* leerCte(char* cte, int atr) {
   if (atr == 3) {
     if (!strcmp("true", cte))
-      return "1";
+      return "true";
     else
-      return "0";
+      return "false";
   }
   return cte;
 }
 
+char* tipoIntermedio(TipoDato td) {
+  if (td == booleano)
+    return "int";
+  else
+    return tipoAString(td);
+}
 
 #define YYSTYPE Atributos
 %}
@@ -709,25 +724,30 @@ char* leerCte(char* cte, int atr) {
 %precedence INTHASH EXCL
 %%
 
-programa : MAIN { fprintf(stdout, "int main() "); } bloque ;
+programa : MAIN { gen("int main()\n"); } bloque ;
 
-bloque : INIBLOQUE { addTab(); fprintf(stdout, "{\n"); ++nTabs; insertarMarca(); }
+bloque : INIBLOQUE { insertarMarca(); gen("{\n"); ++nTabs; }
          declar_de_variables_locales
          declar_de_subprogs
          sentencias
-         FINBLOQUE { --nTabs; addTab(); fprintf(stdout, "}\n"); vaciarEntradas(); } ;
+         FINBLOQUE { vaciarEntradas(); --nTabs; gen("}\n\n") } ;
 
-declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE
+declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE { gen("\n"); }
                             | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
 
-cuerpo_declar_variables : TIPO { tipoTmp = $1.dtipo; } lista_variables PYC
+cuerpo_declar_variables : TIPO { tipoTmp = $1.dtipo; }
+                          lista_variables PYC { gen("%s %s;\n", tipoIntermedio($1.dtipo), $3.lexema); }
                         | error ;
 
-lista_variables : ID COMA lista_variables { insertarVariable($1.lexema); }
-                | ID { insertarVariable($1.lexema); } ;
+lista_variables : ID COMA lista_variables {
+                    insertarVariable($1.lexema);
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
+                  }
+                | ID { insertarVariable($1.lexema); $$.lexema = $1.lexema; } ;
 
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
@@ -735,16 +755,26 @@ declar_de_subprogs : declar_de_subprogs declar_subprog
 declar_subprog : cabecera_subprog { subProg = 1; }
                  bloque ;
 
-cabecera_subprog : TIPO ID { insertarFuncion($1.dtipo, $2.lexema); } PARIZQ cabecera_argumentos PARDER ;
+cabecera_subprog : TIPO ID { insertarFuncion($1.dtipo, $2.lexema); }
+                    PARIZQ cabecera_argumentos PARDER {
+                      gen("%s %s(%s)\n", tipoIntermedio($1.dtipo), $2.lexema, $5.lexema);
+                    };
 
-cabecera_argumentos : parametros
-                    | %empty
+cabecera_argumentos : parametros { $$.lexema = $1.lexema; }
+                    | %empty     { $$.lexema = ""; }
                     | error ;
 
-parametros : parametros COMA parametro
-           | parametro ;
+parametros : parametros COMA parametro {
+                $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
+              }
+            | parametro { $$.lexema = $1.lexema; } ;
 
-parametro : TIPO ID { insertarParametro($1.dtipo, $2.lexema); } ;
+parametro : TIPO ID {
+              insertarParametro($1.dtipo, $2.lexema);
+              $$.lexema = malloc(sizeof($1.lexema) + sizeof($2.lexema) + 2);
+              sprintf($$.lexema, "%s %s", tipoIntermedio($1.dtipo), $2.lexema);
+            } ;
 
 sentencias : sentencias sentencia
            | %empty ;
@@ -760,10 +790,16 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-sentencia_asignacion : ID ASIGN expresion PYC { $$.lexema = asignacion($$.lexema, $3.lexema); comprobarAsignacion($1.lexema, $3.dtipo); } ;
+sentencia_asignacion : ID ASIGN { gen("{\n"); ++nTabs; }
+                        expresion PYC {
+                        comprobarAsignacion($1.lexema, $4.dtipo);
+                        gen("%s = %s;\n", $1.lexema, $4.lexema);
+                        --nTabs;
+                        gen("}\n");
+                       } ;
 
-sentencia_lista : expresion SHIFT PYC { sentenciaLista($1.dtipo, $2.lexema); }
-                | DOLLAR expresion PYC { sentenciaLista($2.dtipo, $1.lexema); } ;
+sentencia_lista : expresion SHIFT PYC { sentenciaLista($1.dtipo, $2.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); }
+                | DOLLAR expresion PYC { sentenciaLista($2.dtipo, $1.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); } ;
 
 sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else { expresionBooleana($3.dtipo); } ;
 
@@ -772,10 +808,13 @@ bloque_else : ELSE sentencia
 
 sentencia_while : WHILE PARIZQ expresion PARDER sentencia { expresionBooleana($3.dtipo); } ;
 
-sentencia_entrada : CIN lista_id PYC ;
+sentencia_entrada : CIN lista_id PYC { gen("printf()"); };
 
-lista_id : lista_id COMA ID
-         | ID ;
+lista_id : lista_id COMA ID {
+              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+              sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
+            }
+         | ID { $$.lexema = $1.lexema; };
 
 sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
 
@@ -787,37 +826,50 @@ expresion_cadena : expresion
 
 sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC { expresionBooleana($5.dtipo); };
 
-sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); } ;
+sentencia_return : RETURN {gen("{\n"); ++nTabs; }
+                    expresion PYC {
+                      comprobarReturn($3.dtipo);
+                      gen("return %s;\n", $3.lexema);
+                      --nTabs;
+                      gen("}\n");
+                    } ;
 
 expresion : PARIZQ expresion PARDER                  { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo; }
-          | ADDSUB expresion %prec EXCL              { $$.lexema = leerOp("", $1.lexema, $2.lexema); $$.dtipo = masMenos($1.atributo, $2.dtipo); }
-          | EXCL expresion                           { $$.lexema = leerOp("", $1.lexema, $2.lexema); $$.dtipo = excl($2.dtipo); }
-          | INTHASH expresion                        { $$.lexema = leerOp("", $1.lexema, $2.lexema); $$.dtipo = intHash($1.atributo, $2.dtipo); }
-          | expresion AT expresion                   { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = at($1.dtipo, $3.dtipo); }
-          | expresion ANDLOG expresion               { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = andLog($1.dtipo, $3.dtipo); }
-          | expresion ORLOG expresion                { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = orLog($1.dtipo, $3.dtipo); }
-          | expresion EQN expresion                  { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion ADDSUB expresion               { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = addSub($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion MULDIV expresion               { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = porDiv($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion PORPOR expresion               { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = porPor($1.dtipo, $3.dtipo); }
-          | expresion BORRLIST expresion             { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion REL expresion                  { $$.lexema = leerOp($1.lexema, $2.lexema, $3.lexema); $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
+          | ADDSUB expresion %prec EXCL              { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = masMenos($1.atributo, $2.dtipo); }
+          | EXCL expresion                           { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = excl($2.dtipo); }
+          | INTHASH expresion                        { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = intHash($1.atributo, $2.dtipo); }
+          | expresion AT expresion                   { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = at($1.dtipo, $3.dtipo); }
+          | expresion ANDLOG expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = andLog($1.dtipo, $3.dtipo); }
+          | expresion ORLOG expresion                { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = orLog($1.dtipo, $3.dtipo); }
+          | expresion EQN expresion                  { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion ADDSUB expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = addSub($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion MULDIV expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = porDiv($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion PORPOR expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = porPor($1.dtipo, $3.dtipo); }
+          | expresion BORRLIST expresion             { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo); }
+          | expresion REL expresion                  { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
           | expresion MASMAS expresion AT expresion  { $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo); }
-          | llamada_funcion                          { $$.dtipo = $1.dtipo; }
+          | llamada_funcion                          { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | ID                                       { $$.lexema = $1.lexema; $$.dtipo = buscarID($1.lexema); }
           | constante                                { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | error ;
 
-llamada_funcion : ID PARIZQ argumentos PARDER { $$.dtipo = comprobarFuncion($1.lexema); } ;
+llamada_funcion : ID PARIZQ argumentos PARDER {
+                    $$.dtipo = comprobarFuncion($1.lexema);
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    sprintf($$.lexema, "%s(%s)", $1.lexema, $3.lexema);
+                } ;
 
 argumentos : lista_argumentos
            | %empty ;
 
 lista_argumentos : lista_argumentos COMA expresion {
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                     argumentos_tipo_datos[n_argumentos] = $3.dtipo;
                     n_argumentos++;
                   }
                  | expresion {
+                    $$.lexema = $1.lexema;
                     argumentos_tipo_datos[n_argumentos] = $1.dtipo;
                     n_argumentos++;
                   } ;
@@ -837,10 +889,12 @@ lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista
 void yyerror(const char *msg){
   fprintf(stderr, "[Linea %d] %s\n", yylineno, msg);
   fflush(stderr);
+  hayError = 1;
 }
 
 int main(){
   yyparse();
+  yyout = stdout;
 
   return 0;
 }
