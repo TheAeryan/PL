@@ -756,8 +756,8 @@ char* tipoIntermedio(TipoDato td) {
 programa : MAIN {
               gen("#include <stdlib.h>\n");
               gen("#include <stdio.h>\n");
-              gen("#include \"dec_fun\"\n");
-              gen("#include \"dec_dat\"\n\n");
+              gen("#include \"dec_fun.c\"\n");
+              gen("#include \"dec_dat.c\"\n\n");
             }
           bloque ;
 
@@ -990,13 +990,13 @@ void yyerror(const char *msg){
 
 int main(){
   fMain = fopen("prog.c", "w");
-  fFunc = fopen("dec_fun", "w");
+  fFunc = fopen("dec_fun.c", "w");
 
   yyout = fMain ;
   yyparse();
 
   fclose(fMain);
   fclose(fFunc);
-  
+
   return 0;
 }

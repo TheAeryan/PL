@@ -4,8 +4,8 @@
 */prueba
 */traductor
 */*.out
-*/dec_fun
-p5/*.c
+*/dec_fun.c
+*/prog.c
 
 */lex.yy.c
 
