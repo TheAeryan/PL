@@ -703,9 +703,9 @@ char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
   gen("%s %s;\n", tipoIntermedio(tipoOp(tdPrimario, op)), etiqueta);
 
   if (!strcmp("#", op)) {
-    gen("getTam(%s);\n", exp2);
+    gen("getTam(%s);\n", exp1);
   } else if (!strcmp("?", op)) {
-    gen("getActual(%s);\n", exp2);
+    gen("getActual(%s);\n", exp1);
   } else if (!strcmp("@", op)) {
     gen("get(%s, %s);\n", exp1, exp2);
   } else if (!strcmp("--", op)) {
@@ -955,11 +955,11 @@ sentencia_while : WHILE PARIZQ {
                       ++deep;
                     }
                   expresion {
-                      --deep;
-                      gen("}\n");
                       expresionBooleana($4.dtipo);
                       gen("\n");
                       gen("if (!%s) goto %s;\n", $4.lexema, ts[tope].descriptor->etiquetaSalida);
+                      --deep;
+                      gen("}\n\n");
                     }
                   PARDER sentencia {
                       gen("goto %s;\n\n", ts[tope].descriptor->etiquetaEntrada);
@@ -988,7 +988,7 @@ sentencia_do_until : DO {
                         }
                       PARDER PYC ;
 
-sentencia_entrada : CIN lista_id PYC { gen("scanf(TODO);\n"); };
+sentencia_entrada : CIN lista_id PYC { };
 
 lista_id : lista_id COMA ID {
               $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
@@ -996,7 +996,7 @@ lista_id : lista_id COMA ID {
             }
          | ID { $$.lexema = $1.lexema; };
 
-sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(TODO);\n"); };
+sentencia_salida : COUT lista_expresiones_o_cadena PYC {  };
 
 lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
                            | expresion_cadena ;
@@ -1059,7 +1059,7 @@ expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo
               $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo);
               $$.lexema = temporal();
               gen("Lista %s;\n", $$.lexema);
-              gen("insertarEn(%s, %s, %s);\n", $1.lexema, $3.lexema, $5.lexema);
+              gen("insertarEn(%s, %s, %s);\n", $1.lexema, $3.lexema, insertarDato($5.lexema, $5.dtipo));
             }
           | llamada_funcion                          { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | ID                                       { $$.lexema = $1.lexema; $$.dtipo = buscarID($1.lexema); }
