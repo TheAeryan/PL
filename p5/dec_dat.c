@@ -129,7 +129,7 @@ Lista copiar(Lista l, int pos) {
 }
 
 // Operador --
-Lista borrarCopia(Lista l, int pos) {
+Lista borrarEn(Lista l, int pos) {
   Lista nueva = copiar(l, l->tam);
   borrar(nueva, pos);
   return nueva;
@@ -141,7 +141,7 @@ Lista borrarAPartirDe(Lista l, int pos) {
 }
 
 // Operador ++ @
-Lista insertarEnCopia(Lista l, int pos, void* dato) {
+Lista insertarEn(Lista l, int pos, void* dato) {
   Lista nueva = copiar(l, pos);
   insertar(nueva, dato);
   for (int i = pos; i < l->tam; ++i) {
@@ -188,6 +188,42 @@ float* pFloat(float f) {
   return p;
 }
 
-int main() {
+void sumarListaInt(Lista l, int i) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pInt(*(int*)(l->datos[i]) + i);
+}
 
+void sumarListaFloat(Lista l, float f) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pFloat(*(float*)(l->datos[i]) + f);
+}
+
+void multiplicarListaInt(Lista l, int i) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pInt(*(int*)(l->datos[i]) * i);
+}
+
+void multiplicarListaFloat(Lista l, float f) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pFloat(*(float*)(l->datos[i]) * f);
+}
+
+void dividirListaInt(Lista l, int i) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pInt(*(int*)(l->datos[i]) / i);
+}
+
+void dividirListaFloat(Lista l, float f) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pFloat(*(float*)(l->datos[i]) / f);
+}
+
+void restarListaInt(Lista l, int i) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pInt(*(int*)(l->datos[i]) - i);
+}
+
+void restarListaFloat(Lista l, float f) {
+  for (int i = 0; i < l->tam; ++i)
+    l->datos[i] = pFloat(*(float*)(l->datos[i]) - f);
 }

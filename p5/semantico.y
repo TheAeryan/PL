@@ -155,11 +155,14 @@ TipoDato tipoOp(TipoDato td, char * op) {
         !strcmp(op, "**") || !strcmp(op, "--") || !strcmp(op, "%"))
     return td;
 
-  if (!strcmp(op, "!") || !strcmp(op, "&&") || !strcmp(op, "||") || !strcmp(op, ">") || !strcmp(op, "?") ||
-        !strcmp(op, "<") || !strcmp(op, ">=") || !strcmp(op, "<=") || !strcmp(op, "!=") || !strcmp(op, "=="))
+  if (!strcmp(op, "!") || !strcmp(op, "&&") || !strcmp(op, "||") || !strcmp(op, ">") || !strcmp(op, "<") ||
+        !strcmp(op, ">=") || !strcmp(op, "<=") || !strcmp(op, "!=") || !strcmp(op, "=="))
+    return booleano;
+
+  if (!strcmp(op, "#"))
     return entero;
 
-  if (!strcmp(op, "#") || !strcmp(op, "@"))
+  if (!strcmp(op, "?") || !strcmp(op, "@"))
     return tipoLista(td);
 }
 
@@ -685,10 +688,59 @@ char* tipoIntermedio(TipoDato td) {
     return tipoAString(td);
 }
 
-char* leerOp(TipoDato td, char* exp1, char* op, char* exp2) {
+char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
   char* etiqueta = temporal();
-  gen("%s %s;\n", tipoIntermedio(tipoOp(td, op)), etiqueta);
-  gen("%s = %s %s %s;\n", etiqueta, exp1, op, exp2);
+  TipoDato tdPrimario = td1;
+  TipoDato tdSecundario = td2;
+  char* expPrimaria = exp1;
+  char* expSecundaria = exp2;
+  if (esLista(td2) && (!strcmp("+", op) || !strcmp("*", op))) {
+    tdPrimario = td2;
+    tdSecundario = td1;
+    expPrimaria = exp2;
+    expSecundaria = exp1;
+  }
+  gen("%s %s;\n", tipoIntermedio(tipoOp(tdPrimario, op)), etiqueta);
+
+  if (!strcmp("#", op)) {
+    gen("getTam(%s);\n", exp2);
+  } else if (!strcmp("?", op)) {
+    gen("getActual(%s);\n", exp2);
+  } else if (!strcmp("@", op)) {
+    gen("get(%s, %s);\n", exp1, exp2);
+  } else if (!strcmp("--", op)) {
+    gen("borrarEn(%s, %s);\n", exp1, exp2);
+  } else if (!strcmp("%", op)) {
+    gen("borrarAPartirDe(%s, %s);\n", exp1, exp2);
+  } else if (!strcmp("**", op)) {
+    gen("concatenar(%s, %s);\n", exp1, exp2);
+  } else if (esLista(tdPrimario)) {
+    if (tdSecundario == entero || tdSecundario == booleano) {
+      if (!strcmp("+", op)) {
+        gen("sumarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("-", op)) {
+        gen("restarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("*", op)) {
+        gen("multiplicarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("/", op)) {
+        gen("dividirListaInt(%s, %s);\n", expPrimaria, expSecundaria);
+      }
+    } else if (tdSecundario == real) {
+      if (!strcmp("+", op)) {
+        gen("sumarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("-", op)) {
+        gen("restarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("*", op)) {
+        gen("multiplicarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
+      } else if (!strcmp("/", op)) {
+        gen("dividirListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
+      }
+    }
+  } else if (!strcmp("", exp2)) {
+    gen("%s = %s %s;\n", etiqueta, op, exp1);
+  } else {
+    gen("%s = %s %s %s;\n", etiqueta, exp1, op, exp2);
+  }
   return etiqueta;
 }
 
@@ -839,7 +891,7 @@ parametro : TIPO ID {
               sprintf($$.lexema, "%s %s", tipoIntermedio($1.dtipo), $2.lexema);
             } ;
 
-sentencias : sentencias sentencia
+sentencias : sentencias {gen("{\n"); ++deep; } sentencia { --deep; gen("}\n"); }
            | %empty ;
 
 sentencia : bloque
@@ -853,57 +905,64 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-sentencia_asignacion : ID ASIGN { gen("{\n"); ++deep; }
-                        expresion PYC {
-                          comprobarAsignacion($1.lexema, $4.dtipo);
-                          gen("%s = %s;\n", $1.lexema, $4.lexema);
-                          --deep;
-                          gen("}\n");
+sentencia_asignacion : ID ASIGN expresion PYC {
+                          comprobarAsignacion($1.lexema, $3.dtipo);
+                          gen("%s = %s;\n", $1.lexema, $3.lexema);
                        } ;
 
-sentencia_lista : expresion SHIFT PYC { sentenciaLista($1.dtipo, $2.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); }
-                | DOLLAR expresion PYC { sentenciaLista($2.dtipo, $1.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); } ;
+sentencia_lista : expresion SHIFT PYC {
+                      sentenciaLista($1.dtipo, $2.lexema);
+                      if (!strcmp(">>", $2.lexema)) {
+                        gen("avanza(%s);\n", $1.lexema);
+                      } else {
+                        gen("retrocede(%s);\n", $1.lexema);
+                      }
+                    }
+                | DOLLAR expresion PYC {
+                      sentenciaLista($2.dtipo, $1.lexema);
+                      gen("inicio(%s);\n", $2.lexema);
+                    } ;
 
-sentencia_if : IF PARIZQ { gen("{\n"); ++deep; insertarDescriptor("", etiqueta(), etiqueta()); }
+sentencia_if : IF PARIZQ { insertarDescriptor("", etiqueta(), etiqueta()); }
                 expresion {
                     expresionBooleana($4.dtipo);
+                    gen("\n");
                     gen("if (!%s) goto %s;\n", $4.lexema, ts[tope].descriptor->etiquetaElse);
                   }
-                PARDER sentencia {
+                PARDER { gen("{\n"); ++deep; }
+                sentencia {
+                    { --deep; gen("}\n"); }
                     DescriptorDeInstrControl* ds = ts[tope].descriptor;
                     gen("goto %s;\n\n", ds->etiquetaSalida);
-                    gen("%s:\n", ds->etiquetaElse);
-                    gen("{\n");
-                    ++deep;
+                    gen("%s:", ds->etiquetaElse);
                   }
                 bloque_else {
-                    --deep;
-                    gen("}\n");
-                    --deep;
-                    gen("}\n\n");
+                    gen("\n");
                     gen("%s: {} \n", ts[tope].descriptor->etiquetaSalida);
                     --tope;
                   };
 
-bloque_else : ELSE sentencia
-            | %empty ;
+bloque_else : ELSE { gen("\n"); gen("{\n"); ++deep; }
+                sentencia { --deep; gen("}\n"); }
+            | %empty { gen(" {}\n"); } ;
 
 sentencia_while : WHILE PARIZQ {
-                      gen("{\n");
-                      ++deep;
                       insertarDescriptor(etiqueta(), etiqueta(), "");
                       gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
                       gen("{\n");
                       ++deep;
+                      gen("{\n");
+                      ++deep;
                     }
                   expresion {
+                      --deep;
+                      gen("}\n");
                       expresionBooleana($4.dtipo);
+                      gen("\n");
                       gen("if (!%s) goto %s;\n", $4.lexema, ts[tope].descriptor->etiquetaSalida);
                     }
                   PARDER sentencia {
                       gen("goto %s;\n\n", ts[tope].descriptor->etiquetaEntrada);
-                      --deep;
-                      gen("}\n");
                       --deep;
                       gen("}\n");
                       gen("%s: {}\n", ts[tope].descriptor->etiquetaSalida);
@@ -911,23 +970,25 @@ sentencia_while : WHILE PARIZQ {
                     } ;
 
 sentencia_do_until : DO {
-                          gen("{\n");
-                          ++deep;
                           insertarDescriptor(etiqueta(), "", "");
                           gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
+                          gen("{\n");
+                          ++deep;
+                          gen("{\n");
                           ++deep;
                         }
-                      sentencia UNTIL PARIZQ expresion {
-                          expresionBooleana($6.dtipo);
-                          gen("if (!%s) goto %s;\n", $6.lexema, ts[tope].descriptor->etiquetaEntrada);
-                          --deep;
+                      sentencia { --deep; gen("}\n"); }
+                      UNTIL PARIZQ expresion {
+                          expresionBooleana($7.dtipo);
+                          gen("\n");
+                          gen("if (!%s) goto %s;\n", $7.lexema, ts[tope].descriptor->etiquetaEntrada);
                           --deep;
                           gen("}\n");
                           --tope;
                         }
                       PARDER PYC ;
 
-sentencia_entrada : CIN lista_id PYC { gen("printf()"); };
+sentencia_entrada : CIN lista_id PYC { gen("scanf(TODO);\n"); };
 
 lista_id : lista_id COMA ID {
               $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
@@ -935,7 +996,7 @@ lista_id : lista_id COMA ID {
             }
          | ID { $$.lexema = $1.lexema; };
 
-sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
+sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(TODO);\n"); };
 
 lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
                            | expresion_cadena ;
@@ -943,28 +1004,63 @@ lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
 expresion_cadena : expresion
                  | CADENA ;
 
-sentencia_return : RETURN {gen("{\n"); ++deep; }
-                    expresion PYC {
-                      comprobarReturn($3.dtipo);
-                      gen("return %s;\n", $3.lexema);
-                      --deep;
-                      gen("}\n");
-                    } ;
+sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); gen("return %s;\n", $2.lexema); } ;
 
-expresion : PARIZQ expresion PARDER                  { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo; }
-          | ADDSUB expresion %prec EXCL              { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = masMenos($1.atributo, $2.dtipo); }
-          | EXCL expresion                           { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = excl($2.dtipo); }
-          | INTHASH expresion                        { $$.lexema = leerOp($2.dtipo, "", $1.lexema, $2.lexema); $$.dtipo = intHash($1.atributo, $2.dtipo); }
-          | expresion AT expresion                   { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = at($1.dtipo, $3.dtipo); }
-          | expresion ANDLOG expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = andLog($1.dtipo, $3.dtipo); }
-          | expresion ORLOG expresion                { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = orLog($1.dtipo, $3.dtipo); }
-          | expresion EQN expresion                  { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion ADDSUB expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = addSub($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion MULDIV expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = porDiv($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion PORPOR expresion               { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = porPor($1.dtipo, $3.dtipo); }
-          | expresion BORRLIST expresion             { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion REL expresion                  { $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema); $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo); }
-          | expresion MASMAS expresion AT expresion  { $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo); }
+expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo; }
+          | ADDSUB expresion %prec EXCL {
+              $$.lexema = leerOp($2.dtipo, $2.lexema, $1.lexema, "", -1);
+              $$.dtipo = masMenos($1.atributo, $2.dtipo);
+            }
+          | EXCL expresion {
+              $$.lexema = leerOp($2.dtipo, $2.lexema, $1.lexema, "", -1);
+              $$.dtipo = excl($2.dtipo);
+            }
+          | INTHASH expresion {
+              $$.lexema = leerOp($2.dtipo, $2.lexema, $1.lexema, "", -1);
+              $$.dtipo = intHash($1.atributo, $2.dtipo);
+            }
+          | expresion AT expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = at($1.dtipo, $3.dtipo);
+            }
+          | expresion ANDLOG expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = andLog($1.dtipo, $3.dtipo);
+            }
+          | expresion ORLOG expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = orLog($1.dtipo, $3.dtipo);
+            }
+          | expresion EQN expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = eqn($1.dtipo, $2.atributo, $3.dtipo);
+            }
+          | expresion ADDSUB expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = addSub($1.dtipo, $2.atributo, $3.dtipo);
+            }
+          | expresion MULDIV expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = porDiv($1.dtipo, $2.atributo, $3.dtipo);
+            }
+          | expresion PORPOR expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = porPor($1.dtipo, $3.dtipo);
+            }
+          | expresion BORRLIST expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = borrList($1.dtipo, $2.atributo, $3.dtipo);
+            }
+          | expresion REL expresion {
+              $$.lexema = leerOp($1.dtipo, $1.lexema, $2.lexema, $3.lexema, $3.dtipo);
+              $$.dtipo = rel($1.dtipo, $2.atributo, $3.dtipo);
+            }
+          | expresion MASMAS expresion AT expresion  {
+              $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo);
+              $$.lexema = temporal();
+              gen("Lista %s;\n", $$.lexema);
+              gen("insertarEn(%s, %s, %s);\n", $1.lexema, $3.lexema, $5.lexema);
+            }
           | llamada_funcion                          { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | ID                                       { $$.lexema = $1.lexema; $$.dtipo = buscarID($1.lexema); }
           | constante                                { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
