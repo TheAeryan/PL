@@ -45,9 +45,9 @@ void avanza(Lista l) {
     if (l->cursor + 1 < l->tam)
       l->cursor++;
     else
-      fprintf(stderr, "ERROR avanza(): cursor ya está en el final->\n");
+      fprintf(stderr, "ERROR avanza(): cursor ya está en el final.\n");
   } else
-      fprintf(stderr, "ERROR avanza(): lista vacía->\n");
+      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
 }
 
 // Operador <<
@@ -56,9 +56,9 @@ void retrocede(Lista l) {
     if (l->cursor - 1 >= 0)
       l->cursor--;
     else
-      fprintf(stderr, "ERROR retrocede(): cursor ya está al principio->\n");
+      fprintf(stderr, "ERROR retrocede(): cursor ya está al principio.\n");
   } else
-      fprintf(stderr, "ERROR avanza(): lista vacía->\n");
+      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
 }
 
 // Operador $
@@ -66,14 +66,14 @@ void inicio(Lista l) {
   if (l->tam >= 0) {
     l->cursor = 0;
   } else
-      fprintf(stderr, "ERROR inicio(): lista vacía->\n");
+      fprintf(stderr, "ERROR inicio(): lista vacía.\n");
 
 }
 
 // Operador ?
 void* getActual(Lista l) {
   if (l->cursor < 0) {
-    fprintf(stderr, "ERROR getActual(): la lista está vacía->\n");
+    fprintf(stderr, "ERROR getActual(): la lista está vacía.\n");
     return NULL;
   }
   return l->datos[l-> cursor];
@@ -83,7 +83,7 @@ void set(Lista l, int pos, void* dato) {
   if (pos >= 0 && pos < l->tam)
     l->datos[pos] = dato;
   else
-    fprintf(stderr, "ERROR: set(): %s pos no válida, tam: %s\n", pos, l->tam);
+    fprintf(stderr, "ERROR: set(): %s pos no válida, tam: %s.\n", pos, l->tam);
 }
 
 // Operador @
@@ -91,13 +91,13 @@ void* get(Lista l, int pos) {
   if (pos >= 0 && pos < l->tam)
     return l->datos[pos];
   else
-    fprintf(stderr, "ERROR: get(): %s pos no válida, tam: %s\n", pos, l->tam);
+    fprintf(stderr, "ERROR: get(): %s pos no válida, tam: %s.\n", pos, l->tam);
   return NULL;
 }
 
 void borrar(Lista l, int pos) {
   if (pos < 0 || pos >= l->tam) {
-    fprintf(stderr, "ERROR: borrar(): %s pos no válida, tam: %s\n", pos, l->tam);
+    fprintf(stderr, "ERROR: borrar(): %s pos no válida, tam: %s.\n", pos, l->tam);
     return;
   }
 

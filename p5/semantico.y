@@ -976,8 +976,8 @@ llamada_funcion : ID PARIZQ argumentos PARDER {
                     sprintf($$.lexema, "%s(%s)", $1.lexema, $3.lexema);
                 } ;
 
-argumentos : lista_argumentos
-           | %empty ;
+argumentos : lista_argumentos { $$.lexema = $1.lexema; }
+           | %empty { $$.lexema = ""; } ;
 
 lista_argumentos : lista_argumentos COMA expresion {
                     $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
@@ -1028,6 +1028,11 @@ int main(){
 
   fclose(fMain);
   fclose(fFunc);
+
+  if (hayError) {
+    remove("prog.c");
+    remove("dec_fun.c");
+  }
 
   return 0;
 }

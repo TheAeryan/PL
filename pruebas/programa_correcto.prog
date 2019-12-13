@@ -13,6 +13,8 @@ main
 		list_of    int ppf;
 	}
 
+
+
  int funcionA (int a1, float a2, float d3) {
  		local {
 			int x1, x2 ;
@@ -82,6 +84,8 @@ main
 		v = v + b;
 		vc = vc;
 	} until (true);
+
+	pe = [2+funcionA(1, 1.0, 1.0)];
 
 	pe = [1, 43, 5, 0, 0];
 	pd = ['z', 'A', 'B'];
