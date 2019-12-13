@@ -26,12 +26,20 @@ int yylex();
 /* ESTRUCTURA DE LA TS */
 /***********************/
 
+// Para bucles if
+typedef struct {
+  char* etiquetaEntrada;
+  char* etiquetaSalida;
+  char* etiquetaElse;
+} DescriptorDeInstrControl;
+
 // Tipo de entrada
 typedef enum {
   marca,
   funcion,
   variable,
-  parametroFormal
+  parametroFormal,
+  descriptor
 } TipoEntrada;
 
 // Si TipoEntrada es función, variable, o parametro-formal; indica el tipo de dato
@@ -53,6 +61,7 @@ typedef struct {
   char* nombre;               // Nombre del identificador (no se usa con marca)
   TipoDato tipoDato;          // Tipo de dato
   int parametros;             // Nº de parámetros formales (sólo se usa con función)
+  DescriptorDeInstrControl* descriptor; // Descriptor de control (bucles IF - intermedio)
 } EntradaTS;
 
 // La Tabla de Símbolos
@@ -200,13 +209,14 @@ void idRepetida(char* id) {
   }
 }
 
-void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nParam) {
+void insertarEntrada(TipoEntrada te, char* nombre, TipoDato tipo_dato, int nParam, DescriptorDeInstrControl* descp) {
   // Hacemos la entrada
   EntradaTS entrada = {
     te,
     strdup(nombre),
     tipo_dato,
-    nParam
+    nParam,
+    descp
   };
 
   // Si la tabla está llena da error
@@ -240,11 +250,11 @@ int buscarEntrada(char* id) {
 
 void insertarMarca() {
   // Metemos la marca
-  insertarEntrada(marca, "", -1, -1);
+  insertarEntrada(marca, "", -1, -1, NULL);
   // Si es subprograma añadimos las variables al bloque
   if (subProg) {
     for (int i = tope - 1; ts[i].tipoEntrada != funcion; --i) {
-      insertarEntrada(variable, ts[i].nombre, ts[i].tipoDato, -1);
+      insertarEntrada(variable, ts[i].nombre, ts[i].tipoDato, -1, NULL);
     }
     subProg = 0;
   }
@@ -261,14 +271,24 @@ void vaciarEntradas() {
 void insertarVariable(char* id) {
   // Comprobamos que no esté repetida la id
   idRepetida(id);
-  insertarEntrada(variable, id, tipoTmp, -1);
+  insertarEntrada(variable, id, tipoTmp, -1, NULL);
 }
 
 void insertarFuncion(TipoDato tipoDato, char* id) {
   // Comprobamos que el id no esté usado ya
   idRepetida(id);
-  insertarEntrada(funcion, id, tipoDato, 0);
+  insertarEntrada(funcion, id, tipoDato, 0, NULL);
 }
+
+
+void insertarDescriptor(char* etqEntrada, char* etqSalida, char* etqElse) {
+  DescriptorDeInstrControl* descp = (DescriptorDeInstrControl*) malloc(sizeof(DescriptorDeInstrControl));
+  descp->etiquetaEntrada = strdup(etqEntrada);
+  descp->etiquetaSalida = strdup(etqSalida);
+  descp->etiquetaElse = strdup(etqElse);
+  insertarEntrada(descriptor, "", -1, -1, descp);
+}
+
 
 void insertarParametro(TipoDato tipoDato, char* id) {
   // Comprobamos que no haya parámetros con nombres repetidos
@@ -283,7 +303,7 @@ void insertarParametro(TipoDato tipoDato, char* id) {
     }
   }
   // Añadimos la entrada
-  insertarEntrada(parametroFormal, id, tipoDato, -1);
+  insertarEntrada(parametroFormal, id, tipoDato, -1, NULL);
   // Actualizamos el nº de parámetros de la función
   ++ts[i].parametros;
 }
@@ -635,15 +655,23 @@ TipoDato comprobarFuncion(char* id) {
 // **********************************
 
 int hayError = 0;
-int nTabs = 0;
+int deep = 0;
+int prof = 0;
 
-#define addTab() { for (int i = 0; i < nTabs; ++i) fprintf(yyout, "\t"); }
+#define addTab() { for (int i = 0; i < deep; ++i) fprintf(yyout, "\t"); }
 #define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
 
 char* temporal() {
   static int indice = 1;
-  char* etiqueta = malloc(sizeof(char) * 10);
-  sprintf(etiqueta, "tmp%i", indice++);
+  char* temp = malloc(sizeof(char) * 10);
+  sprintf(temp, "temp%i", indice++);
+  return temp;
+}
+
+char* etiqueta() {
+  static int indice = 1;
+  char* etiqueta = malloc(sizeof(char) * 14);
+  sprintf(etiqueta, "etiqueta%i", indice++);
   return etiqueta;
 }
 
@@ -658,9 +686,9 @@ char* leerOp(TipoDato td, char* exp1, char* op, char* exp2) {
 char* leerCte(char* cte, int atr) {
   if (atr == 3) {
     if (!strcmp("true", cte))
-      return "true";
+      return "1";
     else
-      return "false";
+      return "0";
   }
   return cte;
 }
@@ -670,6 +698,18 @@ char* tipoIntermedio(TipoDato td) {
     return "int";
   else
     return tipoAString(td);
+}
+
+DescriptorDeInstrControl* buscarDescriptor() {
+  int i = tope;
+  while (i >= 0 && ts[i].tipoEntrada != descriptor)
+    --i;
+  if (i < 0) {
+    sprintf(msgError, "ERROR INTERMEDIO: No se ha encontrado ningún descriptor.\n");
+    yyerror(msgError);
+    return NULL;
+  }
+  return ts[i].descriptor;
 }
 
 #define YYSTYPE Atributos
@@ -724,13 +764,13 @@ char* tipoIntermedio(TipoDato td) {
 %precedence INTHASH EXCL
 %%
 
-programa : MAIN { gen("int main()\n"); } bloque ;
+programa : MAIN bloque ;
 
-bloque : INIBLOQUE { insertarMarca(); gen("{\n"); ++nTabs; }
-         declar_de_variables_locales
+bloque : INIBLOQUE { insertarMarca(); if (deep > 0) { gen("{\n"); ++deep; } }
+         declar_de_variables_locales { if (deep == 0) { gen("int main()\n"); gen("{\n"); ++deep; } }
          declar_de_subprogs
          sentencias
-         FINBLOQUE { vaciarEntradas(); --nTabs; gen("}\n\n") } ;
+         FINBLOQUE { vaciarEntradas(); --deep; gen("}\n\n") } ;
 
 declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE { gen("\n"); }
                             | %empty ;
@@ -790,23 +830,75 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
-sentencia_asignacion : ID ASIGN { gen("{\n"); ++nTabs; }
+sentencia_asignacion : ID ASIGN { gen("{\n"); ++deep; }
                         expresion PYC {
-                        comprobarAsignacion($1.lexema, $4.dtipo);
-                        gen("%s = %s;\n", $1.lexema, $4.lexema);
-                        --nTabs;
-                        gen("}\n");
+                          comprobarAsignacion($1.lexema, $4.dtipo);
+                          gen("%s = %s;\n", $1.lexema, $4.lexema);
+                          --deep;
+                          gen("}\n");
                        } ;
 
 sentencia_lista : expresion SHIFT PYC { sentenciaLista($1.dtipo, $2.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); }
                 | DOLLAR expresion PYC { sentenciaLista($2.dtipo, $1.lexema); gen("%s %s;\n", $1.lexema, $2.lexema); } ;
 
-sentencia_if : IF PARIZQ expresion PARDER sentencia bloque_else { expresionBooleana($3.dtipo); } ;
+sentencia_if : IF PARIZQ { gen("{\n"); ++deep; insertarDescriptor("", etiqueta(), etiqueta()); }
+                expresion {
+                    expresionBooleana($4.dtipo);
+                    gen("if (!%s) goto %s;\n", $4.lexema, ts[tope].descriptor->etiquetaElse);
+                  }
+                PARDER sentencia {
+                    DescriptorDeInstrControl* ds = ts[tope].descriptor;
+                    gen("goto %s;\n\n", ds->etiquetaSalida);
+                    gen("%s:\n", ds->etiquetaElse);
+                    ++deep;
+                  }
+                bloque_else {
+                    --deep;
+                    --deep;
+                    gen("}\n\n");
+                    gen("%s:\n", ts[tope].descriptor->etiquetaSalida);
+                    --tope;
+                  };
 
 bloque_else : ELSE sentencia
             | %empty ;
 
-sentencia_while : WHILE PARIZQ expresion PARDER sentencia { expresionBooleana($3.dtipo); } ;
+sentencia_while : WHILE PARIZQ {
+                      gen("{\n");
+                      ++deep;
+                      insertarDescriptor(etiqueta(), etiqueta(), "");
+                      gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
+                      ++deep;
+                    }
+                  expresion {
+                      expresionBooleana($4.dtipo);
+                      gen("if (!%s) goto %s;\n", $4.lexema, ts[tope].descriptor->etiquetaSalida);
+                    }
+                  PARDER sentencia {
+                      gen("goto %s;\n\n", ts[tope].descriptor->etiquetaEntrada);
+                      --deep;
+                      gen("%s:\n", ts[tope].descriptor->etiquetaSalida);
+                      --deep;
+                      gen("}\n");
+                      --tope;
+                    } ;
+
+sentencia_do_until : DO {
+                          gen("{\n");
+                          ++deep;
+                          insertarDescriptor(etiqueta(), "", "");
+                          gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
+                          ++deep;
+                        }
+                      sentencia UNTIL PARIZQ expresion {
+                          expresionBooleana($6.dtipo);
+                          gen("if (!%s) goto %s;\n", $6.lexema, ts[tope].descriptor->etiquetaEntrada);
+                          --deep;
+                          --deep;
+                          gen("}\n");
+                          --tope;
+                        }
+                      PARDER PYC ;
 
 sentencia_entrada : CIN lista_id PYC { gen("printf()"); };
 
@@ -824,13 +916,11 @@ lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
 expresion_cadena : expresion
                  | CADENA ;
 
-sentencia_do_until : DO sentencia UNTIL PARIZQ expresion PARDER PYC { expresionBooleana($5.dtipo); };
-
-sentencia_return : RETURN {gen("{\n"); ++nTabs; }
+sentencia_return : RETURN {gen("{\n"); ++deep; }
                     expresion PYC {
                       comprobarReturn($3.dtipo);
                       gen("return %s;\n", $3.lexema);
-                      --nTabs;
+                      --deep;
                       gen("}\n");
                     } ;
 
