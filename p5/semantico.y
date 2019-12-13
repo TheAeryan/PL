@@ -658,7 +658,6 @@ int hayError = 0;
 int deep = 0;
 FILE * fMain;
 FILE * fFunc;
-FILE * fDat;
 
 #define addTab() { for (int i = 0; i < deep - (yyout != fMain); ++i) fprintf(yyout, "\t"); }
 #define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
@@ -992,14 +991,12 @@ void yyerror(const char *msg){
 int main(){
   fMain = fopen("prog.c", "w");
   fFunc = fopen("dec_fun", "w");
-  fDat = fopen("dec_dat", "w");
 
   yyout = fMain ;
   yyparse();
 
   fclose(fMain);
   fclose(fFunc);
-  fclose(fDat);
-
+  
   return 0;
 }
