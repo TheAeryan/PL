@@ -944,7 +944,7 @@ sentencia_if : IF PARIZQ { insertarDescriptor("", etiqueta(), etiqueta()); }
 
 bloque_else : ELSE { gen("\n"); gen("{\n"); ++deep; }
                 sentencia { --deep; gen("}\n"); }
-            | %empty { gen(" {}\n"); } ;
+            | %empty { int aux = deep; deep = 0; gen(" {}\n"); deep = aux; } ;
 
 sentencia_while : WHILE PARIZQ {
                       insertarDescriptor(etiqueta(), etiqueta(), "");
