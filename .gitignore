@@ -3,6 +3,10 @@
 
 */prueba
 */traductor
+*/*.out
+*/dec_dat
+*/dec_fun
+p5/*.c
 
 */lex.yy.c
 

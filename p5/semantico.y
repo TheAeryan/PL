@@ -656,9 +656,11 @@ TipoDato comprobarFuncion(char* id) {
 
 int hayError = 0;
 int deep = 0;
-int prof = 0;
+FILE * fMain;
+FILE * fFunc;
+FILE * fDat;
 
-#define addTab() { for (int i = 0; i < deep; ++i) fprintf(yyout, "\t"); }
+#define addTab() { for (int i = 0; i < deep - (yyout != fMain); ++i) fprintf(yyout, "\t"); }
 #define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
 
 char* temporal() {
@@ -752,11 +754,24 @@ char* tipoIntermedio(TipoDato td) {
 %precedence INTHASH EXCL
 %%
 
-programa : MAIN bloque ;
+programa : MAIN {
+              gen("#include <stdlib.h>\n");
+              gen("#include <stdio.h>\n");
+              gen("#include \"dec_fun\"\n");
+              gen("#include \"dec_dat\"\n\n");
+            }
+          bloque ;
 
 bloque : INIBLOQUE { insertarMarca(); if (deep > 0) { gen("{\n"); ++deep; } }
-         declar_de_variables_locales { if (deep == 0) { gen("int main()\n"); gen("{\n"); ++deep; } }
-         declar_de_subprogs
+         declar_de_variables_locales {
+           if (deep == 0) {
+             gen("int main()\n");
+             gen("{\n");
+             ++deep;
+             yyout = fFunc;
+            }
+          }
+         declar_de_subprogs { if (deep == 1) yyout = fMain; }
          sentencias
          FINBLOQUE { vaciarEntradas(); --deep; gen("}\n\n") } ;
 
@@ -772,7 +787,7 @@ cuerpo_declar_variables : TIPO { tipoTmp = $1.dtipo; }
 
 lista_variables : ID COMA lista_variables {
                     insertarVariable($1.lexema);
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
                     sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                   }
                 | ID { insertarVariable($1.lexema); $$.lexema = $1.lexema; } ;
@@ -793,14 +808,14 @@ cabecera_argumentos : parametros { $$.lexema = $1.lexema; }
                     | error ;
 
 parametros : parametros COMA parametro {
-                $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
                 sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
               }
             | parametro { $$.lexema = $1.lexema; } ;
 
 parametro : TIPO ID {
               insertarParametro($1.dtipo, $2.lexema);
-              $$.lexema = malloc(sizeof($1.lexema) + sizeof($2.lexema) + 2);
+              $$.lexema = malloc(sizeof($1.lexema) + sizeof($2.lexema) + 10);
               sprintf($$.lexema, "%s %s", tipoIntermedio($1.dtipo), $2.lexema);
             } ;
 
@@ -838,13 +853,15 @@ sentencia_if : IF PARIZQ { gen("{\n"); ++deep; insertarDescriptor("", etiqueta()
                     DescriptorDeInstrControl* ds = ts[tope].descriptor;
                     gen("goto %s;\n\n", ds->etiquetaSalida);
                     gen("%s:\n", ds->etiquetaElse);
+                    gen("{\n");
                     ++deep;
                   }
                 bloque_else {
                     --deep;
+                    gen("}\n");
                     --deep;
                     gen("}\n\n");
-                    gen("%s:\n", ts[tope].descriptor->etiquetaSalida);
+                    gen("%s: {} \n", ts[tope].descriptor->etiquetaSalida);
                     --tope;
                   };
 
@@ -856,6 +873,7 @@ sentencia_while : WHILE PARIZQ {
                       ++deep;
                       insertarDescriptor(etiqueta(), etiqueta(), "");
                       gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
+                      gen("{\n");
                       ++deep;
                     }
                   expresion {
@@ -865,9 +883,10 @@ sentencia_while : WHILE PARIZQ {
                   PARDER sentencia {
                       gen("goto %s;\n\n", ts[tope].descriptor->etiquetaEntrada);
                       --deep;
-                      gen("%s:\n", ts[tope].descriptor->etiquetaSalida);
+                      gen("}\n");
                       --deep;
                       gen("}\n");
+                      gen("%s: {}\n", ts[tope].descriptor->etiquetaSalida);
                       --tope;
                     } ;
 
@@ -891,7 +910,7 @@ sentencia_do_until : DO {
 sentencia_entrada : CIN lista_id PYC { gen("printf()"); };
 
 lista_id : lista_id COMA ID {
-              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
               sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
             }
          | ID { $$.lexema = $1.lexema; };
@@ -933,7 +952,7 @@ expresion : PARIZQ expresion PARDER                  { $$.lexema = $2.lexema; $$
 
 llamada_funcion : ID PARIZQ argumentos PARDER {
                     $$.dtipo = comprobarFuncion($1.lexema);
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
                     sprintf($$.lexema, "%s(%s)", $1.lexema, $3.lexema);
                 } ;
 
@@ -941,7 +960,7 @@ argumentos : lista_argumentos
            | %empty ;
 
 lista_argumentos : lista_argumentos COMA expresion {
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 3);
+                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
                     sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                     argumentos_tipo_datos[n_argumentos] = $3.dtipo;
                     n_argumentos++;
@@ -971,8 +990,16 @@ void yyerror(const char *msg){
 }
 
 int main(){
+  fMain = fopen("prog.c", "w");
+  fFunc = fopen("dec_fun", "w");
+  fDat = fopen("dec_dat", "w");
+
+  yyout = fMain ;
   yyparse();
-  yyout = stdout;
+
+  fclose(fMain);
+  fclose(fFunc);
+  fclose(fDat);
 
   return 0;
 }

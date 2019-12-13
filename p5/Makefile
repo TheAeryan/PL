@@ -10,14 +10,14 @@ lex.yy.c: lexico.l
 	flex lexico.l
 
 limpia:
-	rm -f traductor y.tab.c lex.yy.c y.output y.tab.h
+	rm -f traductor y.tab.c lex.yy.c y.output y.tab.h a.out dec_dat dec_fun prog.c
 
 todo:
 	make --no-print-directory limpia
 	make --no-print-directory traductor
 
 # Test
-test_programita: todo
+test: todo
 	./traductor < ../pruebas/programa_correcto.prog
 
 test_sintactico: todo
