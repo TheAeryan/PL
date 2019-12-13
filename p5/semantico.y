@@ -700,18 +700,6 @@ char* tipoIntermedio(TipoDato td) {
     return tipoAString(td);
 }
 
-DescriptorDeInstrControl* buscarDescriptor() {
-  int i = tope;
-  while (i >= 0 && ts[i].tipoEntrada != descriptor)
-    --i;
-  if (i < 0) {
-    sprintf(msgError, "ERROR INTERMEDIO: No se ha encontrado ningún descriptor.\n");
-    yyerror(msgError);
-    return NULL;
-  }
-  return ts[i].descriptor;
-}
-
 #define YYSTYPE Atributos
 %}
 
