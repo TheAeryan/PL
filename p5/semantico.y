@@ -150,17 +150,17 @@ TipoDato aTipoLista(TipoDato td) {
   }
 }
 
-char* tipoOp(TipoDato td, char * op) {
+TipoDato tipoOp(TipoDato td, char * op) {
   if (!strcmp(op, "+") || !strcmp(op, "-") || !strcmp(op, "*") || !strcmp(op, "/") ||
         !strcmp(op, "**") || !strcmp(op, "--") || !strcmp(op, "%"))
-    return tipoAString(td);
+    return td;
 
   if (!strcmp(op, "!") || !strcmp(op, "&&") || !strcmp(op, "||") || !strcmp(op, ">") || !strcmp(op, "?") ||
         !strcmp(op, "<") || !strcmp(op, ">=") || !strcmp(op, "<=") || !strcmp(op, "!=") || !strcmp(op, "=="))
-    return "int";
+    return entero;
 
   if (!strcmp(op, "#") || !strcmp(op, "@"))
-    return tipoAString(tipoLista(td));
+    return tipoLista(td);
 }
 
 int esLista(TipoDato tipo_dato){
@@ -676,13 +676,21 @@ char* etiqueta() {
   return etiqueta;
 }
 
+char* tipoIntermedio(TipoDato td) {
+  if (esLista(td))
+    return "Lista";
+  else if (td == booleano)
+    return "int";
+  else
+    return tipoAString(td);
+}
+
 char* leerOp(TipoDato td, char* exp1, char* op, char* exp2) {
   char* etiqueta = temporal();
-  gen("%s %s;\n", tipoOp(td, op), etiqueta);
+  gen("%s %s;\n", tipoIntermedio(tipoOp(td, op)), etiqueta);
   gen("%s = %s %s %s;\n", etiqueta, exp1, op, exp2);
   return etiqueta;
 }
-
 
 char* leerCte(char* cte, int atr) {
   if (atr == 3) {
@@ -694,11 +702,24 @@ char* leerCte(char* cte, int atr) {
   return cte;
 }
 
-char* tipoIntermedio(TipoDato td) {
-  if (td == booleano)
-    return "int";
-  else
-    return tipoAString(td);
+char* insertarDato(char* id, TipoDato td) {
+  char* buffer = malloc(sizeof(char) * 100);
+  switch (td) {
+    case entero:
+    case booleano:
+      sprintf(buffer, "pInt(%s)", id);
+      return buffer;
+    case real:
+      sprintf(buffer, "pFloat(%s)", id);
+      return buffer;
+    case caracter:
+      sprintf(buffer, "pChar(%s)", id);
+      return buffer;
+    default:
+      sprintf(msgError, "ERROR INTERMEDIO: tipo no básico en insertarDato().\n");
+      yyerror(msgError);
+      return "";
+  }
 }
 
 #define YYSTYPE Atributos
@@ -971,12 +992,22 @@ lista_argumentos : lista_argumentos COMA expresion {
                   } ;
 
 constante : CONST { $$.lexema = leerCte($1.lexema, $1.atributo); $$.dtipo = $1.dtipo; }
-          | lista { $$.dtipo = $1.dtipo; } ;
+          | lista { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; } ;
 
-lista : CORIZQ lista_expresiones CORDER { $$.dtipo = aTipoLista($2.dtipo); } ;
+lista : CORIZQ lista_expresiones CORDER { $$.lexema = $2.lexema; $$.dtipo = aTipoLista($2.dtipo); } ;
 
-lista_expresiones : lista_expresiones COMA expresion { $$.dtipo = mismoTipoLista($1.dtipo, $3.dtipo);  }
-                  | expresion { $$.dtipo = $1.dtipo; };
+lista_expresiones : lista_expresiones COMA expresion {
+                      $$.lexema = $1.lexema;
+                      $$.dtipo = mismoTipoLista($1.dtipo, $3.dtipo);
+                      gen("insertar(%s, %s);\n", $$.lexema, insertarDato($3.lexema, $3.dtipo));
+                    }
+                  | expresion {
+                      $$.lexema = temporal();
+                      $$.dtipo = $1.dtipo;
+                      gen("Lista %s;\n", $$.lexema);
+                      gen("inicializar(%s);\n", $$.lexema);
+                      gen("insertar(%s, %s);\n", $$.lexema, insertarDato($1.lexema, $1.dtipo));
+                    } ;
 
 %%
 

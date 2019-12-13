@@ -7,9 +7,11 @@ typedef struct {
   int tam;
   int capacidad;
   int cursor;
-} Lista;
+} VecDin;
 
-void redimensionar(Lista* l, int capacidad) {
+typedef VecDin* Lista;
+
+void redimensionar(Lista l, int capacidad) {
   void** datos = realloc(l->datos, sizeof(void*) * capacidad);
   if (datos) {
     l->datos = datos;
@@ -17,7 +19,7 @@ void redimensionar(Lista* l, int capacidad) {
   }
 }
 
-void insertar(Lista* l, void* dato) {
+void insertar(Lista l, void* dato) {
   if (l->capacidad == l->tam)
     redimensionar(l, l->capacidad * 2);
   l->datos[l->tam++] = dato;
@@ -25,7 +27,7 @@ void insertar(Lista* l, void* dato) {
     l->cursor = 0;
 }
 
-void inicializar(Lista* l) {
+void inicializar(Lista l) {
   l->tam = 0;
   l->capacidad = 4;
   l->cursor = -1;
@@ -33,51 +35,51 @@ void inicializar(Lista* l) {
 }
 
 // Operador #
-int getTam(Lista* l) {
+int getTam(Lista l) {
   return l->tam;
 }
 
 // Operador >>
-void avanza(Lista* l) {
+void avanza(Lista l) {
   if (l->tam >= 0) {
     if (l->cursor + 1 < l->tam)
       l->cursor++;
     else
-      fprintf(stderr, "ERROR avanza(): cursor ya está en el final.\n");
+      fprintf(stderr, "ERROR avanza(): cursor ya está en el final->\n");
   } else
-      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
+      fprintf(stderr, "ERROR avanza(): lista vacía->\n");
 }
 
 // Operador <<
-void retrocede(Lista* l) {
+void retrocede(Lista l) {
   if (l->tam >= 0) {
     if (l->cursor - 1 >= 0)
       l->cursor--;
     else
-      fprintf(stderr, "ERROR retrocede(): cursor ya está al principio.\n");
+      fprintf(stderr, "ERROR retrocede(): cursor ya está al principio->\n");
   } else
-      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
+      fprintf(stderr, "ERROR avanza(): lista vacía->\n");
 }
 
 // Operador $
-void inicio(Lista* l) {
+void inicio(Lista l) {
   if (l->tam >= 0) {
     l->cursor = 0;
   } else
-      fprintf(stderr, "ERROR inicio(): lista vacía.\n");
+      fprintf(stderr, "ERROR inicio(): lista vacía->\n");
 
 }
 
 // Operador ?
-void* getActual(Lista* l) {
+void* getActual(Lista l) {
   if (l->cursor < 0) {
-    fprintf(stderr, "ERROR getActual(): la lista está vacía.\n");
+    fprintf(stderr, "ERROR getActual(): la lista está vacía->\n");
     return NULL;
   }
   return l->datos[l-> cursor];
 }
 
-void set(Lista* l, int pos, void* dato) {
+void set(Lista l, int pos, void* dato) {
   if (pos >= 0 && pos < l->tam)
     l->datos[pos] = dato;
   else
@@ -85,7 +87,7 @@ void set(Lista* l, int pos, void* dato) {
 }
 
 // Operador @
-void* get(Lista* l, int pos) {
+void* get(Lista l, int pos) {
   if (pos >= 0 && pos < l->tam)
     return l->datos[pos];
   else
@@ -93,7 +95,7 @@ void* get(Lista* l, int pos) {
   return NULL;
 }
 
-void borrar(Lista* l, int pos) {
+void borrar(Lista l, int pos) {
   if (pos < 0 || pos >= l->tam) {
     fprintf(stderr, "ERROR: borrar(): %s pos no válida, tam: %s\n", pos, l->tam);
     return;
@@ -114,10 +116,10 @@ void borrar(Lista* l, int pos) {
     redimensionar(l, l->capacidad / 2);
 }
 
-Lista* copiar(Lista* l) {
-  Lista* nueva = malloc(sizeof(Lista));
+Lista copiar(Lista l, int pos) {
+  Lista nueva = malloc(sizeof(VecDin));
   inicializar(nueva);
-  for (int i = 0; i < l->tam; ++i) {
+  for (int i = 0; i < pos; ++i) {
     void* aux = malloc(sizeof(void));
     memcpy(aux, l->datos[i], sizeof(void*));
     insertar(nueva, aux);
@@ -127,33 +129,20 @@ Lista* copiar(Lista* l) {
 }
 
 // Operador --
-Lista* borrarCopia(Lista* l, int pos) {
-  Lista* nueva = copiar(l);
+Lista borrarCopia(Lista l, int pos) {
+  Lista nueva = copiar(l, l->tam);
   borrar(nueva, pos);
   return nueva;
 }
 
 // Operador %
-Lista* borrarAPartirDe(Lista* l, int pos) {
-  Lista* nueva = malloc(sizeof(Lista));
-  inicializar(nueva);
-  for (int i = 0; i <= pos; ++i) {
-    void* aux = malloc(sizeof(void));
-    memcpy(aux, l->datos[i], sizeof(void*));
-    insertar(nueva, aux);
-  }
-  return nueva;
+Lista borrarAPartirDe(Lista l, int pos) {
+  return copiar(l, pos + 1);
 }
 
-// Operador ++
-Lista* insertarEnCopia(Lista* l, int pos, void* dato) {
-  Lista* nueva = malloc(sizeof(Lista));
-  inicializar(nueva);
-  for (int i = 0; i < pos; ++i) {
-    void* aux = malloc(sizeof(void));
-    memcpy(aux, l->datos[i], sizeof(void*));
-    insertar(nueva, aux);
-  }
+// Operador ++ @
+Lista insertarEnCopia(Lista l, int pos, void* dato) {
+  Lista nueva = copiar(l, pos);
   insertar(nueva, dato);
   for (int i = pos; i < l->tam; ++i) {
     void* aux = malloc(sizeof(void));
@@ -164,14 +153,8 @@ Lista* insertarEnCopia(Lista* l, int pos, void* dato) {
 }
 
 // Operador **
-Lista* concatenar(Lista* l1, Lista* l2) {
-  Lista* nueva = malloc(sizeof(Lista));
-  inicializar(nueva);
-  for (int i = 0; i < l1->tam; ++i) {
-    void* aux = malloc(sizeof(void));
-    memcpy(aux, l1->datos[i], sizeof(void*));
-    insertar(nueva, aux);
-  }
+Lista concatenar(Lista l1, Lista l2) {
+  Lista nueva = copiar(l1, l1->tam);
   for (int i = 0; i < l2->tam; ++i) {
     void* aux = malloc(sizeof(void));
     memcpy(aux, l2->datos[i], sizeof(void*));
@@ -180,9 +163,31 @@ Lista* concatenar(Lista* l1, Lista* l2) {
   return nueva;
 }
 
-void destruir(Lista* l) {
+void destruir(Lista l) {
   free(l->datos);
   l->tam = 0;
   l->capacidad = 0;
   l->cursor = -1;
+}
+
+int* pInt(int n) {
+  int* p = malloc(sizeof(int));
+  *p = n;
+  return p;
+}
+
+char* pChar(char c) {
+  char* p = malloc(sizeof(char));
+  *p = c;
+  return p;
+}
+
+float* pFloat(float f) {
+  float* p = malloc(sizeof(float));
+  *p = f;
+  return p;
+}
+
+int main() {
+
 }
