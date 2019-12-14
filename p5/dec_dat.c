@@ -2,15 +2,38 @@
 #include<stdlib.h>
 #include<string.h>
 
+#define error(f_, ...) { fprintf(stderr, f_, ##__VA_ARGS__); fflush(stderr); exit(EXIT_FAILURE); }
+
+typedef enum {
+  tInt,
+  tFloat,
+  tChar
+} TipoLista;
+
+union num {
+  int entero;
+  float real;
+};
+
 typedef struct {
   void** datos;
   int tam;
   int capacidad;
   int cursor;
-  int tipo;
+  TipoLista tipo;
 } VecDin;
 
 typedef VecDin* Lista;
+
+Lista inicializar(TipoLista tipo) {
+  Lista l = malloc(sizeof(VecDin));
+  l->tam = 0;
+  l->capacidad = 4;
+  l->cursor = -1;
+  l->tipo = tipo;
+  l->datos = malloc(sizeof(void *) * l->capacidad);
+  return l;
+}
 
 void redimensionar(Lista l, int capacidad) {
   void** datos = realloc(l->datos, sizeof(void*) * capacidad);
@@ -28,23 +51,6 @@ void insertar(Lista l, void* dato) {
     l->cursor = 0;
 }
 
-/*
-  List Type
-  int   = 0
-  float = 1
-  char  = 2
-*/
-
-Lista inicializar(int tipo) {
-  Lista l = malloc(sizeof(VecDin));
-  l->tam = 0;
-  l->capacidad = 4;
-  l->cursor = -1;
-  l->tipo = tipo;
-  l->datos = malloc(sizeof(void *) * l->capacidad);
-  return l;
-}
-
 // Operador #
 int getTam(Lista l) {
   return l->tam;
@@ -55,10 +61,12 @@ void avanza(Lista l) {
   if (l->tam >= 0) {
     if (l->cursor + 1 < l->tam)
       l->cursor++;
-    else
-      fprintf(stderr, "ERROR avanza(): cursor ya está en el final.\n");
-  } else
-      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
+    else {
+      error("ERROR avanza(): cursor ya está en el final.\n");
+    }
+  } else {
+      error("ERROR avanza(): lista vacía.\n");
+    }
 }
 
 // Operador <<
@@ -66,26 +74,27 @@ void retrocede(Lista l) {
   if (l->tam >= 0) {
     if (l->cursor - 1 >= 0)
       l->cursor--;
-    else
-      fprintf(stderr, "ERROR retrocede(): cursor ya está al principio.\n");
-  } else
-      fprintf(stderr, "ERROR avanza(): lista vacía.\n");
+    else {
+      error("ERROR retrocede(): cursor ya está al principio.\n");
+    }
+  } else {
+      error("ERROR avanza(): lista vacía.\n");
+    }
 }
 
 // Operador $
 void inicio(Lista l) {
   if (l->tam >= 0) {
     l->cursor = 0;
-  } else
-      fprintf(stderr, "ERROR inicio(): lista vacía.\n");
-
+  } else {
+      error("ERROR inicio(): lista vacía.\n");
+    }
 }
 
 // Operador ?
 void* getActual(Lista l) {
   if (l->cursor < 0) {
-    fprintf(stderr, "ERROR getActual(): la lista está vacía.\n");
-    return NULL;
+    error("ERROR getActual(): la lista está vacía.\n");
   }
   return l->datos[l-> cursor];
 }
@@ -93,23 +102,23 @@ void* getActual(Lista l) {
 void set(Lista l, int pos, void* dato) {
   if (pos >= 0 && pos < l->tam)
     l->datos[pos] = dato;
-  else
-    fprintf(stderr, "ERROR: set(): %s pos no válida, tam: %s.\n", pos, l->tam);
+  else {
+    error("ERROR: set(): %s pos no válida, tam: %s.\n", pos, l->tam);
+  }
 }
 
 // Operador @
 void* get(Lista l, int pos) {
   if (pos >= 0 && pos < l->tam)
     return l->datos[pos];
-  else
-    fprintf(stderr, "ERROR: get(): %s pos no válida, tam: %s.\n", pos, l->tam);
-  return NULL;
+  else {
+    error("ERROR: get(): %s pos no válida, tam: %s.\n", pos, l->tam);
+  }
 }
 
 void borrar(Lista l, int pos) {
   if (pos < 0 || pos >= l->tam) {
-    fprintf(stderr, "ERROR: borrar(): %s pos no válida, tam: %s.\n", pos, l->tam);
-    return;
+    error("ERROR: borrar(): %s pos no válida, tam: %s.\n", pos, l->tam);
   }
 
   l->datos[pos] = NULL;
@@ -130,7 +139,7 @@ void borrar(Lista l, int pos) {
 Lista copiar(Lista l, int pos) {
   Lista nueva = inicializar(l->tipo);
   for (int i = 0; i < pos; ++i) {
-    void* aux = malloc(sizeof(void));
+    void* aux = malloc(sizeof(void*));
     memcpy(aux, l->datos[i], sizeof(void*));
     insertar(nueva, aux);
   }
@@ -155,7 +164,7 @@ Lista insertarEn(Lista l, int pos, void* dato) {
   Lista nueva = copiar(l, pos);
   insertar(nueva, dato);
   for (int i = pos; i < l->tam; ++i) {
-    void* aux = malloc(sizeof(void));
+    void* aux = malloc(sizeof(void*));
     memcpy(aux, l->datos[i], sizeof(void*));
     insertar(nueva, aux);
   }
@@ -166,7 +175,7 @@ Lista insertarEn(Lista l, int pos, void* dato) {
 Lista concatenar(Lista l1, Lista l2) {
   Lista nueva = copiar(l1, l1->tam);
   for (int i = 0; i < l2->tam; ++i) {
-    void* aux = malloc(sizeof(void));
+    void* aux = malloc(sizeof(void*));
     memcpy(aux, l2->datos[i], sizeof(void*));
     insertar(nueva, aux);
   }
@@ -185,17 +194,18 @@ char* concat(const char *s1, const char *s2)
     return result;
 }
 
-char* listaAstring(Lista l){
-
+char* listaAstring(Lista l) {
   char* result = "[";
-  for(int i = 0; i < l->tam; ++i){
+  for (int i = 0; i < l->tam; ++i) {
     char* value = malloc(sizeof(char) * 10);
-    if(l->tipo == 0){
+    if (l->tipo == tInt) {
       sprintf(value, "%d", *(int*)l->datos[i]);
-    }else if(l->tipo == 1){
+    } else if (l->tipo == tFloat) {
       sprintf(value, "%f", *(float*)l->datos[i]);
-    }else if(l->tipo == 2){
+    } else if(l->tipo == tChar) {
       sprintf(value, "%c", *(char*)l->datos[i]);
+    } else {
+      error("ERROR en listaAstring(): tipo no válido");
     }
 
     result = concat(result, value);
@@ -203,7 +213,6 @@ char* listaAstring(Lista l){
   result = concat(result, "]");
 
   return result;
-
 }
 
 void destruir(Lista l) {
@@ -232,42 +241,42 @@ float* pFloat(float f) {
   return p;
 }
 
-void sumarListaInt(Lista l, int i) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pInt(*(int*)(l->datos[i]) + i);
+void sumarLista(Lista l, float n) {
+  if (l->tipo == tInt) {
+    for (int i = 0; i < l->tam; ++i)
+      *(int*)l->datos[i] = *(int*)l->datos[i] + (int) n;
+  } else if (l->tipo == tFloat) {
+    for (int i = 0; i < l->tam; ++i)
+      *(float*)l->datos[i] = *(float*)(l->datos[i]) + n;
+  }
 }
 
-void sumarListaFloat(Lista l, float f) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pFloat(*(float*)(l->datos[i]) + f);
+void multiplicarLista(Lista l, float n) {
+  if (l->tipo == tInt) {
+    for (int i = 0; i < l->tam; ++i)
+      *(int*)l->datos[i] = *(int*)l->datos[i] * (int) n;
+  } else if (l->tipo == tFloat) {
+    for (int i = 0; i < l->tam; ++i)
+      *(float*)l->datos[i] = *(float*)(l->datos[i]) * n;
+  }
 }
 
-void multiplicarListaInt(Lista l, int i) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pInt(*(int*)(l->datos[i]) * i);
+void restarLista(Lista l, float n) {
+  if (l->tipo == tInt) {
+    for (int i = 0; i < l->tam; ++i)
+      *(int*)l->datos[i] = *(int*)l->datos[i] - (int) n;
+  } else if (l->tipo == tFloat) {
+    for (int i = 0; i < l->tam; ++i)
+      *(float*)l->datos[i] = *(float*)(l->datos[i]) - n;
+  }
 }
 
-void multiplicarListaFloat(Lista l, float f) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pFloat(*(float*)(l->datos[i]) * f);
-}
-
-void dividirListaInt(Lista l, int i) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pInt(*(int*)(l->datos[i]) / i);
-}
-
-void dividirListaFloat(Lista l, float f) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pFloat(*(float*)(l->datos[i]) / f);
-}
-
-void restarListaInt(Lista l, int i) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pInt(*(int*)(l->datos[i]) - i);
-}
-
-void restarListaFloat(Lista l, float f) {
-  for (int i = 0; i < l->tam; ++i)
-    l->datos[i] = pFloat(*(float*)(l->datos[i]) - f);
+void dividirLista(Lista l, float n) {
+  if (l->tipo == tInt) {
+    for (int i = 0; i < l->tam; ++i)
+      *(int*)l->datos[i] = *(int*)l->datos[i] / (int) n;
+  } else if (l->tipo == tFloat) {
+    for (int i = 0; i < l->tam; ++i)
+      *(float*)l->datos[i] = *(float*)(l->datos[i]) / n;
+  }
 }

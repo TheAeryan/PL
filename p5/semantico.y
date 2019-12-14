@@ -663,6 +663,13 @@ int deep = 0;
 FILE * fMain;
 FILE * fFunc;
 
+typedef enum {
+  tInt,
+  tFloat,
+  tChar
+} TipoLista;
+
+
 #define addTab() { for (int i = 0; i < deep - (yyout != fMain); ++i) fprintf(yyout, "\t"); }
 #define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
 
@@ -692,12 +699,10 @@ char* tipoIntermedio(TipoDato td) {
 char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
   char* etiqueta = temporal();
   TipoDato tdPrimario = td1;
-  TipoDato tdSecundario = td2;
   char* expPrimaria = exp1;
   char* expSecundaria = exp2;
   if (esLista(td2) && (!strcmp("+", op) || !strcmp("*", op))) {
     tdPrimario = td2;
-    tdSecundario = td1;
     expPrimaria = exp2;
     expSecundaria = exp1;
   }
@@ -716,26 +721,14 @@ char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
   } else if (!strcmp("**", op)) {
     gen("concatenar(%s, %s);\n", exp1, exp2);
   } else if (esLista(tdPrimario)) {
-    if (tdSecundario == entero || tdSecundario == booleano) {
-      if (!strcmp("+", op)) {
-        gen("sumarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("-", op)) {
-        gen("restarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("*", op)) {
-        gen("multiplicarListaInt(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("/", op)) {
-        gen("dividirListaInt(%s, %s);\n", expPrimaria, expSecundaria);
-      }
-    } else if (tdSecundario == real) {
-      if (!strcmp("+", op)) {
-        gen("sumarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("-", op)) {
-        gen("restarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("*", op)) {
-        gen("multiplicarListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
-      } else if (!strcmp("/", op)) {
-        gen("dividirListaFloat(%s, %s);\n", expPrimaria, expSecundaria);
-      }
+    if (!strcmp("+", op)) {
+      gen("sumarLista(%s, %s);\n", expPrimaria, expSecundaria)
+    } else if (!strcmp("-", op)) {
+        gen("restarLista(%s, %s);\n", expPrimaria, expSecundaria);
+    } else if (!strcmp("*", op)) {
+      gen("multiplicarLista(%s, %s);\n", expPrimaria, expSecundaria);
+    } else if (!strcmp("/", op)) {
+      gen("dividirLista(%s, %s);\n", expPrimaria, expSecundaria);
     }
   } else if (!strcmp("", exp2)) {
     gen("%s = %s %s;\n", etiqueta, op, exp1);
@@ -786,7 +779,7 @@ char* SalidaEntrada(char* salida){
   l_cout[++l_p] = '\"';
   for(int i = 0; i < size; ++i){
     if(salida[i] == '"'){
-      salida[i] = '"'; 
+      salida[i] = '"';
       is_string = !is_string;
     }else if(!is_string){
       do{ l_cout[++l_p] = salida[i]; }while(salida[i++] != ' ');
@@ -820,13 +813,18 @@ char* SalidaEntradaTipo(TipoDato tipo){
   return "%s";
 }
 
-int inicializaTipoLista(TipoDato tipo){
+int inicializaTipoLista(TipoDato tipo) {
 
-  if(tipo == entero || tipo == booleano){ return 0; }
-  else if(tipo == real){ return 1; }
-  else if(tipo == caracter){ return 2; }
-
-  return 0;
+  if (tipo == entero || tipo == booleano)
+    return 0;
+  else if (tipo == real)
+    return 1;
+  else if (tipo == caracter)
+    return 2;
+  else {
+    sprintf(msgError, "ERROR INTERMEDIO: tipo no válido en inicializaTipoLista().\n");
+    yyerror(msgError);
+  }
 
 }
 
@@ -894,27 +892,18 @@ programa : MAIN {
 
 /************* BLOQUE (ABSTRACTO) *****************/
 
-bloque : INIBLOQUE { insertarMarca(); if (deep > 0) { gen("{\n"); ++deep; } }
-         declar_de_variables_locales {
-           if (deep == 0) {
-             gen("int main()\n");
-             gen("{\n");
-             ++deep;
-             yyout = fFunc;
-            }
-          }
-         declar_de_subprogs { if (deep == 1) yyout = fMain; }
-         sentencias
-         FINBLOQUE { vaciarEntradas(); --deep; gen("}\n\n") } ;
+bloque : INIBLOQUE { insertarMarca(); if (yyout == fMain && deep > 0) { gen("{\n"); ++deep; } }
+          declar_de_variables_locales { if (deep == 0) yyout = fFunc; }
+          declar_de_subprogs { if (deep == 0) { yyout = fMain; gen("int main()\n{\n"); ++deep; } }
+          sentencias
+          FINBLOQUE { vaciarEntradas(); --deep; gen("}\n\n"); } ;
 
 
 /************* DECLARACIÓN VARIABLES *****************/
 
-declar_de_variables_locales : LOCAL INIBLOQUE variables_locales_or_empty FINBLOQUE { gen("\n"); }
+declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE { gen("\n"); }
+                            | LOCAL INIBLOQUE FINBLOQUE { gen("\n"); }
                             | %empty ;
-
-variables_locales_or_empty : variables_locales
-                           | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
@@ -925,7 +914,7 @@ cuerpo_declar_variables : TIPO { tipoTmp = $1.dtipo; }
 
 lista_variables : ID COMA lista_variables {
                     insertarVariable($1.lexema);
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+                    $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
                     sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                   }
                 | ID { insertarVariable($1.lexema); $$.lexema = $1.lexema; } ;
@@ -947,14 +936,14 @@ cabecera_argumentos : parametros { $$.lexema = $1.lexema; }
                     | error ;
 
 parametros : parametros COMA parametro {
-                $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+                $$.lexema = malloc(strlen($1.lexema) + strlen($3.lexema) + 3);
                 sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
               }
             | parametro { $$.lexema = $1.lexema; } ;
 
 parametro : TIPO ID {
               insertarParametro($1.dtipo, $2.lexema);
-              $$.lexema = malloc(sizeof($1.lexema) + sizeof($2.lexema) + 10);
+              $$.lexema = malloc(strlen($1.lexema) + strlen($2.lexema) + 2);
               sprintf($$.lexema, "%s %s", tipoIntermedio($1.dtipo), $2.lexema);
             } ;
 
@@ -1076,40 +1065,40 @@ sentencia_do_until : DO {
 sentencia_entrada : CIN lista_id PYC { gen("scanf(%s);\n", SalidaEntrada($2.lexema)); };
 
 lista_id : lista_id COMA id_salida {
-              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+              $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
               sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
             }
          | id_salida { $$.lexema = $1.lexema; };
 
 id_salida : ID {
           char* tipo = SalidaEntradaTipo(buscarID($1.lexema));
-          $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
-          sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
+          $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 3));
+          sprintf($$.lexema, "%s &%s", tipo, $1.lexema);
         }
 
 /************* SALIDA *****************/
 sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(%s);\n", SalidaEntrada($2.lexema)); };
 
 lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena {
-                              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+                              $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
                               sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                             }
                            | expresion_cadena { $$.lexema = $1.lexema; } ;
 
 expresion_cadena : expresion {
-                    char* tipo = SalidaEntradaTipo($1.dtipo);
-                    $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
-                    if(esLista($1.dtipo)){
-                      sprintf($$.lexema, "%s listaAstring(%s)", tipo, $1.lexema);
-                    }else{
-                      sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
+                      char* tipo = SalidaEntradaTipo($1.dtipo);
+                      $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 16));
+                      if (esLista($1.dtipo)) {
+                        sprintf($$.lexema, "%s listaAstring(%s)", tipo, $1.lexema);
+                      } else {
+                        sprintf($$.lexema, "%s %s", tipo, $1.lexema);
+                      }
                     }
-                  }
                  | CADENA {
-                   char* tipo = SalidaEntradaTipo(cadena);
-                   $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
-                   sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
-                 } ;
+                      char* tipo = SalidaEntradaTipo(cadena);
+                      $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 2));
+                      sprintf($$.lexema, "%s %s", tipo, $1.lexema);
+                    } ;
 
 /************* RETURN *****************/
 sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); gen("return %s;\n", $2.lexema); } ;
@@ -1180,7 +1169,7 @@ expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo
 
 llamada_funcion : ID PARIZQ argumentos PARDER {
                     $$.dtipo = comprobarFuncion($1.lexema);
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+                    $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
                     sprintf($$.lexema, "%s(%s)", $1.lexema, $3.lexema);
                 } ;
 
@@ -1188,7 +1177,7 @@ argumentos : lista_argumentos { $$.lexema = $1.lexema; }
            | %empty { $$.lexema = ""; } ;
 
 lista_argumentos : lista_argumentos COMA expresion {
-                    $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
+                    $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
                     sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                     argumentos_tipo_datos[n_argumentos] = $3.dtipo;
                     n_argumentos++;
