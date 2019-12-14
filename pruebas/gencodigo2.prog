@@ -52,5 +52,7 @@ main  {
       cout " ", curr;
       if (cuenta > 1) cout "^ ", cuenta;
     }
+
+    cout "\n";
   }
 }
