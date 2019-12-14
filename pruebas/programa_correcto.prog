@@ -5,7 +5,7 @@ main
 		int	v,b,n,k;
 		float vf,s,d, f ;
 		char vc ;
-		bool v1 ;
+		bool v1, prueba ;
 		list_of int pe, pe2 ;
 		list_of  float pf, pf2 ;
 		list_of bool p1;
@@ -82,10 +82,22 @@ main
 		return 2;
  	}
 
+	v = 0;
+	b = 3;
 	do {
 		v = v + b;
-		vc = vc;
-	} until (true);
+	} until (v > 10);
+
+	cout "true o false?: ";
+	cin prueba;
+	cout prueba;
+
+	cout "A leer pe.";
+	cin pe;
+	cout "pe = ", pe;
+	cout "A leer p1";
+	cin p1;
+	cout p1;
 
 	pe = [2+funcionA(1, 1.0, 1.0)];
 	cout "pe = ", pe;

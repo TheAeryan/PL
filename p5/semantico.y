@@ -17,7 +17,7 @@ void yyerror( const char * msg );
 extern int yylineno;
 
 
-char msgError[256];
+char msgError[512];
 
 // Esto elimina un Warning, no debería cambiar nada más.
 int yylex();
@@ -733,8 +733,8 @@ char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
   return etiqueta;
 }
 
-char* leerCte(char* cte, int atr) {
-  if (atr == 3) {
+char* leerCte(char* cte, TipoDato td) {
+  if (td == booleano) {
     if (!strcmp("true", cte))
       return "1";
     else
@@ -770,12 +770,10 @@ char* tipoImprimir(TipoDato tipo) {
     return "%d";
   else if (tipo == real)
     return "%f";
-  else if (tipo == booleano || tipo == cadena)
+  else if (esLista(tipo) || tipo == booleano || tipo == cadena)
     return "%s";
   else if (tipo == caracter)
     return "%c";
-  else if (esLista(tipo))
-    return "%s";
   else {
     if (!hayError) {
       sprintf(msgError, "ERROR INTERMEDIO: tipoImprimir() tipo no válido.\n");
@@ -1027,7 +1025,7 @@ sentencia_do_until : DO {
                       UNTIL PARIZQ expresion {
                           expresionBooleana($7.dtipo);
                           gen("\n");
-                          gen("if (!%s) goto %s;\n", $7.lexema, ts[tope].descriptor->etiquetaEntrada);
+                          gen("if (%s) goto %s;\n", $7.lexema, ts[tope].descriptor->etiquetaEntrada);
                           --deep;
                           gen("}\n");
                           --tope;
@@ -1041,7 +1039,18 @@ sentencia_entrada : CIN lista_id PYC ;
 lista_id : lista_id COMA id_cin
          | id_cin ;
 
-id_cin : ID { gen("scanf(\"%s\", &%s);\n", tipoImprimir(buscarID($1.lexema)), $1.lexema); } ;
+id_cin : ID {
+            TipoDato td = buscarID($1.lexema);
+            if (td == booleano) {
+              gen("char aux[32];\n");
+              gen("scanf(\"%s\", aux);\n", "%s");
+              gen("%s = aInt(aux);\n", $1.lexema);
+            } else if (esLista(td)) {
+              gen("%s = leerLista(%s);\n", $1.lexema, inicializaTipoLista(tipoLista(td)));
+            } else {
+              gen("scanf(\"%s\", &%s);\n", tipoImprimir(td), $1.lexema);
+            }
+          } ;
 
 /************* SALIDA *****************/
 sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(\"\\n\");\n"); } ;
@@ -1055,6 +1064,9 @@ expresion_cadena : expresion {
                     if (esLista($1.dtipo)) {
                       $$.lexema = malloc(sizeof(char) * (15 + strlen($1.lexema)));
                       sprintf($$.lexema, "listaAString(%s)", $1.lexema);
+                    } else if ($1.dtipo == booleano) {
+                      $$.lexema = malloc(sizeof(char) * (8 + strlen($1.lexema)));
+                      sprintf($$.lexema, "aBool(%s)", $1.lexema);
                     } else
                       $$.lexema = $1.lexema;
                     $$.dtipo = $1.dtipo;
@@ -1150,7 +1162,7 @@ lista_argumentos : lista_argumentos COMA expresion {
                   } ;
 
 /************* CONSTANTES *****************/
-constante : CONST { $$.lexema = leerCte($1.lexema, $1.atributo); $$.dtipo = $1.dtipo; }
+constante : CONST { $$.lexema = leerCte($1.lexema, $1.dtipo); $$.dtipo = $1.dtipo; }
           | lista { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; } ;
 
 lista : CORIZQ lista_expresiones CORDER { $$.lexema = $2.lexema; $$.dtipo = aTipoLista($2.dtipo); } ;

@@ -21,6 +21,24 @@ typedef struct {
 
 typedef VecDin* Lista;
 
+int* pInt(int n) {
+  int* p = malloc(sizeof(int));
+  *p = n;
+  return p;
+}
+
+char* pChar(char c) {
+  char* p = malloc(sizeof(char));
+  *p = c;
+  return p;
+}
+
+float* pFloat(float f) {
+  float* p = malloc(sizeof(float));
+  *p = f;
+  return p;
+}
+
 Lista inicializar(TipoLista tipo) {
   Lista l = malloc(sizeof(VecDin));
   l->tam = 0;
@@ -200,6 +218,16 @@ char* aBool(int n) {
   }
 }
 
+int aInt(char* cad) {
+  if (!strcmp("true", cad))
+    return 1;
+  else if (!strcmp("false", cad))
+    return 0;
+  else {
+    error("ERROR en aInt(). no es true ni false.\n")
+  }
+}
+
 char* listaAString(Lista l) {
   char* result = "[";
   for (int i = 0; i < l->tam; ++i) {
@@ -225,30 +253,55 @@ char* listaAString(Lista l) {
   return result;
 }
 
+char* tipoAString(TipoLista tl) {
+  switch (tl) {
+    case tInt:
+      return "int";
+    case tFloat:
+      return "float";
+    case tBool:
+      return "bool";
+    case tChar:
+      return "char";
+  }
+}
+
+Lista leerLista(TipoLista tl) {
+  Lista l = inicializar(tl);
+  int tam;
+  printf("Tipo de lista: %s. Introduce tamaño: ", tipoAString(tl));
+  scanf("%d", &tam);
+  printf("Introduce los elementos: ");
+  fflush(stdin);
+  for (int i = 0; i < tam; ++i) {
+    if (tl == tInt) {
+      int aux;
+      scanf("%d", &aux);
+      insertar(l, pInt(aux));
+    } else if (tl == tFloat) {
+      float aux;
+      scanf("%f", &aux);
+      insertar(l, pFloat(aux));
+    } else if (tl == tChar) {
+      char aux;
+      scanf("%c", &aux);
+      insertar(l, pChar(aux));
+    } else if (tl == tBool) {
+      char aux[5];
+      scanf("%s", aux);
+      insertar(l, pInt(aInt(aux)));
+    }
+    fflush(stdin);
+  }
+  return l;
+}
+
 void destruir(Lista l) {
   free(l->datos);
   l->tam = 0;
   l->capacidad = 0;
   l->cursor = -1;
   l->tipo = -1;
-}
-
-int* pInt(int n) {
-  int* p = malloc(sizeof(int));
-  *p = n;
-  return p;
-}
-
-char* pChar(char c) {
-  char* p = malloc(sizeof(char));
-  *p = c;
-  return p;
-}
-
-float* pFloat(float f) {
-  float* p = malloc(sizeof(float));
-  *p = f;
-  return p;
 }
 
 Lista sumarLista(Lista l, float n) {
