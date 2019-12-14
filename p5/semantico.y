@@ -768,64 +768,36 @@ char* insertarDato(char* id, TipoDato td) {
   }
 }
 
-char* SalidaEntrada(char* salida){
-
-  int size = strlen(salida);
-  char* l_cout = malloc(size);
-  char* r_cout = malloc(size);
-
-  int is_string = 0;
-  int l_p = -1, r_p = -1;
-  l_cout[++l_p] = '\"';
-  for(int i = 0; i < size; ++i){
-    if(salida[i] == '"'){
-      salida[i] = '"';
-      is_string = !is_string;
-    }else if(!is_string){
-      do{ l_cout[++l_p] = salida[i]; }while(salida[i++] != ' ');
-      do{ r_cout[++r_p] = salida[i]; }while(salida[i++] != ',' && i <= size);
-    }else{
-      r_cout[++r_p] = salida[i];
-    }
-  }
-  l_cout[l_p] = '\"';
-  l_cout[++l_p] = ',';
-  l_cout[++l_p] = '\0';
-  r_cout[r_p] = '\0';
-
-  return strncat(l_cout, r_cout, size);
-}
-
-char* SalidaEntradaTipo(TipoDato tipo){
-
-  if(tipo == entero){
+char* tipoImprimir(TipoDato tipo) {
+  if (tipo == entero)
     return "%d";
-  }else if(tipo == real){
+  else if (tipo == real)
     return "%f";
-  }else if(tipo == booleano){
+  else if (tipo == booleano || tipo == cadena)
     return "%s";
-  }else if(tipo == caracter){
+  else if (tipo == caracter)
     return "%c";
-  }else if(tipo == cadena){
+  else if (esLista(tipo))
     return "%s";
+  else {
+    sprintf(msgError, "ERROR INTERMEDIO: tipoImprimir() tipo no válido.\n");
+    yyerror(msgError);
+    exit(EXIT_FAILURE);
   }
-
-  return "%s";
 }
 
 int inicializaTipoLista(TipoDato tipo) {
-
   if (tipo == entero || tipo == booleano)
-    return 0;
+    return tInt;
   else if (tipo == real)
-    return 1;
+    return tFloat;
   else if (tipo == caracter)
-    return 2;
+    return tChar;
   else {
     sprintf(msgError, "ERROR INTERMEDIO: tipo no válido en inicializaTipoLista().\n");
     yyerror(msgError);
+    exit(EXIT_FAILURE);
   }
-
 }
 
 #define YYSTYPE Atributos
@@ -888,7 +860,6 @@ programa : MAIN {
               gen("#include \"dec_dat.c\"\n\n");
             }
           bloque ;
-
 
 /************* BLOQUE (ABSTRACTO) *****************/
 
@@ -1062,43 +1033,30 @@ sentencia_do_until : DO {
 
 
 /************* ENTRADA *****************/
-sentencia_entrada : CIN lista_id PYC { gen("scanf(%s);\n", SalidaEntrada($2.lexema)); };
+sentencia_entrada : CIN lista_id PYC ;
 
-lista_id : lista_id COMA id_salida {
-              $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
-              sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
-            }
-         | id_salida { $$.lexema = $1.lexema; };
+lista_id : lista_id COMA id_cin
+         | id_cin ;
 
-id_salida : ID {
-          char* tipo = SalidaEntradaTipo(buscarID($1.lexema));
-          $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 3));
-          sprintf($$.lexema, "%s &%s", tipo, $1.lexema);
-        }
+id_cin : ID { gen("scanf(\"%s\", &%s);\n", tipoImprimir(buscarID($1.lexema)), $1.lexema); } ;
 
 /************* SALIDA *****************/
-sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(%s);\n", SalidaEntrada($2.lexema)); };
+sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
 
-lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena {
-                              $$.lexema = malloc(sizeof(char) * (strlen($1.lexema) + strlen($3.lexema) + 3));
-                              sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
-                            }
-                           | expresion_cadena { $$.lexema = $1.lexema; } ;
+lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cout
+                           | expresion_cout ;
+
+expresion_cout: expresion_cadena { gen("printf(\"%s\", %s);\n", tipoImprimir($1.dtipo), $1.lexema); } ;
 
 expresion_cadena : expresion {
-                      char* tipo = SalidaEntradaTipo($1.dtipo);
-                      $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 16));
-                      if (esLista($1.dtipo)) {
-                        sprintf($$.lexema, "%s listaAstring(%s)", tipo, $1.lexema);
-                      } else {
-                        sprintf($$.lexema, "%s %s", tipo, $1.lexema);
-                      }
-                    }
-                 | CADENA {
-                      char* tipo = SalidaEntradaTipo(cadena);
-                      $$.lexema = malloc(sizeof(char) * (strlen(tipo) + strlen($1.lexema) + 2));
-                      sprintf($$.lexema, "%s %s", tipo, $1.lexema);
-                    } ;
+                    if (esLista($1.dtipo)) {
+                      $$.lexema = malloc(sizeof(char) * (15 + strlen($1.lexema)));
+                      sprintf($$.lexema, "listaAString(%s)", $1.lexema);
+                    } else
+                      $$.lexema = $1.lexema;
+                    $$.dtipo = $1.dtipo;
+                  }
+                 | CADENA { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; } ;
 
 /************* RETURN *****************/
 sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); gen("return %s;\n", $2.lexema); } ;

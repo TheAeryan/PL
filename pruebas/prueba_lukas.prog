@@ -1,9 +1,10 @@
 main{
+  {
     local {
       float n;
       char a;
     }
     cout n, a;
     cin n, a;
-    
+  }  
 }

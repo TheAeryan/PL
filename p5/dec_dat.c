@@ -10,11 +10,6 @@ typedef enum {
   tChar
 } TipoLista;
 
-union num {
-  int entero;
-  float real;
-};
-
 typedef struct {
   void** datos;
   int tam;
@@ -194,7 +189,7 @@ char* concat(const char *s1, const char *s2)
     return result;
 }
 
-char* listaAstring(Lista l) {
+char* listaAString(Lista l) {
   char* result = "[";
   for (int i = 0; i < l->tam; ++i) {
     char* value = malloc(sizeof(char) * 10);
