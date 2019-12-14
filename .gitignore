@@ -9,7 +9,7 @@
 */*.out
 */dec_fun.c
 */prog.c
-
+*.exe
 */lex.yy.c
 
 */y.output
