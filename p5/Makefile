@@ -10,7 +10,7 @@ lex.yy.c: lexico.l
 	flex lexico.l
 
 limpia:
-	rm -f traductor y.tab.c lex.yy.c y.output y.tab.h a.out dec_fun.c prog.c gencodigo1 gencodigo2 programa_correcto
+	rm -f traductor y.tab.c lex.yy.c y.output y.tab.h a.out dec_fun.c prog.c gencodigo1 gencodigo2 programa_correcto prueba_lukas
 
 todo:
 	make --no-print-directory limpia
@@ -37,3 +37,5 @@ generacion2: todo
 
 lukas: todo
 	./traductor < ../pruebas/prueba_lukas.prog
+	gcc prog.c -o prueba_lukas
+	./prueba_lukas
