@@ -49,6 +49,7 @@ typedef enum {
   real,
   booleano,
   caracter,
+  cadena, // Dato reservado a cadenas, no se puede declarar
   listaEntero,
   listaReal,
   listaBooleano,
@@ -328,7 +329,7 @@ void comprobarAsignacion(char* id, TipoDato td) {
     } else {
       if (td != error && td != ts[i].tipoDato) {
         sprintf(msgError, "ERROR SINTÁCTICO: asignación incorrecta, %s es tipo %s y se obtuvo %s\n",
-            id, tipoAString(td), tipoAString(td));
+            id, tipoAString(td), tipoAString(ts[i].tipoDato));
         yyerror(msgError);
       }
     }
@@ -774,6 +775,61 @@ char* insertarDato(char* id, TipoDato td) {
   }
 }
 
+char* SalidaCout(char* salida){
+
+  int size = strlen(salida);
+  char* l_cout = malloc(size);
+  char* r_cout = malloc(size);
+
+  int is_string = 0;
+  int l_p = -1, r_p = -1;
+  l_cout[++l_p] = '\"';
+  for(int i = 0; i < size; ++i){
+    if(salida[i] == '"'){
+      salida[i] = '"'; 
+      is_string = !is_string;
+    }else if(!is_string){
+      do{ l_cout[++l_p] = salida[i]; }while(salida[i++] != ' ');
+      do{ r_cout[++r_p] = salida[i]; }while(salida[i++] != ',' && i <= size);
+    }else{
+      r_cout[++r_p] = salida[i];
+    }
+  }
+  l_cout[l_p] = '\"';
+  l_cout[++l_p] = ',';
+  l_cout[++l_p] = '\0';
+  r_cout[r_p] = '\0';
+
+  return strncat(l_cout, r_cout, size);
+}
+
+char* SalidaCoutTipo(TipoDato tipo){
+
+  if(tipo == entero){
+    return "%d";
+  }else if(tipo == real){
+    return "%f";
+  }else if(tipo == booleano){
+    return "%s";
+  }else if(tipo == caracter){
+    return "%c";
+  }else if(tipo == cadena){
+    return "%s";
+  }
+
+  return "%s";
+}
+
+int inicializaTipoLista(TipoDato tipo){
+
+  if(tipo == entero || tipo == booleano){ return 0; }
+  else if(tipo == real){ return 1; }
+  else if(tipo == caracter){ return 2; }
+
+  return 0;
+
+}
+
 #define YYSTYPE Atributos
 %}
 
@@ -826,6 +882,7 @@ char* insertarDato(char* id, TipoDato td) {
 %precedence INTHASH EXCL
 %%
 
+/************* MAIN *****************/
 programa : MAIN {
               gen("#include <stdlib.h>\n");
               gen("#include <stdio.h>\n");
@@ -833,6 +890,9 @@ programa : MAIN {
               gen("#include \"dec_dat.c\"\n\n");
             }
           bloque ;
+
+
+/************* BLOQUE (ABSTRACTO) *****************/
 
 bloque : INIBLOQUE { insertarMarca(); if (deep > 0) { gen("{\n"); ++deep; } }
          declar_de_variables_locales {
@@ -847,8 +907,14 @@ bloque : INIBLOQUE { insertarMarca(); if (deep > 0) { gen("{\n"); ++deep; } }
          sentencias
          FINBLOQUE { vaciarEntradas(); --deep; gen("}\n\n") } ;
 
-declar_de_variables_locales : LOCAL INIBLOQUE variables_locales FINBLOQUE { gen("\n"); }
+
+/************* DECLARACIÓN VARIABLES *****************/
+
+declar_de_variables_locales : LOCAL INIBLOQUE variables_locales_or_empty FINBLOQUE { gen("\n"); }
                             | %empty ;
+
+variables_locales_or_empty : variables_locales
+                           | %empty ;
 
 variables_locales : variables_locales cuerpo_declar_variables
                   | cuerpo_declar_variables ;
@@ -864,6 +930,7 @@ lista_variables : ID COMA lista_variables {
                   }
                 | ID { insertarVariable($1.lexema); $$.lexema = $1.lexema; } ;
 
+/************* SUBPROGRAMA *****************/
 declar_de_subprogs : declar_de_subprogs declar_subprog
                    | %empty ;
 
@@ -891,8 +958,11 @@ parametro : TIPO ID {
               sprintf($$.lexema, "%s %s", tipoIntermedio($1.dtipo), $2.lexema);
             } ;
 
+
+/************* SENTENCIAS *****************/
 sentencias : sentencias {gen("{\n"); ++deep; } sentencia { --deep; gen("}\n"); }
            | %empty ;
+
 
 sentencia : bloque
           | expresion PYC
@@ -905,10 +975,16 @@ sentencia : bloque
           | sentencia_do_until
           | sentencia_return ;
 
+
+/************* ASIGNACIÓN *****************/
+
 sentencia_asignacion : ID ASIGN expresion PYC {
                           comprobarAsignacion($1.lexema, $3.dtipo);
                           gen("%s = %s;\n", $1.lexema, $3.lexema);
                        } ;
+
+
+/************* LISTA AVANZAR, RETROCEDER, INICIO *****************/
 
 sentencia_lista : expresion SHIFT PYC {
                       sentenciaLista($1.dtipo, $2.lexema);
@@ -922,6 +998,9 @@ sentencia_lista : expresion SHIFT PYC {
                       sentenciaLista($2.dtipo, $1.lexema);
                       gen("inicio(%s);\n", $2.lexema);
                     } ;
+
+
+/************* IF / ELSE *****************/
 
 sentencia_if : IF PARIZQ { insertarDescriptor("", etiqueta(), etiqueta()); }
                 expresion {
@@ -946,6 +1025,8 @@ bloque_else : ELSE { gen("\n"); gen("{\n"); ++deep; }
                 sentencia { --deep; gen("}\n"); }
             | %empty { int aux = deep; deep = 0; gen(" {}\n"); deep = aux; } ;
 
+
+/************* WHILE *****************/
 sentencia_while : WHILE PARIZQ {
                       insertarDescriptor(etiqueta(), etiqueta(), "");
                       gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
@@ -969,6 +1050,8 @@ sentencia_while : WHILE PARIZQ {
                       --tope;
                     } ;
 
+
+/************* DO UNTIL *****************/
 sentencia_do_until : DO {
                           insertarDescriptor(etiqueta(), "", "");
                           gen("%s:\n", ts[tope].descriptor->etiquetaEntrada);
@@ -988,7 +1071,9 @@ sentencia_do_until : DO {
                         }
                       PARDER PYC ;
 
-sentencia_entrada : CIN lista_id PYC { };
+
+/************* ENTRADA *****************/
+sentencia_entrada : CIN lista_id PYC {  };
 
 lista_id : lista_id COMA ID {
               $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
@@ -996,16 +1081,34 @@ lista_id : lista_id COMA ID {
             }
          | ID { $$.lexema = $1.lexema; };
 
-sentencia_salida : COUT lista_expresiones_o_cadena PYC {  };
+/************* SALIDA *****************/
+sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(%s);\n", SalidaCout($2.lexema)); };
 
-lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena
-                           | expresion_cadena ;
+lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena {
+                              sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
+                            }
+                           | expresion_cadena { $$.lexema = $1.lexema; } ;
 
-expresion_cadena : expresion
-                 | CADENA ;
+expresion_cadena : expresion {
+                    char* tipo = SalidaCoutTipo($1.dtipo);
+                    $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
+                    if(esLista($1.dtipo)){
+                      sprintf($$.lexema, "%s listaAstring(%s)", tipo, $1.lexema);
+                    }else{
+                      sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
+                    }
+                  }
+                 | CADENA {
+                   char* tipo = SalidaCoutTipo(cadena);
+                   $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
+                   sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
+                 } ;
 
+/************* RETURN *****************/
 sentencia_return : RETURN expresion PYC { comprobarReturn($2.dtipo); gen("return %s;\n", $2.lexema); } ;
 
+
+/************* EXPRESIÓN *****************/
 expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo; }
           | ADDSUB expresion %prec EXCL {
               $$.lexema = leerOp($2.dtipo, $2.lexema, $1.lexema, "", -1);
@@ -1066,6 +1169,8 @@ expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo
           | constante                                { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | error ;
 
+/************* LLAMADA FUNCIÓN *****************/
+
 llamada_funcion : ID PARIZQ argumentos PARDER {
                     $$.dtipo = comprobarFuncion($1.lexema);
                     $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
@@ -1087,6 +1192,7 @@ lista_argumentos : lista_argumentos COMA expresion {
                     n_argumentos++;
                   } ;
 
+/************* CONSTANTES *****************/
 constante : CONST { $$.lexema = leerCte($1.lexema, $1.atributo); $$.dtipo = $1.dtipo; }
           | lista { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; } ;
 
@@ -1101,7 +1207,7 @@ lista_expresiones : lista_expresiones COMA expresion {
                       $$.lexema = temporal();
                       $$.dtipo = $1.dtipo;
                       gen("Lista %s;\n", $$.lexema);
-                      gen("inicializar(%s);\n", $$.lexema);
+                      gen("%s = inicializar(%d);\n", $$.lexema, inicializaTipoLista($$.dtipo));
                       gen("insertar(%s, %s);\n", $$.lexema, insertarDato($1.lexema, $1.dtipo));
                     } ;
 

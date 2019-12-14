@@ -21,4 +21,7 @@ test: todo
 	./traductor < ../pruebas/programa_correcto.prog
 
 test_sintactico: todo
-	./traductor < ../pruebas/errores_sintacticos.txt
+	./traductor < ../pruebas/errores_sintacticos.prog
+
+generacion: todo
+	./traductor < ../pruebas/gencodigo2.prog

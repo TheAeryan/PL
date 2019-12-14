@@ -7,6 +7,7 @@ typedef struct {
   int tam;
   int capacidad;
   int cursor;
+  int tipo;
 } VecDin;
 
 typedef VecDin* Lista;
@@ -27,11 +28,21 @@ void insertar(Lista l, void* dato) {
     l->cursor = 0;
 }
 
-void inicializar(Lista l) {
+/*
+  List Type
+  int   = 0
+  float = 1
+  char  = 2
+*/
+
+Lista inicializar(int tipo) {
+  Lista l = malloc(sizeof(VecDin));
   l->tam = 0;
   l->capacidad = 4;
   l->cursor = -1;
+  l->tipo = tipo;
   l->datos = malloc(sizeof(void *) * l->capacidad);
+  return l;
 }
 
 // Operador #
@@ -117,8 +128,7 @@ void borrar(Lista l, int pos) {
 }
 
 Lista copiar(Lista l, int pos) {
-  Lista nueva = malloc(sizeof(VecDin));
-  inicializar(nueva);
+  Lista nueva = inicializar(l->tipo);
   for (int i = 0; i < pos; ++i) {
     void* aux = malloc(sizeof(void));
     memcpy(aux, l->datos[i], sizeof(void*));
@@ -163,11 +173,45 @@ Lista concatenar(Lista l1, Lista l2) {
   return nueva;
 }
 
+// https://stackoverflow.com/questions/8465006/how-do-i-concatenate-two-strings-in-c
+char* concat(const char *s1, const char *s2)
+{
+    const size_t len1 = strlen(s1);
+    const size_t len2 = strlen(s2);
+    char *result = malloc(len1 + len2 + 1); // +1 for the null-terminator
+    // in real code you would check for errors in malloc here
+    memcpy(result, s1, len1);
+    memcpy(result + len1, s2, len2 + 1); // +1 to copy the null-terminator
+    return result;
+}
+
+char* listaAstring(Lista l){
+
+  char* result = "[";
+  for(int i = 0; i < l->tam; ++i){
+    char* value = malloc(sizeof(char) * 10);
+    if(l->tipo == 0){
+      sprintf(value, "%d", *(int*)l->datos[i]);
+    }else if(l->tipo == 1){
+      sprintf(value, "%f", *(float*)l->datos[i]);
+    }else if(l->tipo == 2){
+      sprintf(value, "%c", *(char*)l->datos[i]);
+    }
+
+    result = concat(result, value);
+  }
+  result = concat(result, "]");
+
+  return result;
+
+}
+
 void destruir(Lista l) {
   free(l->datos);
   l->tam = 0;
   l->capacidad = 0;
   l->cursor = -1;
+  l->tipo = -1;
 }
 
 int* pInt(int n) {

@@ -55,7 +55,7 @@ char* msgError[256];
 "$"                         { yylval.lexema = strdup(yytext); return DOLLAR; }
 "<<"                        { yylval.lexema = strdup(yytext); yylval.atributo = 0; return SHIFT; }
 ">>"                        { yylval.lexema = strdup(yytext); yylval.atributo = 1; return SHIFT; }
-\"[^\"]*\"                  { return CADENA; }
+\"[^\"]*\"                  { yylval.lexema = strdup(yytext); return CADENA; }
 [0-9]+                      { yylval.lexema = strdup(yytext); yylval.atributo = 0; yylval.dtipo = entero; return CONST; }
 [0-9]*\.[0-9]*              { yylval.lexema = strdup(yytext); yylval.atributo = 1; yylval.dtipo = real; return CONST; }
 \'[^\']\'                   { yylval.lexema = strdup(yytext); yylval.atributo = 2; yylval.dtipo = caracter; return CONST; }
