@@ -76,8 +76,10 @@ main
 				valor = valor * 100 ;
 				d1 = d1/1000.0 ;
 			}
-			return d1 ;
+			return 2.0 ;
 		}
+
+		return 2;
  	}
 
 	do {
@@ -86,24 +88,43 @@ main
 	} until (true);
 
 	pe = [2+funcionA(1, 1.0, 1.0)];
-
+	cout "pe = ", pe;
 	pe = [1, 43, 5, 0, 0];
+	ppf = pe;
+	cout "pe = ppf = ", pe;
+	cout "pe + 2 = ", pe + 2;
+	cout "pe * 2 = ", pe * 2;
+	cout "pe / 2 = ", pe / 2;
+	cout "pe - 2 = ", pe - 2;
+	cout "2 + pe = ", 2 + pe;
 	pd = ['z', 'A', 'B'];
+	cout "pd = ", pd;
+	pd = pd ++ 't' @ 3;
+	cout "Añadimos t en pos 3: ", pd;
 	pf = [2.5, 4.9, 3.0, 0.0];
+	cout "pf = ", pf;
+	pf = pf + 1.0;
+	cout "pf + 1.0 = ", pf;
 	p1 = [true, false, true,true] ;
+	cout "p1 = ", p1;
 	pe >> ;
+	cout "Adelantamos cursor pe: ", ? pe;
 	pe << ;
-	pe << ;
+	cout "Atrasamos cursor pe: ", ? pe;
+	pe >>;
+	pe >>;
+	cout "Avanzamos dos cursor pe: ", ? pe;
 	$pe ;
-	if (#pe < ?pe2)
-		pe@2;
+	cout "Inicio cursor pe: ", ? pe;
+	cout "Si el tamaño de pe < 10 imprime 2ª pos, else 3ª pos: ";
+	if (#pe < 10)
+		cout "Tam pe < 10, pe[2] = ", pe @ 2;
 	else
-		pe @ 3 ;
-	pe = pe**(ppf % 2) ;
-	p1 = p1 ++true@3 ;
-	pf = pf -- (3 + 2 / 2) ;
-	pe = pe ;
-	pe = pe ++ 3 @ 2;
+		cout "Tam pe >= 10, pe[3] = ", pe @ 3 ;
 
-	pe = pe / 3;
+	cout "Unimos pe con (pff borrando a partir de pos 3) = ", pe ** (ppf % 3) ;
+	cout "Insertamos true en p1 en pos 3 = ", p1 ++ true @ 3;
+	cout "Quitamos elemento de pos (3 - 2) / 2 en pf = ", pf -- ((3 - 2) / 2);
+	cout "Añadimos 3 a pe en pos 2 = ", pe ++ 3 @ 2;
+	cout "pe / 3 = ", pe / 3;
 }

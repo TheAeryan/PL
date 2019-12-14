@@ -7,7 +7,8 @@
 typedef enum {
   tInt,
   tFloat,
-  tChar
+  tChar,
+  tBool
 } TipoLista;
 
 typedef struct {
@@ -155,7 +156,7 @@ Lista borrarAPartirDe(Lista l, int pos) {
 }
 
 // Operador ++ @
-Lista insertarEn(Lista l, int pos, void* dato) {
+Lista insertarEn(Lista l, void* dato, int pos) {
   Lista nueva = copiar(l, pos);
   insertar(nueva, dato);
   for (int i = pos; i < l->tam; ++i) {
@@ -189,6 +190,16 @@ char* concat(const char *s1, const char *s2)
     return result;
 }
 
+char* aBool(int n) {
+  if (n == 1)
+    return "true";
+  else if (n == 0)
+    return "false";
+  else {
+    error("ERROR en aBool(); no es 1 ni 0.\n");
+  }
+}
+
 char* listaAString(Lista l) {
   char* result = "[";
   for (int i = 0; i < l->tam; ++i) {
@@ -196,14 +207,18 @@ char* listaAString(Lista l) {
     if (l->tipo == tInt) {
       sprintf(value, "%d", *(int*)l->datos[i]);
     } else if (l->tipo == tFloat) {
-      sprintf(value, "%f", *(float*)l->datos[i]);
+      sprintf(value, "%0.2f", *(float*)l->datos[i]);
     } else if(l->tipo == tChar) {
       sprintf(value, "%c", *(char*)l->datos[i]);
+    } else if(l->tipo == tBool) {
+      sprintf(value, "%s", aBool(*(int*)l->datos[i]));
     } else {
-      error("ERROR en listaAstring(): tipo no válido");
+      error("ERROR en listaAstring(): tipo no válido.\n");
     }
-
     result = concat(result, value);
+
+    if (i + 1 < l->tam)
+      result = concat(result, ", ");
   }
   result = concat(result, "]");
 
@@ -236,42 +251,50 @@ float* pFloat(float f) {
   return p;
 }
 
-void sumarLista(Lista l, float n) {
-  if (l->tipo == tInt) {
+Lista sumarLista(Lista l, float n) {
+  l = copiar(l, l->tam);
+  if (l->tipo == tInt || l->tipo == tBool) {
     for (int i = 0; i < l->tam; ++i)
       *(int*)l->datos[i] = *(int*)l->datos[i] + (int) n;
   } else if (l->tipo == tFloat) {
     for (int i = 0; i < l->tam; ++i)
       *(float*)l->datos[i] = *(float*)(l->datos[i]) + n;
   }
+  return l;
 }
 
-void multiplicarLista(Lista l, float n) {
-  if (l->tipo == tInt) {
+Lista multiplicarLista(Lista l, float n) {
+  l = copiar(l, l->tam);
+  if (l->tipo == tInt || l->tipo == tBool) {
     for (int i = 0; i < l->tam; ++i)
       *(int*)l->datos[i] = *(int*)l->datos[i] * (int) n;
   } else if (l->tipo == tFloat) {
     for (int i = 0; i < l->tam; ++i)
       *(float*)l->datos[i] = *(float*)(l->datos[i]) * n;
   }
+  return l;
 }
 
-void restarLista(Lista l, float n) {
-  if (l->tipo == tInt) {
+Lista restarLista(Lista l, float n) {
+  l = copiar(l, l->tam);
+  if (l->tipo == tInt || l->tipo == tBool) {
     for (int i = 0; i < l->tam; ++i)
       *(int*)l->datos[i] = *(int*)l->datos[i] - (int) n;
   } else if (l->tipo == tFloat) {
     for (int i = 0; i < l->tam; ++i)
       *(float*)l->datos[i] = *(float*)(l->datos[i]) - n;
   }
+  return l;
 }
 
-void dividirLista(Lista l, float n) {
-  if (l->tipo == tInt) {
+Lista dividirLista(Lista l, float n) {
+  l = copiar(l, l->tam);
+  if (l->tipo == tInt || l->tipo == tBool) {
     for (int i = 0; i < l->tam; ++i)
       *(int*)l->datos[i] = *(int*)l->datos[i] / (int) n;
   } else if (l->tipo == tFloat) {
     for (int i = 0; i < l->tam; ++i)
       *(float*)l->datos[i] = *(float*)(l->datos[i]) / n;
   }
+  return l;
 }

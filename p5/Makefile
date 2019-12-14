@@ -20,6 +20,7 @@ todo:
 test: todo
 	./traductor < ../pruebas/programa_correcto.prog
 	gcc prog.c -o programa_correcto
+	./programa_correcto
 
 test_sintactico: todo
 	./traductor < ../pruebas/errores_sintacticos.prog

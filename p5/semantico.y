@@ -663,13 +663,6 @@ int deep = 0;
 FILE * fMain;
 FILE * fFunc;
 
-typedef enum {
-  tInt,
-  tFloat,
-  tChar
-} TipoLista;
-
-
 #define addTab() { for (int i = 0; i < deep - (yyout != fMain); ++i) fprintf(yyout, "\t"); }
 #define gen(f_, ...) { if (!hayError) {addTab(); fprintf(yyout, f_, ##__VA_ARGS__); fflush(yyout);} }
 
@@ -706,29 +699,31 @@ char* leerOp(TipoDato td1, char* exp1, char* op, char* exp2, TipoDato td2) {
     expPrimaria = exp2;
     expSecundaria = exp1;
   }
+
+
   gen("%s %s;\n", tipoIntermedio(tipoOp(tdPrimario, op)), etiqueta);
 
   if (!strcmp("#", op)) {
-    gen("getTam(%s);\n", exp1);
+    gen("%s = getTam(%s);\n", etiqueta, exp1);
   } else if (!strcmp("?", op)) {
-    gen("getActual(%s);\n", exp1);
+    gen("%s = *(%s*)getActual(%s);\n", etiqueta, tipoIntermedio(tipoLista(td1)), exp1);
   } else if (!strcmp("@", op)) {
-    gen("get(%s, %s);\n", exp1, exp2);
+    gen("%s = *(%s*)get(%s, %s);\n", etiqueta, tipoIntermedio(tipoLista(td1)), exp1, exp2);
   } else if (!strcmp("--", op)) {
-    gen("borrarEn(%s, %s);\n", exp1, exp2);
+    gen("%s = borrarEn(%s, %s);\n", etiqueta, exp1, exp2);
   } else if (!strcmp("%", op)) {
-    gen("borrarAPartirDe(%s, %s);\n", exp1, exp2);
+    gen("%s = borrarAPartirDe(%s, %s);\n", etiqueta, exp1, exp2);
   } else if (!strcmp("**", op)) {
-    gen("concatenar(%s, %s);\n", exp1, exp2);
+    gen("%s = concatenar(%s, %s);\n", etiqueta, exp1, exp2);
   } else if (esLista(tdPrimario)) {
     if (!strcmp("+", op)) {
-      gen("sumarLista(%s, %s);\n", expPrimaria, expSecundaria)
+      gen("%s = sumarLista(%s, %s);\n", etiqueta, expPrimaria, expSecundaria)
     } else if (!strcmp("-", op)) {
-        gen("restarLista(%s, %s);\n", expPrimaria, expSecundaria);
+        gen("%s = restarLista(%s, %s);\n", etiqueta, expPrimaria, expSecundaria);
     } else if (!strcmp("*", op)) {
-      gen("multiplicarLista(%s, %s);\n", expPrimaria, expSecundaria);
+      gen("%s = multiplicarLista(%s, %s);\n", etiqueta, expPrimaria, expSecundaria);
     } else if (!strcmp("/", op)) {
-      gen("dividirLista(%s, %s);\n", expPrimaria, expSecundaria);
+      gen("%s = dividirLista(%s, %s);\n", etiqueta, expPrimaria, expSecundaria);
     }
   } else if (!strcmp("", exp2)) {
     gen("%s = %s %s;\n", etiqueta, op, exp1);
@@ -762,9 +757,11 @@ char* insertarDato(char* id, TipoDato td) {
       sprintf(buffer, "pChar(%s)", id);
       return buffer;
     default:
-      sprintf(msgError, "ERROR INTERMEDIO: tipo no básico en insertarDato().\n");
-      yyerror(msgError);
-      return "";
+      if (!hayError) {
+        sprintf(msgError, "ERROR INTERMEDIO: tipo no básico en insertarDato().\n");
+        yyerror(msgError);
+        exit(EXIT_FAILURE);
+      }
   }
 }
 
@@ -780,23 +777,29 @@ char* tipoImprimir(TipoDato tipo) {
   else if (esLista(tipo))
     return "%s";
   else {
-    sprintf(msgError, "ERROR INTERMEDIO: tipoImprimir() tipo no válido.\n");
-    yyerror(msgError);
-    exit(EXIT_FAILURE);
+    if (!hayError) {
+      sprintf(msgError, "ERROR INTERMEDIO: tipoImprimir() tipo no válido.\n");
+      yyerror(msgError);
+      exit(EXIT_FAILURE);
+    }
   }
 }
 
-int inicializaTipoLista(TipoDato tipo) {
-  if (tipo == entero || tipo == booleano)
-    return tInt;
+char* inicializaTipoLista(TipoDato tipo) {
+  if (tipo == entero)
+    return "tInt";
   else if (tipo == real)
-    return tFloat;
+    return "tFloat";
   else if (tipo == caracter)
-    return tChar;
+    return "tChar";
+  else if (tipo == booleano)
+    return "tBool";
   else {
-    sprintf(msgError, "ERROR INTERMEDIO: tipo no válido en inicializaTipoLista().\n");
-    yyerror(msgError);
-    exit(EXIT_FAILURE);
+    if (!hayError) {
+      sprintf(msgError, "ERROR INTERMEDIO: tipo no válido en inicializaTipoLista().\n");
+      yyerror(msgError);
+      exit(EXIT_FAILURE);
+    }
   }
 }
 
@@ -863,7 +866,7 @@ programa : MAIN {
 
 /************* BLOQUE (ABSTRACTO) *****************/
 
-bloque : INIBLOQUE { insertarMarca(); if (yyout == fMain && deep > 0) { gen("{\n"); ++deep; } }
+bloque : INIBLOQUE { insertarMarca(); if (yyout != fMain || (yyout == fMain && deep > 0)) { gen("{\n"); ++deep; } }
           declar_de_variables_locales { if (deep == 0) yyout = fFunc; }
           declar_de_subprogs { if (deep == 0) { yyout = fMain; gen("int main()\n{\n"); ++deep; } }
           sentencias
@@ -1041,12 +1044,12 @@ lista_id : lista_id COMA id_cin
 id_cin : ID { gen("scanf(\"%s\", &%s);\n", tipoImprimir(buscarID($1.lexema)), $1.lexema); } ;
 
 /************* SALIDA *****************/
-sentencia_salida : COUT lista_expresiones_o_cadena PYC ;
+sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(\"\\n\");\n"); } ;
 
 lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cout
                            | expresion_cout ;
 
-expresion_cout: expresion_cadena { gen("printf(\"%s\", %s);\n", tipoImprimir($1.dtipo), $1.lexema); } ;
+expresion_cout: expresion_cadena { gen("printf(\"%s\", %s);\n", tipoImprimir($1.dtipo), $1.lexema); gen("fflush(stdout);\n"); } ;
 
 expresion_cadena : expresion {
                     if (esLista($1.dtipo)) {
@@ -1116,7 +1119,7 @@ expresion : PARIZQ expresion PARDER { $$.lexema = $2.lexema; $$.dtipo = $2.dtipo
               $$.dtipo = ternario($1.dtipo, $3.dtipo, $5.dtipo);
               $$.lexema = temporal();
               gen("Lista %s;\n", $$.lexema);
-              gen("insertarEn(%s, %s, %s);\n", $1.lexema, $3.lexema, insertarDato($5.lexema, $5.dtipo));
+              gen("%s = insertarEn(%s, %s, %s);\n", $$.lexema, $1.lexema, insertarDato($3.lexema, $3.dtipo), $5.lexema);
             }
           | llamada_funcion                          { $$.lexema = $1.lexema; $$.dtipo = $1.dtipo; }
           | ID                                       { $$.lexema = $1.lexema; $$.dtipo = buscarID($1.lexema); }
@@ -1161,7 +1164,7 @@ lista_expresiones : lista_expresiones COMA expresion {
                       $$.lexema = temporal();
                       $$.dtipo = $1.dtipo;
                       gen("Lista %s;\n", $$.lexema);
-                      gen("%s = inicializar(%d);\n", $$.lexema, inicializaTipoLista($$.dtipo));
+                      gen("%s = inicializar(%s);\n", $$.lexema, inicializaTipoLista($$.dtipo));
                       gen("insertar(%s, %s);\n", $$.lexema, insertarDato($1.lexema, $1.dtipo));
                     } ;
 
