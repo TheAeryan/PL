@@ -25,3 +25,6 @@ test_sintactico: todo
 
 generacion: todo
 	./traductor < ../pruebas/gencodigo2.prog
+
+lukas: todo
+	./traductor < ../pruebas/prueba_lukas.prog

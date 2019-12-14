@@ -1,10 +1,9 @@
 main{
-    local{
-        list_of char a;
+    local {
+      float n;
+      char a;
     }
-
-    a = ['a'];
-
-    cout a, "ADIO%","HOLA";
+    cout n, a;
+    cin n, a;
     
 }

@@ -775,7 +775,7 @@ char* insertarDato(char* id, TipoDato td) {
   }
 }
 
-char* SalidaCout(char* salida){
+char* SalidaEntrada(char* salida){
 
   int size = strlen(salida);
   char* l_cout = malloc(size);
@@ -803,7 +803,7 @@ char* SalidaCout(char* salida){
   return strncat(l_cout, r_cout, size);
 }
 
-char* SalidaCoutTipo(TipoDato tipo){
+char* SalidaEntradaTipo(TipoDato tipo){
 
   if(tipo == entero){
     return "%d";
@@ -1073,24 +1073,31 @@ sentencia_do_until : DO {
 
 
 /************* ENTRADA *****************/
-sentencia_entrada : CIN lista_id PYC {  };
+sentencia_entrada : CIN lista_id PYC { gen("scanf(%s);\n", SalidaEntrada($2.lexema)); };
 
-lista_id : lista_id COMA ID {
+lista_id : lista_id COMA id_salida {
               $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
               sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
             }
-         | ID { $$.lexema = $1.lexema; };
+         | id_salida { $$.lexema = $1.lexema; };
+
+id_salida : ID {
+          char* tipo = SalidaEntradaTipo(buscarID($1.lexema));
+          $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
+          sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
+        }
 
 /************* SALIDA *****************/
-sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(%s);\n", SalidaCout($2.lexema)); };
+sentencia_salida : COUT lista_expresiones_o_cadena PYC { gen("printf(%s);\n", SalidaEntrada($2.lexema)); };
 
 lista_expresiones_o_cadena : lista_expresiones_o_cadena COMA expresion_cadena {
+                              $$.lexema = malloc(sizeof($1.lexema) + sizeof($3.lexema) + 10);
                               sprintf($$.lexema, "%s, %s", $1.lexema, $3.lexema);
                             }
                            | expresion_cadena { $$.lexema = $1.lexema; } ;
 
 expresion_cadena : expresion {
-                    char* tipo = SalidaCoutTipo($1.dtipo);
+                    char* tipo = SalidaEntradaTipo($1.dtipo);
                     $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
                     if(esLista($1.dtipo)){
                       sprintf($$.lexema, "%s listaAstring(%s)", tipo, $1.lexema);
@@ -1099,7 +1106,7 @@ expresion_cadena : expresion {
                     }
                   }
                  | CADENA {
-                   char* tipo = SalidaCoutTipo(cadena);
+                   char* tipo = SalidaEntradaTipo(cadena);
                    $$.lexema = malloc(sizeof(tipo) + sizeof($1.lexema) + 10);
                    sprintf($$.lexema, "%s %s", tipo, $1.lexema); 
                  } ;
