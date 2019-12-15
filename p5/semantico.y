@@ -581,7 +581,7 @@ TipoDato ternario(TipoDato td1, TipoDato td2, TipoDato td3) {
 
   if (!esLista(td1) || tipoLista(td1) != td2 || td3 != entero) {
     sprintf(msgError, "ERROR SINTÁCTICO: operador ++ @ no aplicable a los tipos %s, %s, %s\n",
-        yylineno, tipoAString(td1), tipoAString(td2), tipoAString(td3));
+        tipoAString(td1), tipoAString(td2), tipoAString(td3));
     yyerror(msgError);
     return error;
   }
