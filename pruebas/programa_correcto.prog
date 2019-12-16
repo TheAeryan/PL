@@ -2,7 +2,7 @@ main
 {
 
 	local {
-		int	v,b,n,k;
+		int	v,b,n,k,i;
 		float vf,s,d, f ;
 		char vc ;
 		bool v1, prueba ;
@@ -90,4 +90,19 @@ main
 	cout "pe / 3 = ", pe / 3;
 
 	cout "Factorial de 5:", factorial(5);
+
+	cout "testeando bucle while (i<5)";
+	i = 0;
+	while ( i<5 ) {
+		cout "i: ", i;
+		i = i+1;
+	}
+
+	cout "testeando bucle do until (i<5)";
+	i = 0;
+	do {
+		cout "i: ", i;
+		i = i+1;
+	} until ( i<5 ) ;
+
 }
