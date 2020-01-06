@@ -1,0 +1,49 @@
+main {
+
+
+  {
+    local {
+      int n;
+      list_of int pares, conc;
+    }
+
+    list_of int obtenerPares(int n) {
+      local {
+        int i;
+        list_of int pares;
+      }
+
+      int imprimirLista(list_of int pares) {
+        cout pares;
+        return 0;
+      }
+
+      i = 1;
+      pares = [0];
+      while (i < n) {
+        {
+          pares = pares ** [i];
+          i = i + 1;
+        }
+      }
+
+      pares = pares * 2;
+      imprimirLista(pares);
+      return pares;
+    }
+
+
+
+
+
+    cout "Introduzca un número>>>:";
+    cin n;
+    pares = obtenerPares(n);
+    conc = pares ** pares;
+    cout "Sumo + 4: ";
+    cout conc + 4;
+    cout "Mult * 2: ";
+    cout conc * 2;
+  }
+
+}

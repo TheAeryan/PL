@@ -857,8 +857,8 @@ char* inicializaTipoLista(TipoDato tipo) {
 programa : MAIN {
               gen("#include <stdlib.h>\n");
               gen("#include <stdio.h>\n");
-              gen("#include \"dec_fun.c\"\n");
-              gen("#include \"dec_dat.c\"\n\n");
+              gen("#include \"dec_fun.h\"\n");
+              gen("#include \"dec_dat.h\"\n\n");
             }
           bloque ;
 
@@ -926,7 +926,7 @@ sentencias : sentencias {gen("{\n"); ++deep; } sentencia { --deep; gen("}\n"); }
 
 
 sentencia : bloque
-          | expresion PYC
+          | expresion PYC { gen("%s;\n", $1.lexema); }
           | sentencia_asignacion
           | sentencia_lista
           | sentencia_if
@@ -1192,7 +1192,7 @@ void yyerror(const char *msg){
 
 int main(){
   fMain = fopen("prog.c", "w");
-  fFunc = fopen("dec_fun.c", "w");
+  fFunc = fopen("dec_fun.h", "w");
 
   yyout = fMain ;
   yyparse();
@@ -1202,7 +1202,7 @@ int main(){
 
   if (hayError) {
     remove("prog.c");
-    remove("dec_fun.c");
+    remove("dec_fun.h");
   }
 
   return 0;

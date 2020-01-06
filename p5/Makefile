@@ -39,3 +39,8 @@ lukas: todo
 	./traductor < ../pruebas/prueba_lukas.prog
 	gcc prog.c -o prueba_lukas
 	./prueba_lukas
+
+examen: todo
+	./traductor < ../pruebas/examen.prog
+	gcc prog.c -o examen
+	./examen
